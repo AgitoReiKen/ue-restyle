@@ -38,6 +38,9 @@ public class Restyle : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+                "Projects",
+                "EditorStyle",
+                "EngineSettings"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
