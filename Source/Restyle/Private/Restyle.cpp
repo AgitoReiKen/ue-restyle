@@ -14,9 +14,60 @@
 #define THEMES_BASEDIR RESOUCES_BASEDIR / TEXT("Themes/")
 
 #pragma region Utils & Wrappers
+namespace FSlateStyleSetWrapper_Data
+{
+	/** float property storage. */
+	TMap< FName, float > Cached_FloatValues;
+
+	/** FVector2D property storage. */
+	TMap< FName, FVector2D > Cached_Vector2DValues;
+
+	/** Color property storage. */
+	TMap< FName, FLinearColor > Cached_ColorValues;
+
+	/** FSlateColor property storage. */
+	TMap< FName, FSlateColor > Cached_SlateColorValues;
+
+	/** FMargin property storage. */
+	TMap< FName, FMargin > Cached_MarginValues;
+
+	/* FSlateBrush property storage */
+	TMap< FName, FSlateBrush* > Cached_BrushResources;
+
+	/** FSlateFontInfo property storage. */
+	TMap< FName, FSlateFontInfo > Cached_FontInfoResources;
+	bool bCached;
+}
 class FSlateStyleSetWrapper : public FSlateStyleSet
 {
 public:
+	 
+
+	static void CacheData(FSlateStyleSetWrapper* Set)
+	{
+		FSlateStyleSetWrapper_Data::bCached = true;
+		FSlateStyleSetWrapper_Data::Cached_FloatValues = Set->FloatValues;
+		FSlateStyleSetWrapper_Data::Cached_Vector2DValues = Set->Vector2DValues;
+		FSlateStyleSetWrapper_Data::Cached_ColorValues = Set->ColorValues;
+		FSlateStyleSetWrapper_Data::Cached_SlateColorValues = Set->SlateColorValues;
+		FSlateStyleSetWrapper_Data::Cached_MarginValues = Set->MarginValues;
+		FSlateStyleSetWrapper_Data::Cached_BrushResources = Set->BrushResources;
+		FSlateStyleSetWrapper_Data::Cached_FontInfoResources = Set->FontInfoResources;
+	}
+	static void RestoreData(FSlateStyleSetWrapper* Set)
+	{
+		if (ensureMsgf(FSlateStyleSetWrapper_Data::bCached, L"Restyle: Tried to RestoreData, not cached before"))
+		{
+			FSlateStyleSetWrapper_Data::bCached = false;
+			Set->FloatValues = FSlateStyleSetWrapper_Data::Cached_FloatValues;
+			Set->Vector2DValues = FSlateStyleSetWrapper_Data::Cached_Vector2DValues;
+			Set->ColorValues = FSlateStyleSetWrapper_Data::Cached_ColorValues;
+			Set->SlateColorValues = FSlateStyleSetWrapper_Data::Cached_SlateColorValues;
+			Set->MarginValues = FSlateStyleSetWrapper_Data::Cached_MarginValues;
+			Set->BrushResources = FSlateStyleSetWrapper_Data::Cached_BrushResources;
+			Set->FontInfoResources = FSlateStyleSetWrapper_Data::Cached_FontInfoResources;
+		}  
+	}
 	static void DumpStyle(FSlateStyleSetWrapper* Set, FString FilePath)
 	{
 		FString dump;
@@ -28,9 +79,8 @@ public:
 				FString key = it.Key.ToString();
 				FString value = FRestyleUtils::ToString(&it.Value.Get(), 1);
 				 
-				dump += FString::Printf(TEXT("(%s) (%s) %s : \n%s\n\n"),
+				dump += FString::Printf(TEXT("(%s) %s\n%s\n"),
 					*iterating, 
-					*it.Value->GetTypeName().ToString(),
 					*key, 
 					*value);
 			}
@@ -95,9 +145,17 @@ public:
 				dump += (FString::Printf(TEXT("(%s) %s\n%s\n"), *iterating, *key, *value));
 			}
 		}
+		{
+			FString iterating = TEXT("FontInfoResources");
+			for (const auto& it : Set->FontInfoResources)
+			{
+				FString key = it.Key.ToString();
+				FString value = FRestyleUtils::ToString(&it.Value, 1);
+				dump += (FString::Printf(TEXT("(%s) %s\n%s\n"), *iterating, *key, *value));
+			}
+		}
 
 		/* Sounds */
-		/* FontInfoResources */
 
 		UE_LOG(LogTemp, Warning, TEXT("%s: Dumping %d bytes to %s"), *FString(__FUNCTION__), dump.Len(), *FilePath);
 
@@ -151,8 +209,8 @@ void FRestyleModule::StartupModule()
 		FSlateStyleRegistry::IterateAllStyles(RegistryIterator);
 
 		FSlateStyleSetWrapper::DumpStyle((FSlateStyleSetWrapper*)Style,
-		                                 DATA_BASEDIR + FApp::GetBuildVersion() + FString(TEXT("-Default.dump")));
-
+		                                 DATA_BASEDIR + FApp::GetBuildVersion() + FString(TEXT(".log")));
+		FSlateStyleSetWrapper::CacheData((FSlateStyleSetWrapper*)Style);
 		ApplyTheme(ERestyleTheme::Default);
 		RegisterCommands();
 	}
@@ -413,6 +471,8 @@ void FRestyleModule::ResetToDefault()
 	TMap<FName, const ISlateStyle*> FSlateStyleRegistry::SlateStyleRepository;
 		void FSlateStyleRegistry::RegisterSlateStyle(const ISlateStyle & InSlateStyle)
 	 */
+	FSlateStyleSetWrapper::RestoreData((FSlateStyleSetWrapper*)Style);
+	ReloadStyle();
 }
 
 #undef LOCTEXT_NAMESPACE

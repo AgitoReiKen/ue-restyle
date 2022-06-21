@@ -31,6 +31,9 @@ public:
 	static FString ToString(const FTableRowStyle* Style, int32 NumOfTabs = 0);
 	static FString ToString(const FScrollBorderStyle* Style, int32 NumOfTabs = 0);
 	static FString ToString(const FInlineEditableTextBlockStyle* Style, int32 NumOfTabs = 0);
+	static FString ToString(const FCompositeFont* Font, int32 NumOfTabs = 0);
+	static FString ToString(const FTypeface& Typeface, int32 NumOfTabs = 0);
+	static FString ToString(const FTypefaceEntry& Entry, int32 NumOfTabs = 0);
 	static FString ToString(ESlateBrushDrawType::Type Type);
 	static FString ToString(ESlateBrushImageType::Type Type);
 	static FString ToString(ESlateBrushMirrorType::Type Type);
@@ -42,6 +45,7 @@ public:
 	static FString ToString(ETextOverflowPolicy Type);
 	static FString ToString(ETextTransformPolicy Type);
 };
+
 inline FString FRestyleUtils::ToString(const FSlateWidgetStyle* Style, int32 NumOfTabs)
 {
 	const FName Type = Style->GetTypeName();
@@ -57,7 +61,7 @@ inline FString FRestyleUtils::ToString(const FSlateWidgetStyle* Style, int32 Num
 	static FString ToString(const FSpinBoxStyle* Style);
 	static FString ToString(const FTextBlockStyle* Style);
 	static FString ToString(const FSlateWidgetStyle* Style);*/
-	FString result = FString::Printf(TEXT("Unknown WidgetStyle: %s"), *Style->GetTypeName().ToString());
+	FString result = FString::Printf(TEXT("Unknown FSlateWidgetStyle: %s"), *Style->GetTypeName().ToString());
 	if (Type.IsEqual("FCheckBoxStyle"))
 	{
 		const FCheckBoxStyle* _ = static_cast<const FCheckBoxStyle*>(Style);
@@ -150,7 +154,8 @@ inline FString FRestyleUtils::ToString(const FSlateBrush* SlateBrush, int32 NumO
 {
 	FString result = "";
 	const auto& _ = *SlateBrush;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("DrawType: %s\n"), *ToString(_.GetDrawType()));
 	result += Prefix + FString::Printf(TEXT("ImageSize: %s\n"), *_.GetImageSize().ToString());
@@ -168,7 +173,8 @@ inline FString FRestyleUtils::ToString(const FCheckBoxStyle* Style, int32 NumOfT
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("BackgroundHoveredImage: \n%s\n"), *ToString(&_.BackgroundHoveredImage, NumOfTabs + 1));
@@ -200,7 +206,8 @@ inline FString FRestyleUtils::ToString(const FButtonStyle* Style, int32 NumOfTab
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("Disabled: \n%s\n"), *ToString(&_.Disabled, NumOfTabs + 1));
@@ -221,7 +228,8 @@ inline FString FRestyleUtils::ToString(const FComboBoxStyle* Style, int32 NumOfT
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("ComboButtonStyle: \n%s\n"), *ToString(&_.ComboButtonStyle, NumOfTabs + 1));
@@ -235,7 +243,8 @@ inline FString FRestyleUtils::ToString(const FComboButtonStyle* Style, int32 Num
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("ButtonStyle: \n%s\n"), *ToString(&_.ButtonStyle, NumOfTabs + 1));
@@ -255,7 +264,8 @@ inline FString FRestyleUtils::ToString(const FEditableTextBoxStyle* Style, int32
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("BackgroundColor: %s\n"), *ToString(_.BackgroundColor));
@@ -279,7 +289,8 @@ inline FString FRestyleUtils::ToString(const FEditableTextStyle* Style, int32 Nu
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("BackgroundImageComposing: \n%s\n"), *ToString(&_.BackgroundImageComposing, NumOfTabs + 1));
@@ -295,7 +306,8 @@ inline FString FRestyleUtils::ToString(const FProgressBarStyle* Style, int32 Num
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("BackgroundImage: \n%s\n"), *ToString(&_.BackgroundImage, NumOfTabs + 1));
@@ -310,7 +322,8 @@ inline FString FRestyleUtils::ToString(const FScrollBarStyle* Style, int32 NumOf
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("DraggedThumbImage: \n%s\n"), *ToString(&_.DraggedThumbImage, NumOfTabs + 1));
@@ -331,7 +344,8 @@ inline FString FRestyleUtils::ToString(const FScrollBoxStyle* Style, int32 NumOf
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("BarThickness: %f\n"), _.BarThickness);
@@ -347,7 +361,8 @@ inline FString FRestyleUtils::ToString(const FSpinBoxStyle* Style, int32 NumOfTa
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("ActiveBackgroundBrush: \n%s\n"), *ToString(&_.ActiveBackgroundBrush, NumOfTabs + 1));
@@ -368,7 +383,8 @@ inline FString FRestyleUtils::ToString(const FTextBlockStyle* Style, int32 NumOf
 {
 	FString result = "";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("ColorAndOpacity: %s\n"), *ToString(_.ColorAndOpacity));
@@ -390,11 +406,15 @@ inline FString FRestyleUtils::ToString(const FSlateFontInfo* FontInfo, int32 Num
 {
 	FString result = "";
 	const auto& _ = *FontInfo;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
+	result += Prefix + FString::Printf(TEXT("FontObject: %s\n"), _.FontObject ? *_.FontObject->GetPathName() : TEXT("Nullptr"));
+	result += Prefix + FString::Printf(TEXT("CompositeFont: \n%s\n"), _.GetCompositeFont() ? *ToString(_.GetCompositeFont(), NumOfTabs + 1) : TEXT("Nullptr"));
+	result += Prefix + FString::Printf(TEXT("FontMaterial: %s\n"), _.FontMaterial ? *_.FontMaterial->GetPathName() : TEXT("Nullptr"));
 	result += Prefix + FString::Printf(TEXT("TypefaceFontName: %s\n"), *_.TypefaceFontName.ToString());
 	result += Prefix + FString::Printf(TEXT("Size: %d\n"), _.Size);
-	result += Prefix + FString::Printf(TEXT("OutlineSettingsX: \n%s\n"), *ToString(&_.OutlineSettings, NumOfTabs + 1));
+	result += Prefix + FString::Printf(TEXT("OutlineSettings: \n%s\n"), *ToString(&_.OutlineSettings, NumOfTabs + 1));
 	result += Prefix + FString::Printf(TEXT("LetterSpacing: %d"), _.LetterSpacing);
 	// @formatter:on
 	return result;
@@ -405,7 +425,8 @@ inline FString FRestyleUtils::ToString(const FFontOutlineSettings* Settings, int
 	FString result = "";
 	if (!Settings) return "None";
 	const auto& _ = *Settings;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("bApplyOutlineToDropShadows: %d\n"), (int)_.bApplyOutlineToDropShadows);
 	result += Prefix + FString::Printf(TEXT("bSeparateFillAlpha: %d\n"), (int)_.bSeparateFillAlpha);
@@ -420,7 +441,8 @@ inline FString FRestyleUtils::ToString(const FHyperlinkStyle* Style, int32 NumOf
 	FString result = "";
 	if (!Style) return "None";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("Padding: %s\n"), *ToString(_.Padding));
@@ -435,7 +457,8 @@ inline FString FRestyleUtils::ToString(const FSplitterStyle* Style, int32 NumOfT
 	FString result = "";
 	if (!Style) return "None";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("HandleHighlightBrush: \n%s\n"), *ToString(&_.HandleHighlightBrush, NumOfTabs + 1));
@@ -449,7 +472,8 @@ inline FString FRestyleUtils::ToString(const FTableViewStyle* Style, int32 NumOf
 	FString result = "";
 	if (!Style) return "None";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("BackgroundBrush: \n%s"), *ToString(&_.BackgroundBrush, NumOfTabs + 1));
@@ -462,7 +486,8 @@ inline FString FRestyleUtils::ToString(const FTableRowStyle* Style, int32 NumOfT
 	FString result = "";
 	if (!Style) return "None";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("ActiveBrush: \n%s\n"), *ToString(&_.ActiveBrush, NumOfTabs + 1));
@@ -493,7 +518,8 @@ inline FString FRestyleUtils::ToString(const FScrollBorderStyle* Style, int32 Nu
 	FString result = "";
 	if (!Style) return "None";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("BottomShadowBrush: \n%s\n"), *ToString(&_.BottomShadowBrush, NumOfTabs + 1));
@@ -507,7 +533,8 @@ inline FString FRestyleUtils::ToString(const FInlineEditableTextBlockStyle* Styl
 	FString result = "";
 	if (!Style) return "None";
 	const auto& _ = *Style;
-	FString Prefix = ""; for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
 	// @formatter:off
 	result += Prefix + FString::Printf(TEXT("TypeName: %s\n"), *_.TypeName.ToString());
 	result += Prefix + FString::Printf(TEXT("EditableTextBoxStyle: \n%s\n"), *ToString(&_.EditableTextBoxStyle, NumOfTabs + 1));
@@ -516,6 +543,74 @@ inline FString FRestyleUtils::ToString(const FInlineEditableTextBlockStyle* Styl
 	return result;
 }
 
+inline FString FRestyleUtils::ToString(const FCompositeFont* Font, int32 NumOfTabs)
+{
+	FString result = "";
+	if (!Font) return "None";
+	const auto& _ = *Font;
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	// @formatter:off
+	result += Prefix + FString::Printf(TEXT("DefaultTypeface: \n%s\n"), *ToString(_.DefaultTypeface, NumOfTabs + 1));
+	result += Prefix + FString::Printf(TEXT("FallbackTypeface: \n%s\n"), *ToString(_.FallbackTypeface.Typeface, NumOfTabs + 1));
+	result += Prefix + FString::Printf(TEXT("SubTypefaces: %d"), _.SubTypefaces.Num());
+	// @formatter:on
+	return result;
+}
+
+inline FString FRestyleUtils::ToString(const FTypeface& Typeface, int32 NumOfTabs)
+{
+	FString result = "";
+	const auto& _ = Typeface;
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	// @formatter:off
+	FString Fonts = "";
+	{
+		FString FontsPrefix = "";
+		for (int i = 0; i < NumOfTabs + 1; i++) FontsPrefix += "\t";
+		if (_.Fonts.Num() > 0) {
+			for (int it = 0; it < _.Fonts.Num(); it++)
+			{
+				Fonts += FontsPrefix + FString::Printf(TEXT("Font: \n%s\n"), *ToString(_.Fonts[it], NumOfTabs + 2));
+			}
+			Fonts.RemoveFromEnd("\n");
+		}
+		else
+		{
+			Fonts = FontsPrefix + FString::Printf(TEXT("Empty"));
+		}
+	}
+	result += Prefix + FString::Printf(TEXT("Fonts: \n%s\n"), *Fonts);
+	// @formatter:on
+	return result;
+}
+
+inline FString FRestyleUtils::ToString(const FTypefaceEntry& Entry, int32 NumOfTabs)
+{
+	FString result = "";
+	const auto& _ = Entry;
+	FString Prefix = "";
+	for (int i = 0; i < NumOfTabs; i++) Prefix += "\t";
+	// @formatter:off
+	if (_.Font.HasFont())
+	{
+		auto _FontFaceAsset = _.Font.GetFontFaceAsset();
+		FString FontFaceAsset = "Nullptr";
+		if (_FontFaceAsset) FontFaceAsset = _FontFaceAsset->GetPathName();
+		auto FontFilename = _.Font.GetFontFilename();
+		result += Prefix + FString::Printf(TEXT("HasFont: True\n"));
+		result += Prefix + FString::Printf(TEXT("FontFaceAsset: %s\n"), *FontFaceAsset);
+		result += Prefix + FString::Printf(TEXT("FontFilename: %s\n"), *FontFilename);
+	}
+	else
+	{
+		result += Prefix + FString::Printf(TEXT("HasFont: False\n"));
+	}
+	result += Prefix + FString::Printf(TEXT("Name: %s"), *_.Name.ToString());
+	// @formatter:on
+	return result;
+}
 
 inline FString FRestyleUtils::ToString(ESlateBrushDrawType::Type Type)
 {
