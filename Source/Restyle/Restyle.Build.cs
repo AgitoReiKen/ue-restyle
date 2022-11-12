@@ -1,56 +1,60 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Alexander (AgitoReiKen) Moskalenko (C) 2022
 
 using UnrealBuildTool;
+using System.IO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using EpicGames.Core;
+using UnrealBuildBase;
 
 public class Restyle : ModuleRules
 {
-	public Restyle(ReadOnlyTargetRules Target) : base(Target)
-	{
-		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-		
-		PublicIncludePaths.AddRange(
-			new string[] {
-				// ... add public include paths required here ...
-			}
-			);
-				
-		
-		PrivateIncludePaths.AddRange(
-			new string[] {
-				// ... add other private include paths required here ...
-			}
-			);
-			
-		
-		PublicDependencyModuleNames.AddRange(
-			new string[]
-			{
-				"Core",
-				// ... add other public dependencies that you statically link with here ...
-			}
-			);
-			
-		
-		PrivateDependencyModuleNames.AddRange(
-			new string[]
-			{
-				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
+    public Restyle(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PublicDependencyModuleNames.AddRange(new string[] { "GraphEditor"  });
+        // PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+
+        var EngineDir = Path.GetFullPath(Target.RelativeEnginePath);
+        PrivateIncludePaths.AddRange(
+            new string[]
+            {
+                "Restyle/Private",
+                "Restyle/Classes",
+                Path.Combine(EngineDir, @"Source/Editor/GraphEditor/Private"),
+                Path.Combine(EngineDir, @"Source/Editor/UMGEditor/Private"),
+            }
+        ); 
+        PrivateDependencyModuleNames.AddRange(
+            new string[]
+            {
+                "Core",
+                "CoreUObject",
+                "Engine",
+                "Slate",
+                "SlateCore",
+                "RenderCore",
                 "Projects",
                 "EditorStyle",
-                "EngineSettings"
-				// ... add private dependencies that you statically link with here ...	
-			}
-			);
-		
-		
-		DynamicallyLoadedModuleNames.AddRange(
-			new string[]
-			{
-				// ... add any modules that your module loads dynamically here ...
-			}
-			);
-	}
+                "EngineSettings",
+                "Kismet",
+                "UnrealEd",
+                "BlueprintGraph",
+                "KismetWidgets",
+                "EditorWidgets",
+                "GraphEditor", 
+                "UMG",
+                "InputCore", 
+                "AppFramework",
+                "EditorWidgets",
+                "ToolWidgets",
+                "RHI",
+                "UMGEditor",
+                "MaterialEditor"
+                // ... add private dependencies that you statically link with here ...	
+            }
+        );
+        PublicAdditionalLibraries.Add($"{PluginDirectory}/Binaries/ThirdParty/MinHook/Win64/minhook.x64.lib");
+    }
 }
