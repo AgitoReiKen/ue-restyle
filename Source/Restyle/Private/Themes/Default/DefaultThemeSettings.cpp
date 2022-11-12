@@ -70,8 +70,8 @@ void UDefaultThemeSettings::SetDefaults()
 		{"MediumX", FMargin(4.f, 0.f, 4.f, 0.f)},
 		{"MediumY", FMargin(0.f, 4.f)},
 		{"Small", FMargin(2.f)},
-		{"SmallLeft", FMargin(2.f)},
-		{"SmallY", FMargin(2.f)},
+		{"SmallLeft", FMargin(2.f, 0.f, 0.f, 0.f)},
+		{"SmallY", FMargin(0.f, 2.f)},
 		{"Zero", FMargin(0.f)}
 	};
 	CornerRadiusMap = {

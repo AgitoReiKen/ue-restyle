@@ -1,3 +1,4 @@
+// Alexander (AgitoReiKen) Moskalenko (C) 2022
 #include "Sample/RestyleSampleActor.h"
 
 void ARestyleSample::ClientReliableFunction_Implementation()
@@ -20,3 +21,4 @@ bool ARestyleSample::InterfaceNativeEvent_Implementation()
 {
 	return true;
 }
+

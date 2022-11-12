@@ -1,3 +1,4 @@
+// Alexander (AgitoReiKen) Moskalenko (C) 2022
 #pragma once
 #include "Rendering/RenderingCommon.h"
 #include "CoreMinimal.h"

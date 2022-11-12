@@ -90,6 +90,17 @@ TSharedPtr<ISubjectRestyleInterface> FRestyleDefaultTheme::GetSubjectFactoryProv
 	}
 }
 
+bool FRestyleDefaultTheme::IsRegistered(ERestyleSubject Subject)
+{
+	switch (Subject)
+	{
+	case ERestyleSubject::Node: return NodeFactoryProvider->IsRegistered();
+	case ERestyleSubject::Pin: return PinFactoryProvider->IsRegistered();
+	case ERestyleSubject::PinConnection: return WireFactoryProvider->IsRegistered();
+	default: return false;
+	}
+}
+
 bool FRestyleDefaultTheme::OnSettingsChanged()
 {
 	if (NodeFactoryProvider->IsRegistered())

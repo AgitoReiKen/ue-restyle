@@ -56,7 +56,7 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 		LeftNodeBox.Reset();
 	}
 	SetupRenderOpacity();
-	this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
+	ContentScale.Bind(this, &SGraphNode::GetContentScale);
 
 	FGraphNodeMetaData TagMeta(TEXT("Graphnode"));
 	PopulateMetaTag(&TagMeta);
@@ -103,7 +103,9 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 						[
 							SAssignNew(InlineEditableText, SInlineEditableTextBlock)
 							.Style(FAppStyle::Get(), FNodeRestyleStyles::GraphNode_Title_MainText)
-							.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
+							//@note seems not necessary
+							//.Text(NodeTitle.Get(), &SDefault_NodeTitle::GetNodeTitle_New)
+							.Text(NodeTitle->GetHeadTitle())
 							.OnVerifyTextChanged(this, &SGraphNode::OnVerifyNameTextChanged)
 							.OnTextCommitted(this, &SGraphNode::OnNameTextCommited)
 							.IsReadOnly(this, &SGraphNode::IsNameReadOnly)
@@ -161,7 +163,8 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 					[
 						SAssignNew(InlineEditableText, SInlineEditableTextBlock)
 						.Style(FAppStyle::Get(), FNodeRestyleStyles::GraphNode_Title_MainText)
-						.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
+						//.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
+						.Text(NodeTitle->GetHeadTitle())
 						.OnVerifyTextChanged(this, &SGraphNode::OnVerifyNameTextChanged)
 						.OnTextCommitted(this, &SGraphNode::OnNameTextCommited)
 						.IsReadOnly(this, &SGraphNode::IsNameReadOnly)
@@ -184,48 +187,6 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 				[
 					RightWidget
 				];
-			/*	SAssignNew(TitleContent, SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					  .VAlign(VAlign_Top)
-					  .HAlign(HAlign_Left)
-					  .AutoWidth()
-					[
-						SAssignNew(TitleIcon, SImage)
-						.Image(IconBrush)
-						.ColorAndOpacity(FSlateColor(State.Title.Icon.Get()))
-					]
-					+ SHorizontalBox::Slot()
-					  .HAlign(HAlign_Fill)
-					  .Padding(Spacing, 0, 0, 0)
-					[
-						SNew(SVerticalBox)
-						+ SVerticalBox::Slot()
-						[
-							SAssignNew(InlineEditableText, SInlineEditableTextBlock)
-							.Style(FAppStyle::Get(), FNodeRestyleStyles::GraphNode_Title_MainText)
-							.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
-							.OnVerifyTextChanged(this, &SGraphNode::OnVerifyNameTextChanged)
-							.OnTextCommitted(this, &SGraphNode::OnNameTextCommited)
-							.IsReadOnly(this, &SGraphNode::IsNameReadOnly)
-							.IsSelected(this, &SGraphNode::IsSelectedExclusively)
-							.ColorAndOpacity(FLinearColor::White)
-						]
-						+ SVerticalBox::Slot()
-						.AutoHeight()
-						[
-							NodeTitle.ToSharedRef()
-						]
-					]
-					+ SHorizontalBox::Slot()
-					  .HAlign(HAlign_Right)
-					  .VAlign(VAlign_Center)
-					  .Padding(
-						  RightWidget != SNullWidget::NullWidget ? Spacing : 0, 0,
-						  0, 0)
-					  .AutoWidth()
-					[
-						RightWidget
-					];*/
 		}
 		InlineEditableText->SetColorAndOpacity(State.Title.MainText.Get());
 		return SNew(SOverlay)
@@ -263,7 +224,6 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 
 	auto MakeInnerVerticalBox = [this, &DefaultTitleAreaWidget, &Node]()-> TSharedPtr<SVerticalBox>
 	{
-		//FMargin PaddingBelowPin = FMargin(0, GetDefault<UGraphEditorSettings>()->PaddingBelowPin,0,0);
 		float ContentSpacing = UDefaultThemeSettings::GetSpacing(Node.ContentSpacing);
 		TSharedPtr<SVerticalBox> InnerVerticalBox =
 			SNew(SVerticalBox)
@@ -313,17 +273,19 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 
 	auto AddEnabledStateWidget = [this, &InnerVerticalBox, Style]
 	{
-		TSharedPtr<SWidget> EnabledStateWidget = GetEnabledStateWidget_New();
+		EnabledStateWidget = CreateEnabledStateWidget();
 		if (EnabledStateWidget.IsValid())
 		{
 			InnerVerticalBox->AddSlot()
 			                .AutoHeight()
 			                .HAlign(HAlign_Fill)
 			                .VAlign(VAlign_Top)
-			                .Padding(TAttribute<FMargin>(
-				                this, &SDefault_GraphNodeK2Base::GetEnabledStateWidgetPadding))
 			[
-				EnabledStateWidget.ToSharedRef()
+				SAssignNew(EnabledStateWidgetBox, SBox)
+				.Padding(GetEnabledStateWidgetPadding())
+				[
+					EnabledStateWidget.ToSharedRef()
+				]
 			];
 		}
 	};
@@ -436,23 +398,11 @@ void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
 		LeftNodeBox.Reset();
 	}
 	SetupRenderOpacity();
-	this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
+	ContentScale.Bind(this, &SGraphNode::GetContentScale);
 
 	FGraphNodeMetaData TagMeta(TEXT("Graphnode"));
 	PopulateMetaTag(&TagMeta);
-
-	auto UpdateTooltip = [this]()
-	{
-		TSharedPtr<SToolTip> NodeToolTip = SNew(SToolTip);
-		if (!GraphNode->GetTooltipText().IsEmpty())
-		{
-			NodeToolTip = IDocumentation::Get()->CreateToolTip(TAttribute<FText>(this, &SGraphNode::GetNodeTooltip),
-			                                                   NULL,
-			                                                   GraphNode->GetDocumentationLink(),
-			                                                   GraphNode->GetDocumentationExcerptName());
-		}
-	};
-	UpdateTooltip();
+	 
 	TSharedRef<SOverlay> NodeOverlay = SNew(SOverlay);
 
 	TSharedRef<SOverlay> PinOverlay = SNew(SOverlay);
@@ -529,10 +479,11 @@ void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
 					  .AutoHeight()
 					[
 						SAssignNew(CompactTitleTextBlock, STextBlock)
-					.TextStyle(FEditorStyle::Get(), FNodeRestyleStyles::GraphNode_Compact_AlternativeTitle)
-				.ColorAndOpacity(State.TitleColor.Get())
-				.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
-				.WrapTextAt(CompactNode.AlternativeTitle.WrapAt)
+						.TextStyle(FEditorStyle::Get(), FNodeRestyleStyles::GraphNode_Compact_AlternativeTitle)
+						.ColorAndOpacity(State.TitleColor.Get())
+						//.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
+						.Text(NodeTitle->GetHeadTitle())
+						.WrapTextAt(CompactNode.AlternativeTitle.WrapAt)
 					]
 					+ SVerticalBox::Slot()
 					.AutoHeight()
@@ -547,10 +498,10 @@ void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
 				[
 					SNew(SScaleBox)
 					.RenderTransform(FSlateRenderTransform(FScale2D(1.0f)))
-				.HAlign(HAlign_Center)
-				.VAlign(VAlign_Center)
-				.Stretch(EStretch::ScaleToFit)
-				.StretchDirection(EStretchDirection::Both)
+					.HAlign(HAlign_Center)
+					.VAlign(VAlign_Center)
+					.Stretch(EStretch::ScaleToFit)
+					.StretchDirection(EStretchDirection::Both)
 					[
 						Image.ToSharedRef()
 					]
@@ -566,7 +517,7 @@ void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
 			           .Padding(0.f)
 			[
 				SNew(SScaleBox)
-					.RenderTransform(FSlateRenderTransform(FScale2D(.5f)))
+				.RenderTransform(FSlateRenderTransform(FScale2D(.5f)))
 				.RenderTransformPivot(.5f)
 				.HAlign(HAlign_Center)
 				.VAlign(VAlign_Center)
@@ -595,7 +546,8 @@ void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
 						           ? FNodeRestyleStyles::GraphNode_Compact_Title_OneSymbol
 						           : FNodeRestyleStyles::GraphNode_Compact_Title)
 				.ColorAndOpacity(State.TitleColor.Get())
-				.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
+				//.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
+				.Text(NodeTitle->GetHeadTitle())
 				.WrapTextAt(CompactNode.Title.WrapAt)
 				]
 				+ SVerticalBox::Slot()
@@ -679,19 +631,22 @@ void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
 
 	auto AddEnabledStateWidget = [this, &InnerVerticalBox]()
 	{
-		TSharedPtr<SWidget> EnabledStateWidget = GetEnabledStateWidget_New();
+		
+		EnabledStateWidget = CreateEnabledStateWidget();
 		if (EnabledStateWidget.IsValid())
 		{
 			InnerVerticalBox->AddSlot()
 			                .AutoHeight()
 			                .HAlign(HAlign_Fill)
 			                .VAlign(VAlign_Top)
-			                .Padding(TAttribute<FMargin>(
-				                this, &SDefault_GraphNodeK2Base::GetEnabledStateWidgetPadding))
 			[
-				EnabledStateWidget.ToSharedRef()
+				SAssignNew(EnabledStateWidgetBox, SBox)
+				.Padding(GetEnabledStateWidgetPadding())
+				[
+					EnabledStateWidget.ToSharedRef()
+				]
 			];
-		}
+		} 
 	};
 	AddEnabledStateWidget();
 
@@ -830,6 +785,10 @@ const FSlateBrush* SDefault_GraphNodeK2Default::GetShadowBrush(bool bSelected) c
 			if (TitleExtraText.IsValid() && TitleExtraText->ExtraTextBlock.IsValid())
 			{
 				TitleExtraText->ExtraTextBlock->SetColorAndOpacity(State.Title.ExtraText.Get());
+			}
+			if (EnabledStateWidgetBox.IsValid())
+			{
+				EnabledStateWidgetBox->SetPadding(GetEnabledStateWidgetPadding());
 			}
 		}
 	}

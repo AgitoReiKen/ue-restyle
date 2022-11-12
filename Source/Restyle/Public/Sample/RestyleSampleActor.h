@@ -1,5 +1,5 @@
+// Alexander (AgitoReiKen) Moskalenko (C) 2022
 #pragma once
-
 #include "CoreMinimal.h"
 #include "RestyleSampleActor.generated.h"
 

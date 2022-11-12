@@ -12,7 +12,7 @@ public:
 	virtual void Register() override;
 	virtual void Unregister() override;
 	virtual TSharedPtr<ISubjectRestyleInterface> GetSubjectFactoryProvider(ERestyleSubject ForSubject) override;
-
+	virtual bool IsRegistered(ERestyleSubject Subject) override;
 private:  
 	bool OnSettingsChanged();
 	TSharedPtr<INodeRestyleInterface> NodeFactoryProvider;

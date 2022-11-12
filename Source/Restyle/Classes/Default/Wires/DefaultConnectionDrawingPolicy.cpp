@@ -241,8 +241,12 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 	 * @note FVector2f used instead of FVector2D due to FScreenVertex accepts float version
 	 */
 	if (WireParams.WireThickness < 0 || !WireParams.AssociatedPin1 || !WireParams.AssociatedPin2) return;
-	const float StartFudgeX = 4.0f;
-	const float EndFudgeX = 4.0f;
+	auto Zoomed = [this](float Value) -> float
+	{
+		return Value * ZoomFactor;
+	};
+	const float StartFudgeX = Zoomed(4.0f);
+	const float EndFudgeX = Zoomed(4.0f);
 	FVector2D _Start = FGeometryHelper::VerticalMiddleRightOf(Params.Start) - FVector2D(StartFudgeX, 0.0f);;
 	FVector2D _End = FGeometryHelper::VerticalMiddleLeftOf(Params.End) - FVector2D(ArrowRadius.X - EndFudgeX, 0);
 
@@ -254,10 +258,7 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 	FLinearColor WireColor = WireParams.WireColor;
 	auto WireSettings = UWireRestyleSettings::Get();
 
-	auto Zoomed = [this](float Value) -> float
-	{
-		return Value * ZoomFactor;
-	};
+	 
 	// Zoomed(WireParams.WireThickness) prevents big lines have bad geometry on corners (due to fixation to intersection point), but also cause on-hover disturbance
 	// Thickness > MinHorizontalLength is bad. Adding Thickness to MinHorizontalLength will result in line moving around while hover zooms it, and so hover will break
 	// As a solution, user must provide MinHorizontalLength greater than WireThickness

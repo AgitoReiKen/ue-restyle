@@ -1,3 +1,4 @@
+// Alexander (AgitoReiKen) Moskalenko (C) 2022
 #pragma once
 #include "/Engine/Private/Common.ush"
 #include "/Engine/Private/SlateShaderCommon.ush"
@@ -15,12 +16,8 @@ void MainVS(
 	Output.UV = InUV;
 }
 
-
 float4 ShaderParams; // Line settings
 float4 ShaderParams2; // Color
-/** Texture for the element */
-Texture2D ElementTexture;
-SamplerState ElementTextureSampler;
 half4 GetLineSegmentElementColor(float4 BaseColor, FScreenVertexOutput InVertex)
 {
 	float LineWidth = ShaderParams.x;
@@ -60,13 +57,8 @@ half4 GetLineSegmentElementColor(float4 BaseColor, FScreenVertexOutput InVertex)
 float4 MainPS(FScreenVertexOutput In) : SV_Target0
 {
 	float4 OutColor;
-	//float4 BaseColor = float4(1.0, 1.0, 1.0, 1.0);
 	float4 BaseColor = ShaderParams2;
-	//BaseColor = float4(0.0, 0.0, 0.0, 1.0);
 	//BaseColor.a = 0.5;
-	//OutColor = BaseColor;
-	//OutColor = Texture2DSample(ElementTexture, ElementTextureSampler, GetUV(In, 0));
 	OutColor = GetLineSegmentElementColor(BaseColor, In);
-	//float4(GetUV(In,0).x, GetUV(In,0).y, 0.0, 1.0)
 	return OutColor;
 }

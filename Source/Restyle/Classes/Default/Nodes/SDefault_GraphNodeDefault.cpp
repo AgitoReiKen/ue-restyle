@@ -9,11 +9,11 @@
 
 void SDefault_GraphNodeDefault::Construct(const FArguments& InArgs)
 {
-	this->GraphNode = InArgs._GraphNodeObj;
+	GraphNode = InArgs._GraphNodeObj;
 
-	this->SetCursor(EMouseCursor::CardinalCross);
+	SetCursor(EMouseCursor::CardinalCross);
 
-	this->UpdateGraphNode();
+	UpdateGraphNode();
 } 
 
 bool SDefault_GraphNodeDefault::IsNodeSelected() const

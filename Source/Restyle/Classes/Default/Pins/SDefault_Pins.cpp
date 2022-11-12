@@ -1,4 +1,4 @@
-// Alexander (AgitoReiKen) Moskalenko (C) 2022
+﻿// Alexander (AgitoReiKen) Moskalenko (C) 2022
 
 #include "SDefault_Pins.h"
 
@@ -37,6 +37,9 @@
 #include "SSimpleComboButton.h"
 #include "Internationalization/TextNamespaceUtil.h"
 #include "GraphEditorSettings.h"
+
+#include "Kismet2/BlueprintEditorUtils.h"
+#include "Kismet2/KismetDebugUtilities.h"
 //
 //void SDefault_ControlRigGraphPinCurveFloat::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 //{
@@ -189,6 +192,23 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 		GraphPinObj->GetOuter() ? *(GraphPinObj->GetOuter()->GetClass()->GetName()) : TEXT("NULL OUTER")
 	);
 
+	// Colors
+	{
+		FLinearColor NonEditableMod = FLinearColor(1, 1, 1, Style.NonEditableOpacity);
+
+		NormalColor = Style.NormalColor.Get();
+		DiffingColor = Style.DiffingColor.Get();
+		OrphanedColor = Style.OrphanedColor.Get();
+
+		NonEditableNormalColor = NormalColor.GetSpecifiedColor() * NonEditableMod;
+		NonEditableDiffingColor = DiffingColor.GetSpecifiedColor() * NonEditableMod;
+		NonEditableOrphanedColor = OrphanedColor.GetSpecifiedColor() * NonEditableMod;
+
+		PinTypeColor = Schema->GetPinTypeColor(GraphPinObj->PinType);
+		NonEditablePinTypeColor = PinTypeColor * NonEditableMod;
+		SecPinTypeColor = Schema->GetSecondaryPinTypeColor(GraphPinObj->PinType);
+		NonEditableSecPinTypeColor = SecPinTypeColor * NonEditableMod;
+	}
 
 	// Create the pin icon widget
 	TSharedRef<SWidget> PinWidgetRef = SPinTypeSelector::ConstructPinTypeImage(
@@ -205,10 +225,9 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 	);
 
 	// Create the pin indicator widget (used for watched values)
-	static const FName NAME_NoBorder("NoBorder");
 	TSharedRef<SWidget> PinStatusIndicator =
 		SNew(SButton)
-		.ButtonStyle(FEditorStyle::Get(), NAME_NoBorder)
+		.ButtonStyle(FEditorStyle::Get(), "NoBorder")
 		.Visibility(this, &SDefault_GraphPin::GetPinStatusIconVisibility)
 		.ContentPadding(0)
 		.OnClicked(this, &SDefault_GraphPin::ClickedOnPinStatusIcon)
@@ -219,9 +238,7 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 	TSharedRef<SWidget> LabelWidget = GetLabelWidget(InArgs._PinLabelStyle);
 
 	// Create the widget used for the pin body (status indicator, label, and value)
-	LabelAndValue =
-			SNew(SWrapBox)
-			.PreferredSize(Style.PreferredWrapSize);
+	LabelAndValue = SNew(SWrapBox).PreferredSize(Style.PreferredWrapSize);
 
 	TSharedPtr<SHorizontalBox> PinContent;
 	if (GetDirection() == EGPD_Input)
@@ -307,6 +324,7 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 				PinWidgetRef
 			];
 	}
+
 	// Set up a hover for pins that is tinted the color of the pin.
 	SBorder::Construct(SBorder::FArguments()
 	.BorderImage(FAppStyle::Get().GetBrush("NoBorder"))
@@ -350,26 +368,26 @@ SDefault_GraphPin::SDefault_GraphPin() : SGraphPin()
 		FPinRestyleStyles::Kismet_VariableList_MapValueTypeIcon_Connected);
 	CachedImg_MapPin_Value_Disconnected = FAppStyle::Get().GetBrush(
 		FPinRestyleStyles::Kismet_VariableList_MapValueTypeIcon_Disconnected);
+	CachedImg_WatchedPinIcon = FEditorStyle::GetBrush(TEXT("Graph.WatchedPinIcon_Pinned"));
+ 
 }
 
 FSlateColor SDefault_GraphPin::GetPinTextColor() const
 {
-	const auto& Style = UPinRestyleSettings::Get()->Base;
 	UEdGraphPin* GraphPin = GetPinObj();
-	FLinearColor EditableState = FLinearColor(1, 1, 1, IsEditingEnabled() ? 1.0f : Style.NonEditableOpacity);
 	// If there is no schema there is no owning node (or basically this is a deleted node)
 	if (GraphPin)
 	{
 		if (GraphPin->bOrphanedPin)
 		{
-			return Style.OrphanedColor.Get() * EditableState;
+			return IsEditingEnabled() ? OrphanedColor : NonEditableOrphanedColor;
 		}
 		if (GraphPin->bIsDiffing)
 		{
-			return Style.DiffingColor.Get() * EditableState;
+			return IsEditingEnabled() ? DiffingColor : NonEditableDiffingColor;
 		}
 	}
-	return Style.NormalColor.Get() * EditableState;
+	return IsEditingEnabled() ? NormalColor : NonEditableNormalColor;
 }
 
 const FSlateBrush* SDefault_GraphPin::GetPinIcon() const
@@ -388,26 +406,25 @@ const FSlateBrush* SDefault_GraphPin::GetPinIcon() const
 
 FSlateColor SDefault_GraphPin::GetPinColor() const
 {
-	const auto& Style = UPinRestyleSettings::Get()->Base;
-	FLinearColor EditableState = FLinearColor(1, 1, 1, IsEditingEnabled() ? 1.0f : Style.NonEditableOpacity);
 	UEdGraphPin* GraphPin = GetPinObj();
 	if (GraphPin && !GraphPin->IsPendingKill())
 	{
-		if (GraphPin->bIsDiffing)
-		{
-			return EditableState * Style.DiffingColor.Get();
-		}
+		 
 		if (GraphPin->bOrphanedPin)
 		{
-			return EditableState * Style.OrphanedColor.Get();
+			return IsEditingEnabled() ? OrphanedColor : NonEditableOrphanedColor;
+		}
+		if (GraphPin->bIsDiffing)
+		{
+			return IsEditingEnabled() ? DiffingColor : NonEditableDiffingColor;
 		}
 		if (const UEdGraphSchema* Schema = GraphPin->GetSchema())
 		{
-			return EditableState * Schema->GetPinTypeColor(GraphPin->PinType) * PinColorModifier;
+			return (IsEditingEnabled() ? PinTypeColor : NonEditablePinTypeColor) * PinColorModifier;
 		}
 	}
 
-	return EditableState * Style.NormalColor.Get();
+	return IsEditingEnabled() ? NormalColor : NonEditableNormalColor;
 }
 
 const FSlateBrush* SDefault_GraphPin::GetSecondaryPinIcon_New() const
@@ -425,35 +442,52 @@ const FSlateBrush* SDefault_GraphPin::GetSecondaryPinIcon_New() const
 
 FSlateColor SDefault_GraphPin::GetSecondaryPinColor_New() const
 {
-	const auto& Style = UPinRestyleSettings::Get()->Base;
-	FLinearColor EditableState = FLinearColor(1, 1, 1, IsEditingEnabled() ? 1.0f : Style.NonEditableOpacity);
 	UEdGraphPin* GraphPin = GetPinObj();
 	if (GraphPin && !GraphPin->IsPendingKill())
 	{
-		if (GraphPin->bIsDiffing)
-		{
-			return EditableState * Style.DiffingColor.Get();
-		}
 		if (GraphPin->bOrphanedPin)
 		{
-			return EditableState * Style.OrphanedColor.Get();
+			return IsEditingEnabled() ? OrphanedColor : NonEditableOrphanedColor;
 		}
-		if (const UEdGraphSchema* Schema = GraphPin->GetSchema())
+		if (GraphPin->bIsDiffing)
 		{
-			return EditableState * Schema->GetSecondaryPinTypeColor(GraphPin->PinType) * PinColorModifier;
+			return IsEditingEnabled() ? DiffingColor : NonEditableDiffingColor;
 		}
+		return (IsEditingEnabled() ? SecPinTypeColor : NonEditableSecPinTypeColor) * PinColorModifier;
 	}
 
-	return EditableState * Style.NormalColor.Get();
+	return IsEditingEnabled() ? NormalColor : NonEditableNormalColor;
 }
 
 TSharedRef<SWidget> SDefault_GraphPin::GetLabelWidget(const FName& InPinLabelStyle)
 {
 	return SNew(STextBlock)
-		.Text(this, &SDefault_GraphPin::GetPinLabel)
+		//.Text(this, &SDefault_GraphPin::GetPinLabel)
+		.Text(GetPinLabel())
 		.TextStyle(FEditorStyle::Get(), InPinLabelStyle)
 		.Visibility(this, &SDefault_GraphPin::GetPinLabelVisibility)
 		.ColorAndOpacity(this, &SDefault_GraphPin::GetPinTextColor);
+}
+
+const FSlateBrush* SDefault_GraphPin::GetPinStatusIcon() const
+{
+	UEdGraphPin* GraphPin = GetPinObj();
+	if (GraphPin && !GraphPin->IsPendingKill())
+	{
+		UEdGraphPin* WatchedPin = ((GraphPin->Direction == EGPD_Input) && (GraphPin->LinkedTo.Num() > 0)) ? GraphPin->LinkedTo[0] : GraphPin;
+
+		if (UEdGraphNode* GraphNode = WatchedPin->GetOwningNodeUnchecked())
+		{
+			UBlueprint* Blueprint = FBlueprintEditorUtils::FindBlueprintForNodeChecked(GraphNode);
+
+			if (FKismetDebugUtilities::DoesPinHaveWatches(Blueprint, WatchedPin))
+			{
+				return CachedImg_WatchedPinIcon;
+			}
+		}
+	}
+
+	return nullptr;
 }
 #pragma endregion
 

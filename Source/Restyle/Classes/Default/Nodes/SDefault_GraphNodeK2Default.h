@@ -30,4 +30,5 @@ protected:
 	TSharedPtr<SHorizontalBox> TitleContent;
 	TSharedPtr<STextBlock> CompactTitleTextBlock;
 	TSharedPtr<SImage> CompactBody;
+	TSharedPtr<SBox> EnabledStateWidgetBox;
 };

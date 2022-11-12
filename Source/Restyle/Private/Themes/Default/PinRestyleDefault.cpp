@@ -11,8 +11,6 @@
 #include "Styling/SlateStyle.h"
 #include "Styling/SlateStyleMacros.h"
 
-#include "Utils/RestyleUtils.h"
-
 FPinRestyleDefault::FPinRestyleDefault()
 {
 	Factory = MakeShared<FDefaultGraphPanelPinFactory>();

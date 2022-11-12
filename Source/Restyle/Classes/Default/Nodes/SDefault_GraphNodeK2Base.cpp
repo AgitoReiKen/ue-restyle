@@ -14,11 +14,13 @@
 #include "SDefault_ErrorText.h"
 #include "SGraphPanel.h"
 #include "Slate/SObjectWidget.h"
+
+#include "Themes/Default/DefaultTheme.h"
 #include "Themes/Default/NodeRestyleDefault.h"
 #include "Themes/Default/PinRestyleDefault.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
  
-TSharedPtr<SWidget> SDefault_GraphNodeK2Base::GetEnabledStateWidget_New()
+TSharedPtr<SWidget> SDefault_GraphNodeK2Base::CreateEnabledStateWidget()
 {
 	if ((GraphNode->GetDesiredEnabledState() != ENodeEnabledState::Enabled) && !GraphNode->
 		IsAutomaticallyPlacedGhostNode())
@@ -65,37 +67,22 @@ FReply SDefault_GraphNodeK2Base::OnAdvancedDisplayClicked()
 {
 	OnAdvancedViewChanged(IsAdvancedViewChecked() == ECheckBoxState::Checked 
 		? ECheckBoxState::Unchecked : ECheckBoxState::Checked);
+	if (AdvancedViewArrow.IsValid()) AdvancedViewArrow->SetImage(GetAdvancedViewArrowNew());
 	return FReply::Handled();
 }
 
 void SDefault_GraphNodeK2Base::CreateAdvancedViewArrowNew(TSharedPtr<SVerticalBox> MainBox)
 {
 	const bool bHidePins = OwnerGraphPanelPtr.IsValid() && (OwnerGraphPanelPtr.Pin()->GetPinVisibility() != SGraphEditor::Pin_Show);
-	const bool bAnyAdvancedPin = GraphNode && (ENodeAdvancedPins::NoPins != GraphNode->AdvancedPinDisplay);
-	auto widget = SNew(SCheckBox)
-		.Visibility(this, &SDefault_GraphNodeK2Base::AdvancedViewArrowVisibility)
-		.OnCheckStateChanged(this, &SDefault_GraphNodeK2Base::OnAdvancedViewChanged)
-		.IsChecked(this, &SDefault_GraphNodeK2Base::IsAdvancedViewChecked)
-		.Cursor(EMouseCursor::Default)
-		.Style(FEditorStyle::Get(), FNodeRestyleStyles::AdvancedDisplay)
-		[
-			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.HAlign(HAlign_Center)
-			[
-				SNew(SImage)
-				.Image(this, &SDefault_GraphNodeK2Base::GetAdvancedViewArrow)
-			]
-		];
-
+	//const bool bAnyAdvancedPin = GraphNode && (ENodeAdvancedPins::NoPins != GraphNode->AdvancedPinDisplay);
+	FMargin Padding = UDefaultThemeSettings::GetMargin(UNodeRestyleSettings::Get()->AdvancedDisplay.Padding);
 	if (!bHidePins && GraphNode && MainBox.IsValid())
 	{
 		MainBox->AddSlot()
 			.AutoHeight()
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Top)
-			.Padding(4)
+			.Padding(Padding)
 			[
 				SNew(SButton)
 				.Visibility(this, &SDefault_GraphNodeK2Base::AdvancedViewArrowVisibility)
@@ -108,9 +95,9 @@ void SDefault_GraphNodeK2Base::CreateAdvancedViewArrowNew(TSharedPtr<SVerticalBo
 					.VAlign(VAlign_Center)
 					.HAlign(HAlign_Center)
 					[
-						SNew(SImage)
+						SAssignNew(AdvancedViewArrow, SImage)
 						.ColorAndOpacity(FSlateColor::UseForeground())
-						.Image(this, &SDefault_GraphNodeK2Base::GetAdvancedViewArrow)
+						.Image(GetAdvancedViewArrowNew())
 					]
 				]
 			];
@@ -135,7 +122,12 @@ TSharedRef<SWidget> SDefault_GraphNodeK2Base::AddPinButtonContent_New(FText PinT
                                                                       bool bRightSide, FString DocumentationExcerpt,
                                                                       TSharedPtr<SToolTip> CustomTooltip)
 {
-	//@TODO Move to NodeRestyleSettings
+	//Restyle Pins aren't loaded then..
+	if (!FAppStyle::Get().HasWidgetStyle<FTextBlockStyle>(FPinRestyleStyles::Sequence_Button_Text))
+	{
+		return AddPinButtonContent(PinText, PinTooltipText, bRightSide, DocumentationExcerpt, CustomTooltip);
+	}
+
 	auto Style = UPinRestyleSettings::Get();
 	const auto& Seq = Style->Inputs.Sequence;
 	FVector2D IconSize = UDefaultThemeSettings::GetIconSize(Seq.IconSize);
@@ -225,7 +217,6 @@ TSharedRef<SWidget> SDefault_GraphNodeK2Base::AddPinButtonContent_New(FText PinT
 }
 
  
-
 void SDefault_GraphNodeK2Base::UpdateErrorInfo_New()
 {
 	ErrorInfoType = EDTNodeReportType::Num;

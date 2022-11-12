@@ -303,10 +303,22 @@ protected:
 	const FSlateBrush* GetSecondaryPinIcon_New() const;
 	FSlateColor GetSecondaryPinColor_New() const;
 	virtual TSharedRef<SWidget> GetLabelWidget(const FName& InPinLabelStyle) override;
+	virtual const FSlateBrush* GetPinStatusIcon() const override;
 	const FSlateBrush* CachedImg_SetPin_Connected;
 	const FSlateBrush* CachedImg_SetPin_Disconnected;
 	const FSlateBrush* CachedImg_MapPin_Value_Connected;
 	const FSlateBrush* CachedImg_MapPin_Value_Disconnected;
+	FSlateColor DiffingColor;
+	FSlateColor OrphanedColor;
+	FSlateColor NormalColor;
+	FSlateColor NonEditableDiffingColor;
+	FSlateColor NonEditableOrphanedColor;
+	FSlateColor NonEditableNormalColor;
+	FLinearColor PinTypeColor;
+	FLinearColor NonEditablePinTypeColor;
+	FLinearColor SecPinTypeColor;
+	FLinearColor NonEditableSecPinTypeColor;
+	const FSlateBrush* CachedImg_WatchedPinIcon;
 };
 
 class SDefault_GraphPinCollisionProfile : public SDefault_GraphPin

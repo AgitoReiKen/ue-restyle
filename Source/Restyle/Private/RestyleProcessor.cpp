@@ -1,6 +1,5 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
 #include "RestyleProcessor.h"
-#include "Utils/RestyleUtils.h"
 #include "Misc/FileHelper.h"
 
 #pragma region Wrapper
@@ -61,100 +60,6 @@ public:
 		}
 	}
 
-	static void DumpStyle(FSlateStyleSetWrapper* Set, FString FilePath)
-	{
-		FString dump;
-
-		{
-			FString iterating = TEXT("WidgetStyleValues");
-			for (const auto& it : Set->WidgetStyleValues)
-			{
-				FString key = it.Key.ToString();
-				FString value = FRestyleUtils::ToString(&it.Value.Get(), 1);
-
-				dump += FString::Printf(TEXT("(%s) %s\n%s\n"),
-					*iterating,
-					*key,
-					*value);
-			}
-		}
-
-		{
-			FString iterating = TEXT("FloatValues");
-			for (const auto& it : Set->FloatValues)
-			{
-				FString key = it.Key.ToString();
-				float value = it.Value;
-				dump += (FString::Printf(TEXT("(%s) %s : %f\n"), *iterating, *key, value));
-			}
-		}
-
-		{
-			FString iterating = TEXT("Vector2DValues");
-			for (const auto& it : Set->Vector2DValues)
-			{
-				FString key = it.Key.ToString();
-				FString value = it.Value.ToString();
-				dump += (FString::Printf(TEXT("(%s) %s : %s\n"), *iterating, *key, *value));
-			}
-		}
-
-		{
-			FString iterating = TEXT("ColorValues");
-			for (const auto& it : Set->ColorValues)
-			{
-				FString key = it.Key.ToString();
-				FString value = it.Value.ToString();
-				dump += (FString::Printf(TEXT("(%s) %s : %s\n"), *iterating, *key, *value));
-			}
-		}
-
-		{
-			FString iterating = TEXT("SlateColorValues");
-			for (const auto& it : Set->SlateColorValues)
-			{
-				FString key = it.Key.ToString();
-				FString value = FRestyleUtils::ToString(it.Value);
-				dump += (FString::Printf(TEXT("(%s) %s : %s\n"), *iterating, *key, *value));
-			}
-		}
-
-		{
-			FString iterating = TEXT("MarginValues");
-			for (const auto& it : Set->MarginValues)
-			{
-				FString key = it.Key.ToString();
-				FString value = FRestyleUtils::ToString(it.Value);
-				dump += (FString::Printf(TEXT("(%s) %s : %s\n"), *iterating, *key, *value));
-			}
-		}
-
-		{
-			FString iterating = TEXT("BrushResources");
-			for (const auto& it : Set->BrushResources)
-			{
-				FString key = it.Key.ToString();
-				FString value = FRestyleUtils::ToString(it.Value, 1);
-				dump += (FString::Printf(TEXT("(%s) %s\n%s\n"), *iterating, *key, *value));
-			}
-		}
-
-		{
-			FString iterating = TEXT("FontInfoResources");
-			for (const auto& it : Set->FontInfoResources)
-			{
-				FString key = it.Key.ToString();
-				FString value = FRestyleUtils::ToString(&it.Value, 1);
-				dump += (FString::Printf(TEXT("(%s) %s\n%s\n"), *iterating, *key, *value));
-			}
-		}
-
-		/* Sounds */
-
-		UE_LOG(LogTemp, Warning, TEXT("%s: Dumping %d bytes to %s"), *FString(__FUNCTION__), dump.Len(), *FilePath);
-
-		FFileHelper::SaveStringToFile(dump, *FilePath);
-	}
 	static TMap<FName, FSlateBrush*>& GetBrushResources(FSlateStyleSetWrapper* Set)
 	{
 		return Set->BrushResources;
@@ -213,11 +118,7 @@ void FRestyleProcessor::ReloadEditorStyleSafe()
 		ReloadEditorStyle();
 	}
 }
-
-void FRestyleProcessor::DumpEditorStyle(FString FilePath)
-{
-	FSlateStyleSetWrapper::DumpStyle((FSlateStyleSetWrapper*)GetStyle(), FilePath);
-} 
+ 
 
 
 #undef RootToContentDir 

@@ -27,7 +27,6 @@ public:
 	TMap<FName, TSharedRef<FSlateWidgetStyle>>& GetWidgetStyles();
 	void ReloadEditorStyle();
 	void ReloadEditorStyleSafe();
-	void DumpEditorStyle(FString FilePath);
 	void ResetEditorStyle();
 	void CacheEditorStyle();
 private:

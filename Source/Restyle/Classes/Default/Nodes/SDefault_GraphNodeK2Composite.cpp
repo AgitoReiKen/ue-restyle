@@ -65,8 +65,8 @@ void SDefault_GraphNodeK2Composite::UpdateGraphNode()
 	// |_______|______|_______|
 	//
 	FMargin TitlePadding = UDefaultThemeSettings::Get()->GetMargin(CollapsedNode.Title.Padding);
-	this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
-	this->GetOrAddSlot(ENodeZone::Center)
+	ContentScale.Bind(this, &SGraphNode::GetContentScale);
+	GetOrAddSlot(ENodeZone::Center)
 	    .HAlign(HAlign_Center)
 	    .VAlign(VAlign_Center)
 	[
@@ -102,7 +102,8 @@ void SDefault_GraphNodeK2Composite::UpdateGraphNode()
 						[
 							SAssignNew(InlineEditableText, SInlineEditableTextBlock)
 							.Style(FEditorStyle::Get(), FNodeRestyleStyles::CollapsedNode_Title_MainText)
-							.Text(NodeTitle.Get(), &SDefault_NodeTitle::GetHeadTitle)
+							//.Text(NodeTitle.Get(), &sSDefault_NodeTitle::GetHeadTitle)
+							.Text(NodeTitle->GetHeadTitle())
 							.OnVerifyTextChanged(this, &SDefault_GraphNodeK2Composite::OnVerifyNameTextChanged)
 							.OnTextCommitted(this, &SDefault_GraphNodeK2Composite::OnNameTextCommited)
 							.IsReadOnly(this, &SDefault_GraphNodeK2Composite::IsNameReadOnly)
@@ -198,8 +199,8 @@ TSharedPtr<SToolTip> SDefault_GraphNodeK2Composite::GetComplexTooltip()
 					// Create preview for the tooltip, make sure to disable state overlays to prevent
 					// PIE and read-only borders obscuring the graph
 					SNew(SGraphPreviewer, BoundGraph)
-				.CornerOverlayText(this, &SDefault_GraphNodeK2Composite::GetPreviewCornerText)
-				.ShowGraphStateOverlay(false)
+					.CornerOverlayText(this, &SDefault_GraphNodeK2Composite::GetPreviewCornerText)
+					.ShowGraphStateOverlay(false)
 				]
 			];
 

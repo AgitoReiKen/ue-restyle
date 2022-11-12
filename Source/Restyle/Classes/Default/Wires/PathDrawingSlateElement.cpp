@@ -1,3 +1,4 @@
+// Alexander (AgitoReiKen) Moskalenko (C) 2022
 #include "PathDrawingSlateElement.h"
 
 #include "CanvasItem.h"
@@ -506,7 +507,6 @@ void FPathDrawingSlateElement::DrawRenderThread(
 			FSamplerStateRHIRef BilinearClamp1 = TStaticSamplerState<
 				SF_Bilinear, AM_Clamp, AM_Clamp, AM_Clamp>::GetRHI();
 			FRHISamplerState* SamplerState1 = BilinearClamp1;
-			PixelShader->SetTexture(RHICmdList, GWhiteTexture->TextureRHI, SamplerState1);
 			PixelShader->SetShaderParams(RHICmdList, FShaderParams(
 				                             FVector4f(Path.Settings.Thickness, 1.0),
 				Path.Settings.Color));

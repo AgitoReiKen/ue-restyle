@@ -19,6 +19,8 @@ public:
 		CachedOutlineWidth = .0f;
 		CachedState = EDTGraphNodeState::Num;
 		ErrorInfoType = EDTNodeReportType::Num;
+		IChevronDown = FEditorStyle::GetBrush("Icons.ChevronDown");
+		IChevronUp = FEditorStyle::GetBrush("Icons.ChevronUp");
 	}
 
 	virtual bool IsInvalid() const;
@@ -29,7 +31,7 @@ public:
 
 	void UpdateErrorInfo_New();
 	void SetupErrorReporting_New();
-	TSharedPtr<SWidget> GetEnabledStateWidget_New();
+	TSharedPtr<SWidget> CreateEnabledStateWidget();
 	FMargin GetEnabledStateWidgetPadding() const;
 	FReply OnAdvancedDisplayClicked();
 	/** Create widget to show/hide advanced pins */
@@ -38,12 +40,20 @@ public:
 	virtual void SetOwner(const TSharedRef<SGraphPanel>& OwnerPanel) override;
 	void SetupRenderOpacity();
 protected:
+	const FSlateBrush* GetAdvancedViewArrowNew() const
+	{
+		const bool bAdvancedPinsHidden = GraphNode && (ENodeAdvancedPins::Hidden == GraphNode->AdvancedPinDisplay);
+		return bAdvancedPinsHidden ? IChevronDown : IChevronUp;
+	}
 	const FSlateBrush* CachedNoDrawBrush;
 	TSharedRef<SWidget> AddPinButtonContent_New(FText PinText, FText PinTooltipText, bool bRightSide = true, FString DocumentationExcerpt = FString(), TSharedPtr<SToolTip> CustomTooltip = NULL);
 	FMargin EnabledStateWidgetAdditionalPadding;
 	mutable float CachedOutlineWidth;
 	mutable EDTGraphNodeState CachedState;
 	EDTNodeReportType ErrorInfoType;
-	 
+	const FSlateBrush* IChevronDown;
+	const FSlateBrush* IChevronUp;
+	TSharedPtr<SImage> AdvancedViewArrow;
+	TSharedPtr<SWidget> EnabledStateWidget;
 	//InlineEditableText -> MainText
 };

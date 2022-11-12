@@ -1,5 +1,4 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
-
 #include "Restyle.h"
 #include <Developer/Settings/Public/ISettingsModule.h>
 #include "BlueprintEditor.h"
@@ -12,6 +11,7 @@
 
 #include "Utils/ColorUtils.h"
 #include "Async/TaskGraphInterfaces.h"
+
 #define LOCTEXT_NAMESPACE "FRestyleModule"
 
 class FDelayLoadRunnable : public FRunnable

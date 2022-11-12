@@ -1118,7 +1118,7 @@ struct FDTEnabledStateWidget
 			FDTBrushRef("Box", false, "Light-1", true, "Light-4"),
 			"Small"
 		);
-		Padding = "MediumY";
+		Padding = "SmallY";
 	}
 
 	explicit FDTEnabledStateWidget(const FName& Padding, FDTEnabledState Types[(int)EDTEnabledStateType::Num])
@@ -1260,6 +1260,22 @@ struct FDTZoomSettings
 
 #pragma endregion
 
+USTRUCT()
+struct FDTAdvancedDisplay
+{
+	GENERATED_BODY()
+	FDTAdvancedDisplay()
+	{
+		Padding = "Medium";
+		Button = "Transparent";
+	}
+
+
+	UPROPERTY(Category ="DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	FName Padding;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	FDTButtonRef Button;
+};
 struct FNodeRestyleStyles
 {
 	static inline const FName CommentBubble_CommentArrow = "Restyle.CommentBubble.CommentArrow";
@@ -1362,7 +1378,52 @@ public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 #pragma region Utils
-	static EDTGraphNodeTitleType DetermineTitleTypeByColor(const FLinearColor& RawNodeTitleColor);
+	static EDTGraphNodeTitleType DetermineTitleTypeByColor(const FLinearColor& RawNodeTitleColor)
+	{
+		auto& x = RawNodeTitleColor;
+		auto Settings = GetDefault<UGraphEditorSettings>();
+		if (x == Settings->EventNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::Event;
+		}
+		if (x == Settings->FunctionCallNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::Function;
+		}
+		if (x == Settings->PureFunctionCallNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::PureFunction;
+		}
+		if (x == Settings->ParentFunctionCallNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::ParentFunction;
+		}
+		if (x == Settings->FunctionTerminatorNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::FunctionTerminator;
+		}
+		if (x == Settings->ExecBranchNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::ExecBranch;
+		}
+		if (x == Settings->ExecSequenceNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::ExecSequence;
+		}
+		if (x == Settings->ResultNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::Result;
+		}
+		/*if (x == Settings->DefaultCommentNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::DefaultComment;
+		}*/
+		if (x == Settings->PreviewNodeTitleColor)
+		{
+			return EDTGraphNodeTitleType::Preview;
+		}
+		return EDTGraphNodeTitleType::Default;
+	}
 #pragma endregion
 
 	UPROPERTY(EditAnywhere, meta = (Category = "Commands"))
@@ -1409,7 +1470,7 @@ public:
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Settings|Misc"))
 	FDTEnabledStateWidget StateWidget;
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Settings|Misc"))
-	FDTButtonRef AdvancedDisplay;
+	FDTAdvancedDisplay AdvancedDisplay;
 
 
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Zoom"))

@@ -57,7 +57,7 @@ void UNodeRestyleSettings::SetDefaults()
 		FDTBrushRef("NodeReport", true, "Violet-2", true, "Violet-3"),
 		"Medium"
 	};
-	AdvancedDisplay = "Transparent";
+	AdvancedDisplay = FDTAdvancedDisplay();
 	StateWidget = FDTEnabledStateWidget();
 	CommentBubble = FDTCommentBubble();
 	Zoom = FDTZoomSettings();
@@ -100,54 +100,6 @@ void UNodeRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& Propert
 		}
 	}
 }
-
-EDTGraphNodeTitleType UNodeRestyleSettings::DetermineTitleTypeByColor(const FLinearColor& RawNodeTitleColor)
-{
-	auto& x = RawNodeTitleColor;
-	auto Settings = GetDefault<UGraphEditorSettings>();
-	if (x == Settings->EventNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::Event;
-	}
-	if (x == Settings->FunctionCallNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::Function;
-	}
-	if (x == Settings->PureFunctionCallNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::PureFunction;
-	}
-	if (x == Settings->ParentFunctionCallNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::ParentFunction;
-	}
-	if (x == Settings->FunctionTerminatorNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::FunctionTerminator;
-	}
-	if (x == Settings->ExecBranchNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::ExecBranch;
-	}
-	if (x == Settings->ExecSequenceNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::ExecSequence;
-	}
-	if (x == Settings->ResultNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::Result;
-	}
-	/*if (x == Settings->DefaultCommentNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::DefaultComment;
-	}*/
-	if (x == Settings->PreviewNodeTitleColor)
-	{
-		return EDTGraphNodeTitleType::Preview;
-	}
-	return EDTGraphNodeTitleType::Default;
-}
-
 FNodeRestyleDefault::FNodeRestyleDefault()
 {
 	Factory = MakeShared<FDefaultGraphPanelNodeFactory>();
@@ -661,7 +613,7 @@ void FNodeRestyleDefault::Update()
 	/* AdvancedDisplay */
 	{
 		FButtonStyle ButtonStyle;
-		const auto& AdvancedDisplay = Style->AdvancedDisplay.Get();
+		const auto& AdvancedDisplay = Style->AdvancedDisplay.Button.Get();
 		UDefaultThemeSettings::Get()->ModifyButtonStyle(&ButtonStyle, AdvancedDisplay);
 		StyleSet->Set(FNodeRestyleStyles::AdvancedDisplay, ButtonStyle);
 	}

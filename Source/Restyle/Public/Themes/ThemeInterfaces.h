@@ -67,6 +67,7 @@ public:
 	 * @brief Called when last subject factory provider was deselected by user
 	 */
 	virtual void Unregister() = 0;
-	 
+ 
+	virtual bool IsRegistered(ERestyleSubject Subject) = 0;
 	virtual TSharedPtr<ISubjectRestyleInterface> GetSubjectFactoryProvider(ERestyleSubject ForSubject) = 0;
 };
