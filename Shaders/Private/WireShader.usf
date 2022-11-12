@@ -1,0 +1,72 @@
+#pragma once
+#include "/Engine/Private/Common.ush"
+#include "/Engine/Private/SlateShaderCommon.ush"
+#include "/Engine/Private/GammaCorrectionCommon.ush"
+
+float4x4 ViewProjection;
+
+void MainVS(
+	float2 InPosition : ATTRIBUTE0,
+	float2 InUV       : ATTRIBUTE1,
+	out FScreenVertexOutput Output
+)
+{
+	Output.Position = mul(float4(InPosition, 0.0, 1.0), ViewProjection);
+	Output.UV = InUV;
+}
+
+
+float4 ShaderParams; // Line settings
+float4 ShaderParams2; // Color
+/** Texture for the element */
+Texture2D ElementTexture;
+SamplerState ElementTextureSampler;
+half4 GetLineSegmentElementColor(float4 BaseColor, FScreenVertexOutput InVertex)
+{
+	float LineWidth = ShaderParams.x;
+	float FilterWidthScale = ShaderParams.y;
+	float Gradient = InVertex.UV.x;
+	float2 GradientDerivative = float2(abs(ddx(Gradient)), abs(ddy(Gradient)));
+	float PixelSizeInUV = sqrt(dot(GradientDerivative, GradientDerivative));
+	float HalfLineWidthUV = 0.5f * PixelSizeInUV * LineWidth;
+	float HalfFilterWidthUV = FilterWidthScale * PixelSizeInUV;
+	float DistanceToLineCenter = abs(0.5f - Gradient);
+	float LineCoverage = smoothstep(
+	HalfLineWidthUV + HalfFilterWidthUV, 
+	HalfLineWidthUV - HalfFilterWidthUV, 
+	DistanceToLineCenter);
+
+	BaseColor.a *= LineCoverage;
+#if 0
+	if (step(0.05, DistanceToLineCenter) == 0.0)
+	{
+		BaseColor.r = 0.0;
+		BaseColor.g = 0.0;
+		BaseColor.b = 1.0;
+		return BaseColor;
+	}
+#endif
+
+
+	if (LineCoverage <= 0.0f)
+	{
+		discard;
+		return BaseColor;
+	}
+	 
+	return BaseColor;
+}
+ 
+float4 MainPS(FScreenVertexOutput In) : SV_Target0
+{
+	float4 OutColor;
+	//float4 BaseColor = float4(1.0, 1.0, 1.0, 1.0);
+	float4 BaseColor = ShaderParams2;
+	//BaseColor = float4(0.0, 0.0, 0.0, 1.0);
+	//BaseColor.a = 0.5;
+	//OutColor = BaseColor;
+	//OutColor = Texture2DSample(ElementTexture, ElementTextureSampler, GetUV(In, 0));
+	OutColor = GetLineSegmentElementColor(BaseColor, In);
+	//float4(GetUV(In,0).x, GetUV(In,0).y, 0.0, 1.0)
+	return OutColor;
+}

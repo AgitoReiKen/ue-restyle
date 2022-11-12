@@ -1,0 +1,20 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_7147_3125)">
+<ellipse cx="22.5" cy="28" rx="7.5" ry="2" fill="black" fill-opacity="0.25"/>
+<path d="M6 5V21H15V20H7V6H15V5H6Z" fill="white"/>
+<path d="M11 23.5V22H15V23.5H11Z" fill="white"/>
+<rect x="7" y="6" width="8" height="14" fill="black"/>
+<path d="M8 20V7H15V9.88889L8 20Z" fill="white" fill-opacity="0.25"/>
+<path d="M15.5 3.5H29.5V27.5H15.5V3.5Z" fill="#121212" stroke="#FAFAFA"/>
+<line x1="17.5" y1="20.5" x2="27.5" y2="20.5" stroke="white" stroke-linecap="round"/>
+<circle cx="18" cy="24" r="1" fill="white"/>
+<circle cx="21" cy="24" r="1" fill="white"/>
+<path d="M22 9.21212L24.7273 0H32L26.5455 5.81818H30.1818L22.9091 16L24.7273 9.21212H22Z" fill="black"/>
+<path d="M20 9.21212L22.7273 0H30L24.5455 5.81818H28.1818L20.9091 16L22.7273 9.21212H20Z" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_7147_3125">
+<rect width="32" height="32" fill="white"/>
+</clipPath>
+</defs>
+</svg>
