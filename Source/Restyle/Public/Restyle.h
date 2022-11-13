@@ -101,4 +101,9 @@ private:
 	FConsoleCommandWithArgsDelegate CmdRestyle_Delegate;
 	FRunnableThread* DelayLoadThread;
 };
- 
+
+class RESTYLE_API FDelayLoadRunnable : public FRunnable
+{
+public:
+	virtual uint32 Run() override;
+};

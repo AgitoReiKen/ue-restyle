@@ -6,7 +6,7 @@
 #include "RestyleSettings.generated.h"
 
 
-UCLASS(Config = Editor, DefaultConfig)
+UCLASS(Config = Editor, GlobalUserConfig)
 class RESTYLE_API URestyleSettings : public UObject
 {
 	GENERATED_BODY()

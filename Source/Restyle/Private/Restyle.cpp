@@ -14,24 +14,17 @@
 
 #define LOCTEXT_NAMESPACE "FRestyleModule"
 
-class FDelayLoadRunnable : public FRunnable
+uint32 FDelayLoadRunnable::Run()
 {
-public:
-	virtual uint32 Run() override
-	{
-		while (true) {
-			if (GEditor && GWorld) {
-				FFunctionGraphTask::CreateAndDispatchWhenReady([]()
-				{
-					auto Restyle = FModuleManager::Get().GetModule("Restyle");
-					reinterpret_cast<FRestyleModule*>(Restyle)->Load();
-				}, TStatId(), nullptr, ENamedThreads::GameThread);
-				return 0;
-			}
-		}
-		return 1;
-	}
-};
+	while (!GEditor || !GWorld) { FPlatformProcess::Sleep(1); }
+	FFunctionGraphTask::CreateAndDispatchWhenReady([]()
+		{
+			auto Restyle = FModuleManager::Get().GetModule("Restyle");
+			reinterpret_cast<FRestyleModule*>(Restyle)->Load();
+		}, TStatId(), nullptr, ENamedThreads::GameThread);
+	return 1;
+}
+
 //@note plugin is set as DeveloperTool because its the only way to make it work with shaders (as i know)
 //but technically it is made out to be an editor's extension, so we wait until GEditor get loaded
 void FRestyleModule::StartupModule()
@@ -263,6 +256,7 @@ bool FRestyleModule::OnSettingsChanged()
 	SetSubjectProvider(ERestyleSubject::Pin, Settings->PinFactoryProviderId);
 	SetSubjectProvider(ERestyleSubject::PinConnection, Settings->WireFactoryProviderId);
 	UpdateThemes();
+	Settings->SaveConfig(CPF_Config, *Settings->GetGlobalUserConfigFilename());
 	return true;
 }
 

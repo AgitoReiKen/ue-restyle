@@ -496,29 +496,39 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 
 		 
 	}
-	 
-	FColor CorrectedWireColor = WireParams.WireColor.ToFColorSRGB();
-	WireColor = {
-		CorrectedWireColor.R / 255.f,
-		CorrectedWireColor.G / 255.f,
-		CorrectedWireColor.B / 255.f,
-		WireColor.A
-	};
-	float WireThickness = FMath::Max(Zoomed(WireParams.WireThickness), 1.0f);
-
-	LineDrawer = FPathDrawerHolder::Get().Add();
-	FRestylePathSettings PathSettings;
-	PathSettings.Thickness = WireThickness;
-	PathSettings.Color = WireColor;
-	PathSettings.bDrawWireframe = WireSettings->bDrawWireframe;
-	PathSettings.Join = WireSettings->bRoundCorners ? ERestylePathJoinType::Round : ERestylePathJoinType::Miter;
-	PathSettings.CornerRadius = WireSettings->CornerRadius;
 	if (WireSettings->MinHorizontalLength > WireParams.WireThickness)
 	{
+		FColor CorrectedWireColor = WireParams.WireColor.ToFColorSRGB();
+		WireColor = {
+			CorrectedWireColor.R / 255.f,
+			CorrectedWireColor.G / 255.f,
+			CorrectedWireColor.B / 255.f,
+			WireColor.A
+		};
+		float WireThickness = FMath::Max(Zoomed(WireParams.WireThickness), 1.0f);
+
+		FRestylePathSettings PathSettings;
+		PathSettings.Thickness = WireThickness;
+		PathSettings.Color = WireColor;
+		PathSettings.bDrawWireframe = WireSettings->bDrawWireframe;
+		PathSettings.Join = WireSettings->bRoundCorners ? ERestylePathJoinType::Round : ERestylePathJoinType::Miter;
+		PathSettings.CornerRadius = WireSettings->CornerRadius;
+
+		LineDrawer = FPathDrawerHolder::Get().Add();
 		LineDrawer->ClippingRect = ClippingRect;
 		LineDrawer->Path.Init(PointsF, PathSettings);
 		PointsF = LineDrawer->Path.Points;
+
+		UpdateSplineHover(PointsF, WireParams, ZoomFactor);
+
 		FSlateDrawElement::MakeCustom(DrawElementsList, WireLayerID, LineDrawer);
+		/*TArray<FVector2D> PointsD;
+		for (auto& it : PointsF)
+		{
+			PointsD.Add({it.X, it.Y});
+		}
+		FSlateDrawElement::MakeLines(DrawElementsList, WireLayerID, FPaintGeometry(),
+			PointsD, ESlateDrawEffect::None, PathSettings.Color, true, PathSettings.Thickness);*/
 	}
 	else
 	{
@@ -529,7 +539,6 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 		}
 	}
 
-	UpdateSplineHover(PointsF, WireParams, ZoomFactor);
 	if (WireParams.bDrawBubbles || (MidpointImage != nullptr))
 	{
 		float TotalLength = 0.f;
