@@ -68,7 +68,7 @@ public:
 	void Load();
 	virtual void ShutdownModule() override;
 public:
-	void RegisterTheme(TSharedPtr<IRestyleThemeInterface> Theme);
+	void RegisterTheme(TSharedPtr<IRestyleThemeInterface> Theme);	
 	void UnregisterTheme(const FName& Id);
 	void SetSubjectProvider(ERestyleSubject Subject, const FName& Id);
 	TSharedPtr<ISubjectRestyleInterface> TryGetSubjectProvider(const FName& ThemeId, ERestyleSubject Subject);

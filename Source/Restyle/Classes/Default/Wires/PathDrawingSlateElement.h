@@ -25,27 +25,27 @@ struct FRestylePathSettings
 	ERestylePathJoinType Join;
 	float CornerRadius;
 }; 
-struct FGenerateLineVerticesResult
+struct FPathRenderData
 {
 	TResourceArray<FScreenVertex, VERTEXBUFFER_ALIGNMENT> Vertices;
 	TResourceArray<uint32, INDEXBUFFER_ALIGNMENT> Indices;
-	FGenerateLineVerticesResult()
+	FPathRenderData()
 	{
 	}
 
-	FGenerateLineVerticesResult(const FGenerateLineVerticesResult& Other)
+	FPathRenderData(const FPathRenderData& Other)
 		: Vertices(Other.Vertices),
 		  Indices(Other.Indices)
 	{
 	}
 
-	FGenerateLineVerticesResult(FGenerateLineVerticesResult&& Other) noexcept
+	FPathRenderData(FPathRenderData&& Other) noexcept
 		: Vertices(MoveTemp(Other.Vertices)),
 		  Indices(MoveTemp(Other.Indices))
 	{
 	}
 
-	FGenerateLineVerticesResult& operator=(const FGenerateLineVerticesResult& Other)
+	FPathRenderData& operator=(const FPathRenderData& Other)
 	{
 		if (this == &Other)
 			return *this;
@@ -54,7 +54,7 @@ struct FGenerateLineVerticesResult
 		return *this;
 	}
 
-	FGenerateLineVerticesResult& operator=(FGenerateLineVerticesResult&& Other) noexcept
+	FPathRenderData& operator=(FPathRenderData&& Other) noexcept
 	{
 		if (this == &Other)
 			return *this;
@@ -193,7 +193,7 @@ public:
 
 	void Init(TArray<FVector2f> InPoints, FRestylePathSettings InSettings);
 
-	FGenerateLineVerticesResult MakeRenderData();
+	FPathRenderData MakeRenderData();
 
 private:
 	FVector2f GetWidth(const FVector2f& A, const FVector2f& B);
@@ -202,22 +202,22 @@ private:
 		const FVector2f& P3, const FVector2f& P4,
 		bool bReturnPossible);
 
-	void AppendRoundJoin(FGenerateLineVerticesResult& r,
+	void AppendRoundJoin(FPathRenderData& r,
 		FSegment& aSeg, FSegmentData& aSegData,
 		FSegmentData& bSegData,
 		bool bIsUpper, float Resolution);
 
-	void FixAdjacentGeometry(FGenerateLineVerticesResult& r, uint32 SegmentA, uint32 SegmentB,
+	void FixAdjacentGeometry(FPathRenderData& r, uint32 SegmentA, uint32 SegmentB,
 		ERestylePathJoinType JoinType);
 
-	void MakeLineGeometry(FGenerateLineVerticesResult& r,
+	void MakeLineGeometry(FPathRenderData& r,
 		uint32 iA, uint32 iAU, uint32 iAL,
 		uint32 iB, uint32 iBU, uint32 iBL
 	);
 
-	void MakeCap(FGenerateLineVerticesResult& r, uint32 iSegment, bool bIsBegin);
+	void MakeCap(FPathRenderData& r, uint32 iSegment, bool bIsBegin);
 
-	void InitWithPoints(FGenerateLineVerticesResult& r);
+	void InitWithPoints(FPathRenderData& r);
 
 	void Calculate(TArray<FVector2f>& InPoints);
 };
@@ -232,7 +232,6 @@ public:
 	FPath Path;
 	FSlateRect ClippingRect;
 protected:
-	FGenerateLineVerticesResult GenerateLineVertices();
 	FMatrix CreateProjectionMatrix(uint32 Width, uint32 Height);
 
 };
