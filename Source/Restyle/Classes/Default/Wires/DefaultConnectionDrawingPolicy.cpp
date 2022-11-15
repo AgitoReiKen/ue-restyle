@@ -20,32 +20,7 @@
 #include "Slate/DeferredCleanupSlateBrush.h"
 
 #include "UObject/ConstructorHelpers.h"
-namespace
-{
-	namespace SGraphPin_Private_internal
-	{
-		template <typename PtrType, PtrType PtrValue, typename TagType>
-		struct getter {
-			friend PtrType get(TagType) { return PtrValue; }
-		};
-
-		struct Tag {};
-
-		using Type = TWeakPtr<SGraphNode>;
-		using TypePtr = Type SGraphPin::*;
-		template struct getter<Type(SGraphPin::*), &SGraphPin::OwnerNodePtr, Tag>;
-		TypePtr get(Tag);
-	}
-
-	namespace SGraphPin_Private
-	{
-		TWeakPtr<SGraphNode>& OwnerNodePtr(SGraphPin& Class)
-		{
-			return Class.*get(SGraphPin_Private_internal::Tag{});
-		}
-	}
-}
-
+#include "Utils/Privates.h" 
 class FPathDrawerHolder
 {
 	class FRunnableCleaner : public FRunnable
@@ -227,7 +202,7 @@ void FDefaultConnectionDrawingPolicy::UpdateSplineHover(const TArray<FVector2f>&
 FGeometry FDefaultConnectionDrawingPolicy::GetNodeGeometryByPinWidget(SGraphPin& PinWidget,
 	const FArrangedChildren& ArrangedNodes)
 {
-	auto NodeWidget = SGraphPin_Private::OwnerNodePtr(PinWidget);
+	auto NodeWidget = access_private::OwnerNodePtr(PinWidget);
 	int32 NodeWidgetId = ArrangedNodes.FindLastByPredicate([&NodeWidget](const FArrangedWidget& c)->bool
 		{
 			return c.Widget == NodeWidget.Pin();
@@ -583,7 +558,7 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 						FVector2f BubblePos = A + (Normal * Offset) - BubbleHalfSize; // *BubbleOffset);
 						FSlateDrawElement::MakeBox(
 							DrawElementsList,
-							WireLayerID,
+							ArrowLayerID,
 							FPaintGeometry(FVector2D(BubblePos.X, BubblePos.Y), FVector2D(BubbleSize.X, BubbleSize.Y), ZoomFactor),
 							BubbleImage,
 							ESlateDrawEffect::None,
@@ -621,7 +596,7 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 					const float AngleInRadians = FMath::Atan2(B.Y - A.Y, B.X - A.X);
 					FSlateDrawElement::MakeRotatedBox(
 						DrawElementsList,
-						WireLayerID,
+						ArrowLayerID,
 						FPaintGeometry(FVector2D(DrawPos.X, DrawPos.Y), MidpointImage->ImageSize * ZoomFactor, ZoomFactor),
 						MidpointImage,
 						ESlateDrawEffect::None,

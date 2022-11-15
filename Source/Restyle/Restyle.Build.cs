@@ -51,7 +51,8 @@ public class Restyle : ModuleRules
                 "ToolWidgets",
                 "RHI",
                 "UMGEditor",
-                "MaterialEditor"
+                "MaterialEditor", 
+                "AnimGraph"
                 // ... add private dependencies that you statically link with here ...	
             }
         );

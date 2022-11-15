@@ -472,27 +472,13 @@ void FPathDrawingSlateElement::DrawRenderThread(
 	FIndexBuffer _IndexBuffer;
 	_VertexBuffer.InitResource();
 	_IndexBuffer.InitResource();
+	uint32 NumVerticesToRender = 0;
+	uint32 NumPrimitivesToRender = 0;
 
 	const FTexture2DRHIRef& Buffer = static_cast<const FTexture2DRHIRef*>(InWindowBackBuffer)->GetReference();
 	FVector2f ViewportSize(Buffer->GetSizeX(), Buffer->GetSizeY());
-	FRHIRenderPassInfo RPInfo(Buffer.GetReference(), ERenderTargetActions::Load_Store);
-	RPInfo.DepthStencilRenderTarget.Action = EDepthStencilTargetActions::DontLoad_DontStore;
-	RPInfo.DepthStencilRenderTarget.ExclusiveDepthStencil = FExclusiveDepthStencil::DepthNop_StencilNop;
-	TransitionRenderPassTargets(RHICmdList, RPInfo);
-	RHICmdList.BeginRenderPass(RPInfo, TEXT("FPathDrawingSlateElement"));
-	{
-		ClippingRect.Top = FMath::Min(FMath::Max(ClippingRect.Top, 0.f), ViewportSize.Y);
-		ClippingRect.Bottom = FMath::Min(FMath::Max(ClippingRect.Bottom, 0.f), ViewportSize.Y);
-		ClippingRect.Left = FMath::Min(FMath::Max(ClippingRect.Left, 0.f), ViewportSize.X);
-		ClippingRect.Right = FMath::Min(FMath::Max(ClippingRect.Right, 0.f), ViewportSize.X);
-
-		RHICmdList.SetViewport(0, 0, 0, ViewportSize.X, ViewportSize.Y, 1);
-		RHICmdList.SetScissorRect(true,
-		                          ClippingRect.Left,
-		                          ClippingRect.Top,
-		                          ClippingRect.Right,
-		                          ClippingRect.Bottom);
-
+	{ 
+		 
 		TShaderMapRef<FRestyleVertexShader> VertexShader(
 			GGlobalShaderMap[GShaderPlatformForFeatureLevel[GMaxRHIFeatureLevel]]);
 		TShaderMapRef<FRestylePixelShader> PixelShader(
@@ -527,20 +513,41 @@ void FPathDrawingSlateElement::DrawRenderThread(
 			VertexShader->SetViewProjection(RHICmdList, FMatrix44f(ProjectionMatrix));
 		}
 
-		bool bDynamicUsage = true;
-		const EBufferUsageFlags Usage = /*BUF_ShaderResource | */(bDynamicUsage ? BUF_Dynamic : BUF_Static);
 		auto [Vertices, Indices] = Path.MakeRenderData();
 		{
 			FRHIResourceCreateInfo CreateInfo(TEXT("Restyle_Path_VertexBuffer"), &Vertices);
 			_VertexBuffer.VertexBufferRHI = RHICreateVertexBuffer(Vertices.GetResourceDataSize(),
-				Usage, CreateInfo);
+				BUF_Dynamic, CreateInfo);
 		}
 
 		{
 			FRHIResourceCreateInfo CreateInfo(TEXT("Restyle_Path_IndexBuffer"), &Indices);
 			_IndexBuffer.IndexBufferRHI = RHICreateIndexBuffer(sizeof(uint32), Indices.GetResourceDataSize(),
-				Usage, CreateInfo);
+				BUF_Dynamic, CreateInfo);
 		}
+		NumVerticesToRender = Vertices.Num();
+		NumPrimitivesToRender = Indices.Num() / 3;
+	}
+
+	FRHIRenderPassInfo RPInfo(Buffer.GetReference(), ERenderTargetActions::Load_Store);
+	RPInfo.DepthStencilRenderTarget.Action = EDepthStencilTargetActions::DontLoad_DontStore;
+	RPInfo.DepthStencilRenderTarget.ExclusiveDepthStencil = FExclusiveDepthStencil::DepthNop_StencilNop;
+	TransitionRenderPassTargets(RHICmdList, RPInfo);
+	RHICmdList.BeginRenderPass(RPInfo, TEXT("FPathDrawingSlateElement"));
+	{
+
+		RHICmdList.SetViewport(0, 0, 0, ViewportSize.X, ViewportSize.Y, 1);
+
+		ClippingRect.Top = FMath::Min(FMath::Max(ClippingRect.Top, 0.f), ViewportSize.Y);
+		ClippingRect.Bottom = FMath::Min(FMath::Max(ClippingRect.Bottom, 0.f), ViewportSize.Y);
+		ClippingRect.Left = FMath::Min(FMath::Max(ClippingRect.Left, 0.f), ViewportSize.X);
+		ClippingRect.Right = FMath::Min(FMath::Max(ClippingRect.Right, 0.f), ViewportSize.X);
+
+		RHICmdList.SetScissorRect(true,
+			ClippingRect.Left,
+			ClippingRect.Top,
+			ClippingRect.Right,
+			ClippingRect.Bottom);
 
 		RHICmdList.SetStreamSource(0, _VertexBuffer.VertexBufferRHI, 0);
 
@@ -548,9 +555,9 @@ void FPathDrawingSlateElement::DrawRenderThread(
 			_IndexBuffer.IndexBufferRHI,
 			/*BaseVertexIndex=*/ 0,
 			/*MinIndex=*/ 0,
-			/*NumVertices=*/ Vertices.Num(),
+			/*NumVertices=*/ NumVerticesToRender,
 			/*StartIndex=*/ 0,
-			/*NumPrimitives=*/ Indices.Num() / 3,
+			/*NumPrimitives=*/ NumPrimitivesToRender,
 			/*NumInstances=*/ 1);
 	}
 	RHICmdList.EndRenderPass();

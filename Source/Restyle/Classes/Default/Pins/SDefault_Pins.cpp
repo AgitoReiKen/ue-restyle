@@ -169,6 +169,7 @@
 //void SDefault_GraphPinCollisionProfile::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 //{
 //	SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
+#include "SLevelOfDetailBranchNode.h"
 //}
 
 #pragma region GraphPin
@@ -239,117 +240,186 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 
 	// Create the widget used for the pin body (status indicator, label, and value)
 	LabelAndValue = SNew(SWrapBox).PreferredSize(Style.PreferredWrapSize);
-
-	TSharedPtr<SHorizontalBox> PinContent;
+	TSharedPtr<SWrapBox> LowLodContent = SNew(SWrapBox).PreferredSize(Style.PreferredWrapSize);
+	TSharedPtr<SHorizontalBox> LowLodBox = SNew(SHorizontalBox);
+	TSharedPtr<SHorizontalBox> HighLodBox = SNew(SHorizontalBox);
 	if (GetDirection() == EGPD_Input)
 	{
-		LabelAndValue->AddSlot()
-		             .VAlign(VAlign_Center)
-		             .Padding(0, 0, Spacing, 0)
-		[
-			LabelWidget
-		];
-
-		ValueWidget = GetDefaultValueWidget();
-
-		if (ValueWidget != SNullWidget::NullWidget)
+		/* Low LOD*/
 		{
-			TSharedPtr<SBox> ValueBox;
-			LabelAndValue->AddSlot()
-			             .Padding(0)
-			             .VAlign(VAlign_Center)
-			[
-				SAssignNew(ValueBox, SBox)
-				.Padding(0.0f)
+			LowLodContent->AddSlot()
+				.VAlign(VAlign_Center)
+				.Padding(0, 0, Spacing, 0)
 				[
-					ValueWidget.ToSharedRef()
-				]
-			];
-
-			if (!DoesWidgetHandleSettingEditingEnabled())
-			{
-				ValueBox->SetEnabled(TAttribute<bool>(this, &SGraphPin::IsEditingEnabled));
-			}
+					LabelWidget
+				];
+			LowLodContent->AddSlot()
+				.VAlign(VAlign_Center)
+				[
+					PinStatusIndicator
+				];
+			// Input pin
+			LowLodBox->AddSlot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(0, 0, Spacing, 0)
+				[
+					PinWidgetRef
+				];
+			LowLodBox->AddSlot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				[
+					LowLodContent.ToSharedRef()
+				];
 		}
+		/* High LOD */
+		{
+			LabelAndValue->AddSlot()
+				.VAlign(VAlign_Center)
+				.Padding(0, 0, Spacing, 0)
+				[
+					LabelWidget
+				];
 
-		LabelAndValue->AddSlot()
-		             .VAlign(VAlign_Center)
-		[
-			PinStatusIndicator
-		];
+			ValueWidget = GetDefaultValueWidget();
 
-		// Input pin
-		FullPinHorizontalRowWidget = PinContent =
-			SNew(SHorizontalBox)
+			if (ValueWidget != SNullWidget::NullWidget)
+			{
+				TSharedPtr<SBox> ValueBox;
+				LabelAndValue->AddSlot()
+					.Padding(0)
+					.VAlign(VAlign_Center)
+					[
+						SAssignNew(ValueBox, SBox)
+						.Padding(0.0f)
+					[
+						ValueWidget.ToSharedRef()
+					]
+					];
+
+				if (!DoesWidgetHandleSettingEditingEnabled())
+				{
+					ValueBox->SetEnabled(TAttribute<bool>(this, &SGraphPin::IsEditingEnabled));
+				}
+			}
+
+			LabelAndValue->AddSlot()
+				.VAlign(VAlign_Center)
+				[
+					PinStatusIndicator
+				];
+
+			FullPinHorizontalRowWidget = HighLodBox =
+				SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(0, 0, Spacing, 0)
+				[
+					PinWidgetRef
+				]
 			+ SHorizontalBox::Slot()
-			  .AutoWidth()
-			  .VAlign(VAlign_Center)
-			  .Padding(0, 0, Spacing, 0)
-			[
-				PinWidgetRef
-			]
-			+ SHorizontalBox::Slot()
-			  .AutoWidth()
-			  .VAlign(VAlign_Center)
-			[
-				LabelAndValue.ToSharedRef()
-			];
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				[
+					LabelAndValue.ToSharedRef()
+				];
+		}
 	}
 	else
 	{
-		LabelAndValue->AddSlot()
-		             .VAlign(VAlign_Center)
-		[
-			PinStatusIndicator
-		];
+		/* Low LOD*/
+		{
+			LowLodContent->AddSlot()
+				.VAlign(VAlign_Center)
+				[
+					PinStatusIndicator
+				];
+			LowLodContent->AddSlot()
+				.VAlign(VAlign_Center)
+				.Padding(0, 0, Spacing, 0)
+				[
+					LabelWidget
+				];
+			LowLodBox->AddSlot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				[
+					LowLodContent.ToSharedRef()
+				];
+			LowLodBox->AddSlot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Spacing, 0, 0, 0)
+				[
+					PinWidgetRef
+				];
+			 
+		}
+		/* High LOD */
+		{
+			LabelAndValue->AddSlot()
+				.VAlign(VAlign_Center)
+				[
+					PinStatusIndicator
+				];
 
-		LabelAndValue->AddSlot()
-		             .VAlign(VAlign_Center)
-		[
-			LabelWidget
-		];
-		// Output pin
-		FullPinHorizontalRowWidget = PinContent = SNew(SHorizontalBox)
+			LabelAndValue->AddSlot()
+				.VAlign(VAlign_Center)
+				[
+					LabelWidget
+				];
+			// Output pin
+			FullPinHorizontalRowWidget = HighLodBox = SNew(SHorizontalBox)
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				[
+					LabelAndValue.ToSharedRef()
+				]
 			+ SHorizontalBox::Slot()
-			  .AutoWidth()
-			  .VAlign(VAlign_Center)
-			[
-				LabelAndValue.ToSharedRef()
-			]
-			+ SHorizontalBox::Slot()
-			  .AutoWidth()
-			  .VAlign(VAlign_Center)
-			  .Padding(Spacing, 0, 0, 0)
-			[
-				PinWidgetRef
-			];
+				.AutoWidth()
+				.VAlign(VAlign_Center)
+				.Padding(Spacing, 0, 0, 0)
+				[
+					PinWidgetRef
+				];
+		}
 	}
-
 	// Set up a hover for pins that is tinted the color of the pin.
 	SBorder::Construct(SBorder::FArguments()
 	.BorderImage(FAppStyle::Get().GetBrush("NoBorder"))
-	.Padding(0)
+	.Padding(0)	
 	.OnMouseButtonDown(this, &SDefault_GraphPin::OnPinNameMouseDown)
 	[
-		SNew(SOverlay)
-		+ SOverlay::Slot()
-		.Padding(FMargin(-GraphSettings->PaddingTowardsNodeEdge, 0))
+		SNew(SLevelOfDetailBranchNode)
+		.UseLowDetailSlot(this, &SDefault_GraphPin::UseLowDetailPinNames)
+		.LowDetail()
 		[
-			SNew(SBorder)
-			.BorderImage(this, &SDefault_GraphPin::GetPinBorder)
-			.BorderBackgroundColor(this, &SDefault_GraphPin::GetPinColor)
-
+			LowLodBox.ToSharedRef()
 		]
-		+ SOverlay::Slot()
-		.Padding(0)
+		.HighDetail()
 		[
-			SNew(SBox)
-			.MinDesiredHeight(Style.MinDesiredHeight)
+			SNew(SOverlay)
+			+ SOverlay::Slot()
+			.Padding(FMargin(-GraphSettings->PaddingTowardsNodeEdge, 0))
 			[
-				PinContent.ToSharedRef()
+				SNew(SBorder)
+				.BorderImage(this, &SDefault_GraphPin::GetPinBorder)
+				.BorderBackgroundColor(this, &SDefault_GraphPin::GetPinColor)
+
+			]
+			+ SOverlay::Slot()
+				.Padding(0)
+				[
+					SNew(SBox)
+					.MinDesiredHeight(Style.MinDesiredHeight)
+					[
+						HighLodBox.ToSharedRef()
+					]
 			]
 		]
-		 
 	]);
 
 	TSharedPtr<IToolTip> TooltipWidget = SNew(SToolTip)

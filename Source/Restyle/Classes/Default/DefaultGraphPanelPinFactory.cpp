@@ -5,36 +5,12 @@
 #include "MaterialPins/SGraphPinMaterialInput.h"
 #include "Pins/SDefault_Pins.h"
 #include "Themes/Default/PinRestyleDefault.h"
-namespace 
-{
-	namespace _internal
-	{
-		template <typename PtrType, PtrType PtrValue, typename TagType>
-		struct getter {
-			friend PtrType get(TagType) { return PtrValue; }
-		};
-
-		struct Tag{};
-
-		using Type = TArray<TSharedPtr<FGraphPanelPinFactory>>;
-		using TypePtr = Type*;
-		template struct getter<Type(*), &FEdGraphUtilities::VisualPinFactories, Tag>;
-		TypePtr get(Tag);
-	}
-
-	namespace FEdGraphUtilities_Private
-	{
-		TArray<TSharedPtr<FGraphPanelPinFactory>>& VisualPinFactories()
-		{
-			return *get(_internal::Tag{});
-		}
-	}
-}
+#include "Utils/Privates.h"
 
 TSharedPtr<SGraphPin> FDefaultGraphPanelPinFactory::CreatePin(UEdGraphPin* InPin) const
 {
 	const auto& PinCategory = InPin->PinType.PinCategory;
-	auto& PinFactories = FEdGraphUtilities_Private::VisualPinFactories();
+	auto& PinFactories = access_private_static::FEdGraphUtilities::VisualPinFactories();
 
 	int ThisId = [this, &PinFactories]
 	{

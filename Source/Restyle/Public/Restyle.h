@@ -67,10 +67,15 @@ public:
 	virtual void StartupModule() override;
 	void Load();
 	virtual void ShutdownModule() override;
+	static FRestyleModule* Get()
+	{
+		return static_cast<FRestyleModule*>(FModuleManager::Get().GetModule("Restyle"));
+	}
 public:
 	void RegisterTheme(TSharedPtr<IRestyleThemeInterface> Theme);	
 	void UnregisterTheme(const FName& Id);
 	void SetSubjectProvider(ERestyleSubject Subject, const FName& Id);
+	bool IsSubjectProviderRegistered(const FName& ThemeId, ERestyleSubject Subject);
 	TSharedPtr<ISubjectRestyleInterface> TryGetSubjectProvider(const FName& ThemeId, ERestyleSubject Subject);
 	TSharedPtr<IRestyleThemeInterface> GetThemeById(const FName& Id);
 	TArray<FName> GetAvailableSubjectProviderOptions(ERestyleSubject Subject);

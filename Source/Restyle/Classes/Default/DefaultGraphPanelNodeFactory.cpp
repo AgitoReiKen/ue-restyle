@@ -1,5 +1,11 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
 #include "DefaultGraphPanelNodeFactory.h"
+
+#include "AnimGraphNode_Base.h"
+#include "AnimGraphNode_BlendSpaceBase.h"
+#include "AnimGraphNode_LayeredBoneBlend.h"
+#include "AnimGraphNode_Root.h"
+#include "AnimGraphNode_SequencePlayer.h"
 #include "SCommentBubble.h"
 #include "SGraphNode.h" 
 #include "Editor/BlueprintGraph/Public/BlueprintGraphDefinitions.h"
@@ -44,6 +50,7 @@
 #include "Nodes/SDefault_GraphNodeComment.h"
 #include "Nodes/SDefault_GraphNodeCreateWidget.h"
 #include "UMGEditor/Private/Nodes/K2Node_CreateWidget.h"
+#include "Utils/Privates.h"
 FDefaultGraphPanelNodeFactory::FDefaultGraphPanelNodeFactory()
 {
 }
@@ -51,6 +58,38 @@ FDefaultGraphPanelNodeFactory::FDefaultGraphPanelNodeFactory()
 TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::CreateNode(UEdGraphNode* InNode) const
 {
 	if (!InNode) return nullptr;
+	auto& Factories = access_private_static::FEdGraphUtilities::VisualNodeFactories();
+	for (auto FactoryIt = Factories.CreateIterator(); FactoryIt; ++FactoryIt)
+	{
+		TSharedPtr<FGraphPanelNodeFactory> FactoryPtr = *FactoryIt;
+		if (FactoryPtr.IsValid() && FactoryPtr.Get() != this)
+		{
+			TSharedPtr<SGraphNode> ResultVisualNode = FactoryPtr->CreateNode(InNode);
+			if (ResultVisualNode.IsValid())
+			{
+				return ResultVisualNode;
+			}
+		}
+	}
+	// ReSharper disable once CppJoinDeclarationAndAssignment
+	TSharedPtr<SGraphNode> Result;
+	Result = TryAnimation(InNode);
+	if (Result) return Result;
+
+	Result = TryMaterial(InNode);
+	if (Result) return Result;
+
+	Result = TryOther(InNode);
+	if (Result) return Result;
+
+	Result = TryKismet(InNode);
+	if (Result) return Result;
+
+	return nullptr;
+}
+
+TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryKismet(UEdGraphNode* InNode) const
+{
 	if (UK2Node* K2Node = Cast<UK2Node>(InNode))
 	{
 		if (UK2Node_CreateWidget* CreateWidgetNode = Cast<UK2Node_CreateWidget>(InNode))
@@ -119,21 +158,87 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::CreateNode(UEdGraphNode* I
 			return nullptr;
 			//return SNew(SGraphNodeK2Copy, CopyNode);
 		}
-		 
-		/* Functions, PureFunctions, Macros*/
 		return SNew(SDefault_GraphNodeK2Default, K2Node);
 	}
-	else if (UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(InNode))
+	return nullptr;
+}
+
+TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryAnimation(UEdGraphNode* InNode) const
+{
+	//if (UAnimGraphNode_Base* BaseAnimNode = Cast<UAnimGraphNode_Base>(InNode))
+	//{
+	//	if (UAnimGraphNode_Root* RootAnimNode = Cast<UAnimGraphNode_Root>(InNode))
+	//	{
+	//		return nullptr;
+	//		//return SNew(SGraphNodeAnimationResult, RootAnimNode);
+	//	}
+	//	else if (UAnimGraphNode_StateMachineBase* StateMachineInstance = Cast<UAnimGraphNode_StateMachineBase>(InNode))
+	//	{
+	//		return SNew(SGraphNodeStateMachineInstance, StateMachineInstance);
+	//	}
+	//	else if (UAnimGraphNode_SequencePlayer* SequencePlayer = Cast<UAnimGraphNode_SequencePlayer>(InNode))
+	//	{
+	//		return SNew(SGraphNodeSequencePlayer, SequencePlayer);
+	//	}
+	//	else if (UAnimGraphNode_LayeredBoneBlend* LayeredBlend = Cast<UAnimGraphNode_LayeredBoneBlend>(InNode))
+	//	{
+	//		return SNew(SGraphNodeLayeredBoneBlend, LayeredBlend);
+	//	}
+	//	else if (UAnimGraphNode_BlendSpaceBase* BlendSpacePlayer = Cast<UAnimGraphNode_BlendSpaceBase>(InNode))
+	//	{
+	//		return SNew(SGraphNodeBlendSpacePlayer, BlendSpacePlayer);
+	//	}
+	//	else if (UAnimGraphNode_BlendSpaceGraphBase* BlendSpaceGraph = Cast<UAnimGraphNode_BlendSpaceGraphBase>(InNode))
+	//	{
+	//		return SNew(SGraphNodeBlendSpaceGraph, BlendSpaceGraph);
+	//	}
+	//	else
+	//	{
+	//		return SNew(SAnimationGraphNode, BaseAnimNode);
+	//	}
+	//}
+	//else if (UAnimStateTransitionNode* TransitionNode = Cast<UAnimStateTransitionNode>(InNode))
+	//{
+	//	return SNew(SGraphNodeAnimTransition, TransitionNode);
+	//}
+	//else if (UAnimStateNode* StateNode = Cast<UAnimStateNode>(InNode))
+	//{
+	//	return SNew(SGraphNodeAnimState, StateNode);
+	//}
+	//else if (UAnimStateAliasNode* StateAliasNode = Cast<UAnimStateAliasNode>(InNode))
+	//{
+	//	return SNew(SGraphNodeAnimStateAlias, StateAliasNode);
+	//}
+	//else if (UAnimStateConduitNode* ConduitNode = Cast<UAnimStateConduitNode>(InNode))
+	//{
+	//	return SNew(SGraphNodeAnimConduit, ConduitNode);
+	//}
+	//else if (UAnimStateEntryNode* EntryNode = Cast<UAnimStateEntryNode>(InNode))
+	//{
+	//	return SNew(SGraphNodeAnimStateEntry, EntryNode);
+	//}
+	//else if (UK2Node_AnimNodeReference* AnimNodeReference = Cast<UK2Node_AnimNodeReference>(InNode))
+	//{
+	//	return SNew(SAnimNodeReference, AnimNodeReference);
+	//}
+	return nullptr;
+}
+
+TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryMaterial(UEdGraphNode* InNode) const
+{
+	if (UMaterialGraphNode_Comment* MaterialCommentNode = Cast<UMaterialGraphNode_Comment>(InNode))
 	{
-		if (UMaterialGraphNode_Comment* MaterialCommentNode = Cast<UMaterialGraphNode_Comment>(InNode))
-		{
-			return nullptr;
-			//return SNew(SGraphNodeMaterialComment, MaterialCommentNode);
-		}
-		else
-		{
-			return SNew(SDefault_GraphNodeComment, CommentNode);
-		}
+		return nullptr;
+		//return SNew(SGraphNodeMaterialComment, MaterialCommentNode);
+	}
+	return nullptr;
+}
+
+TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryOther(UEdGraphNode* InNode) const
+{
+	if (UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(InNode))
+	{
+		return SNew(SDefault_GraphNodeComment, CommentNode);
 	}
 	return nullptr;
 }

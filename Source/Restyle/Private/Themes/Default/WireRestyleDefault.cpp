@@ -88,7 +88,7 @@ void UWireRestyleSettings::SetDefaults()
 	KnotToExecTransitionPriority = EWireRestylePriority::Output;
 
 	BackwardSnapPointOffset = 8.f;
-	MinHorizontalLength = 16.f;
+	MinHorizontalLength = 24.f;
 
 	NumBubbles = 4;
 	BubbleSpeed = 2;

@@ -10,6 +10,7 @@
 #include "KismetPins/SGraphPinObject.h"
 #include "ClassViewerModule.h"
 #include "ClassViewerFilter.h"
+#include "Restyle.h"
 #include "ScopedTransaction.h"
 
 #include "Default/Pins/SDefault_Pins.h"
@@ -205,8 +206,7 @@ void SDefault_GraphNodeSpawnActor::CreatePinWidgets()
 	if ((BlueprintPin != NULL) && (!BlueprintPin->bHidden || (BlueprintPin->LinkedTo.Num() > 0)))
 	{
 		TSharedPtr<SGraphPin> NewPin = nullptr;
-		bool bPinsLoaded = FAppStyle::Get().HasWidgetStyle<FButtonStyle>(FPinRestyleStyles::Button);
-
+		bool bPinsLoaded = FRestyleModule::Get()->IsSubjectProviderRegistered("Default", ERestyleSubject::Pin);
 		if (bPinsLoaded) {
 			NewPin = SNew(SDefault_GraphPinActorBasedBlueprintClass, BlueprintPin);
 		}

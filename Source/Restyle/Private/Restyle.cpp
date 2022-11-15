@@ -11,6 +11,7 @@
 
 #include "Utils/ColorUtils.h"
 #include "Async/TaskGraphInterfaces.h"
+#include "Utils/Privates.h"
 
 #define LOCTEXT_NAMESPACE "FRestyleModule"
 
@@ -112,6 +113,11 @@ void FRestyleModule::SetSubjectProvider(ERestyleSubject Subject, const FName& Id
 		Provider->Register();
 		SetFactory(Subject, Provider);
 	}
+}
+
+bool FRestyleModule::IsSubjectProviderRegistered(const FName& ThemeId, ERestyleSubject Subject)
+{
+	return SubjectProviders[Subject] == ThemeId;
 }
 
 TSharedPtr<ISubjectRestyleInterface> FRestyleModule::TryGetSubjectProvider(
@@ -321,41 +327,47 @@ void FRestyleModule::SetFactory(ERestyleSubject Subject, TSharedPtr<ISubjectRest
 	switch (Subject)
 	{
 	case ERestyleSubject::Node:
+	{
+		auto& Factories = access_private_static::FEdGraphUtilities::VisualNodeFactories();
+		auto Factory = StaticCastSharedPtr<INodeRestyleInterface>(Provider)->GetFactory();
 		if (bRegister)
 		{
-			FEdGraphUtilities::RegisterVisualNodeFactory(
-				StaticCastSharedPtr<INodeRestyleInterface>(Provider)->GetFactory());
+			Factories.Insert(Factory, 0);
 		}
 		else
 		{
-			FEdGraphUtilities::UnregisterVisualNodeFactory(
-				StaticCastSharedPtr<INodeRestyleInterface>(Provider)->GetFactory());
+			Factories.Remove(Factory);
 		}
 		break;
+	}
 	case ERestyleSubject::Pin:
+	{
+		auto& Factories = access_private_static::FEdGraphUtilities::VisualPinFactories();
+		auto Factory = StaticCastSharedPtr<IPinRestyleInterface>(Provider)->GetFactory();
 		if (bRegister)
 		{
-			FEdGraphUtilities::RegisterVisualPinFactory(
-				StaticCastSharedPtr<IPinRestyleInterface>(Provider)->GetFactory());
+			Factories.Insert(Factory, 0);
 		}
 		else
 		{
-			FEdGraphUtilities::UnregisterVisualPinFactory(
-				StaticCastSharedPtr<IPinRestyleInterface>(Provider)->GetFactory());
+			Factories.Remove(Factory);
 		}
 		break;
+	}
 	case ERestyleSubject::PinConnection:
+	{
+		auto& Factories = access_private_static::FEdGraphUtilities::VisualPinConnectionFactories();
+		auto Factory = StaticCastSharedPtr<IWireRestyleInterface>(Provider)->GetFactory();
 		if (bRegister)
 		{
-			FEdGraphUtilities::RegisterVisualPinConnectionFactory(
-				StaticCastSharedPtr<IWireRestyleInterface>(Provider)->GetFactory());
+			Factories.Insert(Factory, 0);
 		}
 		else
 		{
-			FEdGraphUtilities::UnregisterVisualPinConnectionFactory(
-				StaticCastSharedPtr<IWireRestyleInterface>(Provider)->GetFactory());
+			Factories.Remove(Factory);
 		}
 		break;
+	}
 	default: break;
 	}
 }
