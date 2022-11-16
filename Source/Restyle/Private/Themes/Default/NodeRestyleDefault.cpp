@@ -99,7 +99,20 @@ void UNodeRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& Propert
 			Zoom.UpdateDefaultZoomLevelId();
 		}
 	}
+	if (PropertyChangedEvent.GetPropertyName() ==
+		GET_MEMBER_NAME_CHECKED(FDTZoomSettings, UseLowLodIfBelow))
+	{
+		if (Zoom.ZoomLevels.Num() == 0)
+		{
+			Zoom.UpdateZoomLevels();
+		}
+		else
+		{
+			Zoom.UpdateLowerZoomLevelId();
+		}
+	}
 }
+
 FNodeRestyleDefault::FNodeRestyleDefault()
 {
 	Factory = MakeShared<FDefaultGraphPanelNodeFactory>();
@@ -643,6 +656,7 @@ FuncType OriginalFunc = nullptr;
 TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* __fastcall UK2Node_CreateWidget_CreateVisualWidget_Hook(UK2Node_CreateWidget* This, 
 	TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* Result)
 {
+	
 	//TSharedPtr<SGraphNode> Original = (This->*OriginalFunc)();
 	if (!Result)
 	{
@@ -655,6 +669,7 @@ TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* __fastcall UK2Node_CreateWidget_Cre
 	}
 	return Result;
 }
+//subhook_t CreateVisualWidget_Hook;
 
 void FNodeRestyleDefault::Hook()
 {
@@ -687,6 +702,29 @@ void FNodeRestyleDefault::Hook()
 		}
 	}
 #endif
+	//auto Hook = &UK2Node_CreateWidget_CreateVisualWidget_Hook;
+	///* @todo [optional] use .pdb (but seems it requires user to install .pdb via epic)*/
+	//const char* FuncName = "?CreateVisualWidget@UK2Node_CreateWidget@@UEAA?AV?$TSharedPtr@VSGraphNode@@$00@@XZ";
+	//auto ModuleHandle = GetModuleHandle(TEXT("UnrealEditor-UMGEditor.dll"));
+	//if (!ModuleHandle)
+	//{
+	//	UE_LOG(LogTemp, Warning, L"%s GetModuleHandle(UMGEditor) failed", ANSI_TO_TCHAR(__FUNCTION__));
+	//	return;
+	//}
+	//FARPROC CreateVisualWidget_Addr = GetProcAddress(ModuleHandle, FuncName);
+	//if (!CreateVisualWidget_Addr)
+	//{
+	//	UE_LOG(LogTemp, Warning, L"%s GetProcAddress(UK2Node_CreateWidget::CreateVisualWidget) is null", ANSI_TO_TCHAR(__FUNCTION__));
+	//	return;
+	//}
+	//CreateVisualWidget_Hook = subhook_new(CreateVisualWidget_Addr, (void*)UK2Node_CreateWidget_CreateVisualWidget_Hook, subhook_flags::SUBHOOK_64BIT_OFFSET);
+	//if (CreateVisualWidget_Hook) {
+	//	subhook_install(CreateVisualWidget_Hook);
+	//}
+	//else
+	//{
+	//	UE_LOG(LogTemp, Warning, L"%s MH_EnableHook failed", ANSI_TO_TCHAR(__FUNCTION__));
+	//}
 }
 
 void FNodeRestyleDefault::Unhook()

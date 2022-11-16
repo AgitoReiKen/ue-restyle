@@ -1170,6 +1170,7 @@ struct FDTZoomSettings
 		MaxJump = .5f;
 		MinJump = .25f;
 		Default = 1.0f;
+		UseLowLodIfBelow = 0.25f;
 		UpdateZoomLevels();
 	}
 
@@ -1185,9 +1186,14 @@ struct FDTZoomSettings
 	float MinJump;
 	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "0.5", ClampMax = "2.0", Units = "Percent"))
 	float Default;
+
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", Units = "Percent"))
+		float UseLowLodIfBelow;
+
 	UPROPERTY(Category = "DTNodeData",EditAnywhere)
 	TArray<FZoomLevelEntry> ZoomLevels;
-	int DefaultZoomLevelId;
+	int32 DefaultZoomLevelId;
+	int32 LowerZoomLevelId;
 
 	void UpdateZoomLevels()
 	{
@@ -1232,6 +1238,7 @@ struct FDTZoomSettings
 			if (Value >= Max) break;
 		}
 		UpdateDefaultZoomLevelId();
+		UpdateLowerZoomLevelId();
 	}
 
 	void UpdateDefaultZoomLevelId()
@@ -1248,7 +1255,18 @@ struct FDTZoomSettings
 		}
 		SmoothDefaultLevel();
 	}
-
+	void UpdateLowerZoomLevelId()
+	{
+		LowerZoomLevelId = 0; 
+		for (int i = ZoomLevels.Num() -1 ; i >= 0; i--)
+		{
+			if (ZoomLevels[i].ZoomAmount <= UseLowLodIfBelow)
+			{
+				LowerZoomLevelId = i;
+				break;
+			}
+		}
+	}
 	void SmoothDefaultLevel()
 	{
 		ZoomLevels[DefaultZoomLevelId] = {
@@ -1486,6 +1504,7 @@ struct FRestyleZoomLevelsContainer : FZoomLevelsContainer
 	FRestyleZoomLevelsContainer()
 	{
 		ZoomLevels = &UNodeRestyleSettings::GetM()->Zoom.ZoomLevels;
+		LowerZoomLevel = UNodeRestyleSettings::GetM()->Zoom.LowerZoomLevelId;
 	}
 
 	float GetZoomAmount(int32 InZoomLevel) const override
@@ -1525,8 +1544,10 @@ struct FRestyleZoomLevelsContainer : FZoomLevelsContainer
 
 	EGraphRenderingLOD::Type GetLOD(int32 InZoomLevel) const override
 	{
+		if (InZoomLevel <= LowerZoomLevel)return  EGraphRenderingLOD::LowDetail;
 		return EGraphRenderingLOD::FullyZoomedIn;
 	}
 
 	TArray<FZoomLevelEntry>* ZoomLevels;
+	int32 LowerZoomLevel;
 };
