@@ -620,6 +620,36 @@ void FDefaultConnectionDrawingPolicy::DrawPreviewConnector(const FGeometry& PinG
 	FKismetConnectionDrawingPolicy::DrawPreviewConnector(PinGeometry, StartPoint, EndPoint, Pin);
 }
 
+void FDefaultConnectionDrawingPolicy::ApplyHoverDeemphasis(UEdGraphPin* OutputPin, UEdGraphPin* InputPin,
+	float& Thickness, FLinearColor& WireColor)
+{
+	float HoverThicknessMultiplier = UWireRestyleSettings::Get()->HoverThicknessMultiplier;
+
+	//@TODO: Move these parameters into the settings object
+	const float FadeInBias = UWireRestyleSettings::Get()->HoverFadeInBias; // Time in seconds before the fading starts to occur
+	const float FadeInPeriod = UWireRestyleSettings::Get()->HoverFadeInPeriod; // Time in seconds after the bias before the fade is fully complete
+	const float TimeFraction = FMath::SmoothStep(0.0f, FadeInPeriod, 
+		(float)(FSlateApplication::Get().GetCurrentTime() - LastHoverTimeEvent - FadeInBias));
+
+	float DarkFraction = UWireRestyleSettings::Get()->HoverDarkFraction;
+	const float LightFraction = UWireRestyleSettings::Get()->HoverLightFraction;
+	const FLinearColor DarkenedColor = UWireRestyleSettings::Get()->HoverDarkenedColor;
+	const FLinearColor LightenedColor = UWireRestyleSettings::Get()->HoverLigthenedColor;
+
+	const bool bContainsBoth = HoveredPins.Contains(InputPin) && HoveredPins.Contains(OutputPin);
+	const bool bContainsOutput = HoveredPins.Contains(OutputPin);
+	const bool bEmphasize = bContainsBoth || (bContainsOutput && (InputPin == nullptr));
+	if (bEmphasize)
+	{
+		Thickness = FMath::Lerp(Thickness, Thickness * HoverThicknessMultiplier, TimeFraction);
+		WireColor = FMath::Lerp<FLinearColor>(WireColor, LightenedColor, LightFraction * TimeFraction);
+	}
+	else
+	{
+		WireColor = FMath::Lerp<FLinearColor>(WireColor, DarkenedColor, DarkFraction * TimeFraction);
+	}
+}
+
 
 void FDefaultConnectionDrawingPolicy::DrawPinGeometries(TMap<TSharedRef<SWidget>, FArrangedWidget>& InPinGeometries,
                                                         FArrangedChildren& ArrangedNodes)

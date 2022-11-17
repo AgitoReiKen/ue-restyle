@@ -42,7 +42,7 @@ void SDefault_GraphNodeComment::Construct(const FArguments& InArgs, UEdGraphNode
 		ZoomCurve = SpawnAnim.AddCurve(0, 0.1f);
 		FadeCurve = SpawnAnim.AddCurve(0.15f, 0.15f);
 	}
-
+ 
 	// Cache these values so they do not force a re-build of the node next tick.
 	CachedCommentTitle = GetNodeComment();
 	CachedWidth = InNode->NodeWidth;

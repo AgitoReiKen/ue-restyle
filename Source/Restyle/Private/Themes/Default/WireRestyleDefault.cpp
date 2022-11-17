@@ -92,14 +92,23 @@ void UWireRestyleSettings::SetDefaults()
 
 	NumBubbles = 4;
 	BubbleSpeed = 2;
-	CornerRadius = 0.25f;
-	bRoundCorners = true;
+	CornerRadius = 0.01f;
+	bRoundCorners = false;
 	b45DegreeStyle = true;
 
 	GoesBackwardTolerance = 4.f;
 
-	StartFudgeX = 0.f;
-	EndFudgeX = 0.f;
+	StartFudgeX = 1.f;
+	EndFudgeX = 1.f;
+
+	HoverThicknessMultiplier = 2.f;
+	HoverFadeInBias = 0.75f;
+	HoverFadeInPeriod =  0.6f;
+	HoverLightFraction = 0.25f;
+	HoverDarkenedColor = FLinearColor(0.f, 0.f, 0.f, 0.5f);
+	HoverLigthenedColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+
 
 	bDebug = false;
 	bDrawWireframe = false; 

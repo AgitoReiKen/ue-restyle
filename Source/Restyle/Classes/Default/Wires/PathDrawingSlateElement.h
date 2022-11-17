@@ -220,7 +220,26 @@ private:
 	void InitWithPoints(FPathRenderData& r);
 
 	void Calculate(TArray<FVector2f>& InPoints);
+
+	float GetMinLength(const FVector2f& A, const FVector2f& B, const FVector2f& C)
+	{
+		float LengthAB = FVector2f::Distance(A, B);
+		float LengthBC = FVector2f::Distance(B, C);
+		return FMath::Min(LengthAB, LengthBC);
+	}
+
+	float GetCornerRadiusLength(float MinLength)
+	{
+		return MinLength * Settings.CornerRadius;;
+	}
+
+	float GetFixedCornerRadiusLength(float MinLength, float CornerRadiusLength)
+	{
+		return FMath::Min(MinLength * 0.5f - HalfThickness.X, CornerRadiusLength + HalfThickness.X);
+	}
 };
+ 
+
 class FPathDrawingSlateElement : public ICustomSlateElement
 {
 public:

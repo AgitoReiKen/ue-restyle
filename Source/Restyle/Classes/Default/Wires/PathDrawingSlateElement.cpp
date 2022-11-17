@@ -379,12 +379,18 @@ void FPath::Calculate(TArray<FVector2f>& InPoints)
 			const FVector2f& C = InPoints[i + 1];
 			auto HasEnoughLength = [this, i, &InPoints, &A, &B, &C]()-> bool
 			{
-				float LengthAB = FVector2f::Distance(A, B);
+				/*float LengthAB = FVector2f::Distance(A, B);
 				float LengthBC = FVector2f::Distance(B, C);
 				float MinLength = FMath::Min(LengthAB, LengthBC);
-				float Length = MinLength * Settings.CornerRadius;
+				float Length = MinLength * Settings.CornerRadius;*/
 				// 0.001 tolerance, so value 2.06250763 will not get approved for thickness 4.125
-				return Length - 0.001f > Settings.Thickness * 0.5f;
+				float MinLength = GetMinLength(A, B, C);
+			/*	float DesiredLength = GetCornerRadiusLength(MinLength);
+				float ActualLength = GetFixedCornerRadiusLength(MinLength, DesiredLength);*/
+ 				/*return Length - 0.001f > Settings.Thickness * 0.5f;*/
+				float Tolerance = 0.1f;
+				//return (MinLength * 0.5f) > HalfThickness.X + Tolerance;
+				return (MinLength * 0.5f - HalfThickness.X) > Tolerance;
 			};
 			if (Is90Deg(B, C))
 			{
@@ -400,10 +406,9 @@ void FPath::Calculate(TArray<FVector2f>& InPoints)
 			const FVector2f& C = InPoints[i + 1];
 			float RadianB2A = FMath::Atan2(A.Y - B.Y, A.X - B.X);
 			float RadianB2C = FMath::Atan2(C.Y - B.Y, C.X - B.X);
-			float LengthAB = FVector2f::Distance(A, B);
-			float LengthBC = FVector2f::Distance(B, C);
-			float MinLength = FMath::Min(LengthAB, LengthBC);
-			float Length = MinLength * Settings.CornerRadius + Settings.Thickness * 0.5f;
+			float MinLength = GetMinLength(A, B, C);
+			float DesiredLength = GetCornerRadiusLength(MinLength);
+			float Length = GetFixedCornerRadiusLength(MinLength, DesiredLength);
 			const FVector2f B1 = {B.X + Length * FMath::Cos(RadianB2A), B.Y + Length * FMath::Sin(RadianB2A)};
 			const FVector2f B2 = {B.X + Length * FMath::Cos(RadianB2C), B.Y + Length * FMath::Sin(RadianB2C)};
 			if (Settings.Join == ERestylePathJoinType::Miter)
@@ -458,6 +463,7 @@ void FPath::Calculate(TArray<FVector2f>& InPoints)
 		}
 	}
 }
+ 
 
 FPathDrawingSlateElement::FPathDrawingSlateElement()
 {

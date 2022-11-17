@@ -71,6 +71,8 @@ public:
 	void DrawConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams);
 	virtual void DrawPreviewConnector(const FGeometry& PinGeometry, const FVector2D& StartPoint,
 		const FVector2D& EndPoint, UEdGraphPin* Pin) override;
+	virtual void ApplyHoverDeemphasis(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, float& Thickness,
+		FLinearColor& WireColor) override;
 protected:
 
 	virtual void DrawPinGeometries(TMap<TSharedRef<SWidget>, FArrangedWidget>& InPinGeometries,

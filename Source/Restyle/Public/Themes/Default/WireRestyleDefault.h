@@ -58,6 +58,15 @@ public:
 
 #pragma region Properties
 
+	 
+	/*
+	 * Applies circular geometry to line joins/corners
+	 *
+	 */
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Style")
+		bool bRoundCorners;
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Style", meta = (DisplayName = "45-Deg Style"))
+		bool b45DegreeStyle;
 	/*
 	 * wire will stick to the nearest snap point of 
 	 * if output: output node
@@ -74,7 +83,7 @@ public:
 	 *	| |Input |
 	 *	x-|x_____|
 	 */
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings")
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Priorities")
 		EWireRestylePriority BackwardConnectionPriority;
 	/*
 	 * if output: wire transition near input
@@ -84,29 +93,24 @@ public:
 	 * [output]----------x
 	 *	                  \____[input]
 	 */ 
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings")
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Priorities")
 		EWireRestylePriority TransitionPriority;
 	 
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings")
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Priorities")
 		EWireRestylePriority ExecToExecTransitionPriority;
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings")
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Priorities")
 		EWireRestylePriority KnotToExecTransitionPriority;
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings")
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Priorities")
 		EWireRestylePriority ExecToKnotTransitionPriority;
+
 	/*
 	 * Determines desired minimal of x length to be used
 	 * [x]---x
 	 *        \
-	*          x---[x]
+	 *          x---[x]
 	 */
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings")
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Geometry")
 		float MinHorizontalLength;
-	/* Drawn when debugging */
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (ClampMin = "1", ClampMax = "20"))
-		int NumBubbles;
-	/* Drawn when debugging */
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (ClampMin = "1", ClampMax = "4"))
-		float BubbleSpeed;
 	/*
 	 * Smooths 90 degrees corners
 	 * x-----x
@@ -119,32 +123,53 @@ public:
 	 *	    x
 	 *	    |
 	 *	    x
-	 */		
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (ClampMin = "0.0", ClampMax = "0.5"))
-		float CornerRadius;
-	/*
-	 * Applies circular geometry to line joins/corners
-	 *
 	 */
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings")
-		bool bRoundCorners;
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (DisplayName = "45-Deg Style"))
-		bool b45DegreeStyle;
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Geometry", meta = (ClampMin = "0.0", ClampMax = "0.5"))
+		float CornerRadius;
 	/*
 	 * Space where the line goes (above or under node) [relative to node]
 	 *
 	 */
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings")
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Geometry")
 		float BackwardSnapPointOffset;
 
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (ClampMin = "0.0", ClampMax = "256.0"))
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Geometry", meta = (ClampMin = "0.0", ClampMax = "256.0"))
 		float GoesBackwardTolerance;
 	/* VerticalMiddleRightOf(Start) - FVector2D(StartFudgeX, 0) */
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (ClampMin = "-16.0", ClampMax = "16.0"))
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Geometry", meta = (ClampMin = "-16.0", ClampMax = "16.0"))
 		float StartFudgeX;
 	/* VerticalMiddleLeftOf(End) + FVector2D(EndFudgeX, 0) */
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (ClampMin = "-16.0", ClampMax = "16.0"))
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Geometry", meta = (ClampMin = "-16.0", ClampMax = "16.0"))
 		float EndFudgeX;
+
+
+	/* Drawn when debugging */
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Bubbles", meta = (ClampMin = "1", ClampMax = "20"))
+		int NumBubbles;
+	/* Drawn when debugging */
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Bubbles", meta = (ClampMin = "1", ClampMax = "4"))
+		float BubbleSpeed;
+
+	 
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Hover", DisplayName = "Thickness Multiplier", meta = (ClampMin = "1.0", ClampMax = "4.0"))
+		float HoverThicknessMultiplier;
+	// Time in seconds before the fading starts to occur
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Hover", DisplayName = "FadeInBias", meta = (ClampMin = "0.0", ClampMax = "4.0"))
+		float HoverFadeInBias;
+	// Time in seconds after the bias before the fade is fully complete
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Hover", DisplayName = "FadeInPeriod", meta = (ClampMin = "0.0", ClampMax = "4.0"))
+		float HoverFadeInPeriod;
+	// Determines how lightened color blends (0 = no color applied, 1 = full color applied)
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Hover", DisplayName = "LightFraction", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+		float HoverLightFraction;
+	// Determines how darkened color blends (0 = no color applied, 1 = full color applied)
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Hover", DisplayName = "DarkFraction", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+		float HoverDarkFraction;
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Hover", DisplayName = "DarkenedColor")
+		FLinearColor HoverDarkenedColor;
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Hover", DisplayName = "LightenedColor")
+		FLinearColor HoverLigthenedColor;
+
 
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
 		bool bDebug;  
