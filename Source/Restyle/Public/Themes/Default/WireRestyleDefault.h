@@ -136,6 +136,16 @@ public:
 	 */
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings")
 		float BackwardSnapPointOffset;
+
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (ClampMin = "0.0", ClampMax = "256.0"))
+		float GoesBackwardTolerance;
+	/* VerticalMiddleRightOf(Start) - FVector2D(StartFudgeX, 0) */
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (ClampMin = "-16.0", ClampMax = "16.0"))
+		float StartFudgeX;
+	/* VerticalMiddleLeftOf(End) + FVector2D(EndFudgeX, 0) */
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings", meta = (ClampMin = "-16.0", ClampMax = "16.0"))
+		float EndFudgeX;
+
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
 		bool bDebug;  
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
@@ -143,8 +153,8 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
 		bool bDrawBubbles; 
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
-		int DebugInteger;
-	 
+		int DebugInteger; 
+
 
 #pragma endregion
 };

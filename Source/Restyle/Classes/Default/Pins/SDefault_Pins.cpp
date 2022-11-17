@@ -13,7 +13,7 @@
 #include "EdGraphSchema_K2.h"
 #include "IContentBrowserSingleton.h"
 
-#include "SPinTypeSelector.h"
+#include "Restyle/Classes/Default/Widgets/SDefault_PinTypeSelector.h"
 #include "SKeySelector.h"
 #include "SNameComboBox.h"
 #include "Selection.h"
@@ -166,11 +166,7 @@
 //	SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
 //}
 //
-//void SDefault_GraphPinCollisionProfile::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
-//{
-//	SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
 #include "SLevelOfDetailBranchNode.h"
-//}
 
 #pragma region GraphPin
 void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
@@ -248,39 +244,39 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 		/* Low LOD*/
 		{
 			LowLodContent->AddSlot()
-				.VAlign(VAlign_Center)
-				.Padding(0, 0, Spacing, 0)
-				[
-					LabelWidget
-				];
+			             .VAlign(VAlign_Center)
+			             .Padding(0, 0, Spacing, 0)
+			[
+				LabelWidget
+			];
 			LowLodContent->AddSlot()
-				.VAlign(VAlign_Center)
-				[
-					PinStatusIndicator
-				];
+			             .VAlign(VAlign_Center)
+			[
+				PinStatusIndicator
+			];
 			// Input pin
 			LowLodBox->AddSlot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				.Padding(0, 0, Spacing, 0)
-				[
-					PinWidgetRef
-				];
+			         .AutoWidth()
+			         .VAlign(VAlign_Center)
+			         .Padding(0, 0, Spacing, 0)
+			[
+				PinWidgetRef
+			];
 			LowLodBox->AddSlot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				[
-					LowLodContent.ToSharedRef()
-				];
+			         .AutoWidth()
+			         .VAlign(VAlign_Center)
+			[
+				LowLodContent.ToSharedRef()
+			];
 		}
 		/* High LOD */
 		{
 			LabelAndValue->AddSlot()
-				.VAlign(VAlign_Center)
-				.Padding(0, 0, Spacing, 0)
-				[
-					LabelWidget
-				];
+			             .VAlign(VAlign_Center)
+			             .Padding(0, 0, Spacing, 0)
+			[
+				LabelWidget
+			];
 
 			ValueWidget = GetDefaultValueWidget();
 
@@ -288,15 +284,15 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 			{
 				TSharedPtr<SBox> ValueBox;
 				LabelAndValue->AddSlot()
-					.Padding(0)
-					.VAlign(VAlign_Center)
-					[
-						SAssignNew(ValueBox, SBox)
-						.Padding(0.0f)
+				             .Padding(0)
+				             .VAlign(VAlign_Center)
+				[
+					SAssignNew(ValueBox, SBox)
+					.Padding(0.0f)
 					[
 						ValueWidget.ToSharedRef()
 					]
-					];
+				];
 
 				if (!DoesWidgetHandleSettingEditingEnabled())
 				{
@@ -305,23 +301,23 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 			}
 
 			LabelAndValue->AddSlot()
-				.VAlign(VAlign_Center)
-				[
-					PinStatusIndicator
-				];
+			             .VAlign(VAlign_Center)
+			[
+				PinStatusIndicator
+			];
 
 			FullPinHorizontalRowWidget = HighLodBox =
 				SNew(SHorizontalBox)
 				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				.Padding(0, 0, Spacing, 0)
+				  .AutoWidth()
+				  .VAlign(VAlign_Center)
+				  .Padding(0, 0, Spacing, 0)
 				[
 					PinWidgetRef
 				]
-			+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
+				+ SHorizontalBox::Slot()
+				  .AutoWidth()
+				  .VAlign(VAlign_Center)
 				[
 					LabelAndValue.ToSharedRef()
 				];
@@ -332,56 +328,55 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 		/* Low LOD*/
 		{
 			LowLodContent->AddSlot()
-				.VAlign(VAlign_Center)
-				[
-					PinStatusIndicator
-				];
+			             .VAlign(VAlign_Center)
+			[
+				PinStatusIndicator
+			];
 			LowLodContent->AddSlot()
-				.VAlign(VAlign_Center)
-				.Padding(0, 0, Spacing, 0)
-				[
-					LabelWidget
-				];
+			             .VAlign(VAlign_Center)
+			             .Padding(0, 0, Spacing, 0)
+			[
+				LabelWidget
+			];
 			LowLodBox->AddSlot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				[
-					LowLodContent.ToSharedRef()
-				];
+			         .AutoWidth()
+			         .VAlign(VAlign_Center)
+			[
+				LowLodContent.ToSharedRef()
+			];
 			LowLodBox->AddSlot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				.Padding(Spacing, 0, 0, 0)
-				[
-					PinWidgetRef
-				];
-			 
+			         .AutoWidth()
+			         .VAlign(VAlign_Center)
+			         .Padding(Spacing, 0, 0, 0)
+			[
+				PinWidgetRef
+			];
 		}
 		/* High LOD */
 		{
 			LabelAndValue->AddSlot()
-				.VAlign(VAlign_Center)
-				[
-					PinStatusIndicator
-				];
+			             .VAlign(VAlign_Center)
+			[
+				PinStatusIndicator
+			];
 
 			LabelAndValue->AddSlot()
-				.VAlign(VAlign_Center)
-				[
-					LabelWidget
-				];
+			             .VAlign(VAlign_Center)
+			[
+				LabelWidget
+			];
 			// Output pin
 			FullPinHorizontalRowWidget = HighLodBox = SNew(SHorizontalBox)
 				+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
+				  .AutoWidth()
+				  .VAlign(VAlign_Center)
 				[
 					LabelAndValue.ToSharedRef()
 				]
-			+ SHorizontalBox::Slot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				.Padding(Spacing, 0, 0, 0)
+				+ SHorizontalBox::Slot()
+				  .AutoWidth()
+				  .VAlign(VAlign_Center)
+				  .Padding(Spacing, 0, 0, 0)
 				[
 					PinWidgetRef
 				];
@@ -389,28 +384,28 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 	}
 	// Set up a hover for pins that is tinted the color of the pin.
 	SBorder::Construct(SBorder::FArguments()
-	.BorderImage(FAppStyle::Get().GetBrush("NoBorder"))
-	.Padding(0)	
-	.OnMouseButtonDown(this, &SDefault_GraphPin::OnPinNameMouseDown)
-	[
-		SNew(SLevelOfDetailBranchNode)
+	                   .BorderImage(FAppStyle::Get().GetBrush("NoBorder"))
+	                   .Padding(0)
+	                   .OnMouseButtonDown(this, &SDefault_GraphPin::OnPinNameMouseDown)
+		[
+			SNew(SLevelOfDetailBranchNode)
 		.UseLowDetailSlot(this, &SDefault_GraphPin::UseLowDetailPinNames)
 		.LowDetail()
-		[
-			LowLodBox.ToSharedRef()
-		]
-		.HighDetail()
-		[
-			SNew(SOverlay)
-			+ SOverlay::Slot()
-			.Padding(FMargin(-GraphSettings->PaddingTowardsNodeEdge, 0))
 			[
-				SNew(SBorder)
+				LowLodBox.ToSharedRef()
+			]
+			.HighDetail()
+			[
+				SNew(SOverlay)
+				+ SOverlay::Slot()
+				.Padding(FMargin(-GraphSettings->PaddingTowardsNodeEdge, 0))
+				[
+					SNew(SBorder)
 				.BorderImage(this, &SDefault_GraphPin::GetPinBorder)
 				.BorderBackgroundColor(this, &SDefault_GraphPin::GetPinColor)
 
-			]
-			+ SOverlay::Slot()
+				]
+				+ SOverlay::Slot()
 				.Padding(0)
 				[
 					SNew(SBox)
@@ -418,9 +413,9 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 					[
 						HighLodBox.ToSharedRef()
 					]
+				]
 			]
-		]
-	]);
+		]);
 
 	TSharedPtr<IToolTip> TooltipWidget = SNew(SToolTip)
 		.Text(this, &SDefault_GraphPin::GetTooltipText);
@@ -439,7 +434,6 @@ SDefault_GraphPin::SDefault_GraphPin() : SGraphPin()
 	CachedImg_MapPin_Value_Disconnected = FAppStyle::Get().GetBrush(
 		FPinRestyleStyles::Kismet_VariableList_MapValueTypeIcon_Disconnected);
 	CachedImg_WatchedPinIcon = FEditorStyle::GetBrush(TEXT("Graph.WatchedPinIcon_Pinned"));
- 
 }
 
 FSlateColor SDefault_GraphPin::GetPinTextColor() const
@@ -479,7 +473,6 @@ FSlateColor SDefault_GraphPin::GetPinColor() const
 	UEdGraphPin* GraphPin = GetPinObj();
 	if (GraphPin && !GraphPin->IsPendingKill())
 	{
-		 
 		if (GraphPin->bOrphanedPin)
 		{
 			return IsEditingEnabled() ? OrphanedColor : NonEditableOrphanedColor;
@@ -544,7 +537,9 @@ const FSlateBrush* SDefault_GraphPin::GetPinStatusIcon() const
 	UEdGraphPin* GraphPin = GetPinObj();
 	if (GraphPin && !GraphPin->IsPendingKill())
 	{
-		UEdGraphPin* WatchedPin = ((GraphPin->Direction == EGPD_Input) && (GraphPin->LinkedTo.Num() > 0)) ? GraphPin->LinkedTo[0] : GraphPin;
+		UEdGraphPin* WatchedPin = ((GraphPin->Direction == EGPD_Input) && (GraphPin->LinkedTo.Num() > 0))
+			                          ? GraphPin->LinkedTo[0]
+			                          : GraphPin;
 
 		if (UEdGraphNode* GraphNode = WatchedPin->GetOwningNodeUnchecked())
 		{
@@ -585,14 +580,14 @@ TSharedRef<SWidget> SDefault_GraphPinCollisionProfile::GetDefaultValueWidget()
 	const auto& Select = UPinRestyleSettings::Get()->Inputs.Select;
 	const auto& ComboButton = Select.Get().ComboButton.Get();
 	const auto& Button = ComboButton.Button.Get();
-	FMargin ButtonTextPadidng = UDefaultThemeSettings::GetMargin(Button.Padding);
+	FMargin ButtonTextPadding = UDefaultThemeSettings::GetMargin(Button.Padding);
 	//FLinearColor Color = Button.NormalForeground.Get();
 	float SpacingBetweenTextAndArrow = UDefaultThemeSettings::GetSpacing(ComboButton.DownArrowSpacing);
 	return SAssignNew(NameComboBox, SDefault_NameComboBox)
 		.ItemStyle(FAppStyle::Get(), FPinRestyleStyles::ComboBox_Row)
 		.Font(FAppStyle::Get().GetFontStyle(FPinRestyleStyles::ComboBox_Button_FontInfo))
 		//.ColorAndOpacity(Color)
-		.ButtonTextPadding(ButtonTextPadidng)
+		.ButtonTextPadding(ButtonTextPadding)
 		.ComboBoxStyle(FAppStyle::Get(), FPinRestyleStyles::ComboBox)
 		.OptionsSource(&NameList)
 		.IsEnabled(this, &SGraphPin::GetDefaultValueIsEditable)
@@ -873,7 +868,6 @@ TSharedRef<SWidget> SDefault_GraphPinInteger::GetDefaultValueWidget()
 #pragma endregion
 
 #pragma region Class
-
 
 void SDefault_GraphPinClass::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 {
@@ -1419,18 +1413,31 @@ void SDefault_GraphPinIndex::Construct(const FArguments& InArgs, UEdGraphPin* In
 	SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
 }
 
-
 TSharedRef<SWidget> SDefault_GraphPinIndex::GetDefaultValueWidget()
 {
 	const UEdGraphSchema_K2* Schema = GetDefault<UEdGraphSchema_K2>();
+	auto* ComboButtonStyle = &FAppStyle::Get().GetWidgetStyle<FComboBoxStyle>(FPinRestyleStyles::ComboBox).
+	                                           ComboButtonStyle;
+	const auto& Select = UPinRestyleSettings::Get()->Inputs.Select;
+	const auto& ComboButton = Select.Get().ComboButton.Get();
+	const auto& Button = ComboButton.Button.Get();
 
-	return SNew(SPinTypeSelector, FGetPinTypeTree::CreateUObject(Schema, &UEdGraphSchema_K2::GetVariableTypeTree))
+	FMargin ButtonTextPadding = UDefaultThemeSettings::GetMargin(Button.Padding);
+	float ContentSpacing = UDefaultThemeSettings::GetSpacing(
+		UPinRestyleSettings::Get()->Inputs.PinSelectorContentSpacing);;
+	return SNew(SDefault_PinTypeSelector,
+	            FGetPinTypeTree::CreateUObject(Schema, &UEdGraphSchema_K2::GetVariableTypeTree))
 		.TargetPinType(this, &SDefault_GraphPinIndex::OnGetPinType)
 		.OnPinTypeChanged(this, &SDefault_GraphPinIndex::OnTypeChanged)
 		.Schema(Schema)
 		.TypeTreeFilter(ETypeTreeFilter::IndexTypesOnly)
 		.IsEnabled(true)
-		.bAllowArrays(false);
+		.bAllowArrays(false)
+		.TypeComboButtonStyle(ComboButtonStyle)
+		.TypeComboButtonPadding(ButtonTextPadding)
+		.TypeComboButtonContentSpacing(ContentSpacing)
+		.Font(FAppStyle::Get().GetFontStyle(FPinRestyleStyles::ComboBox_Button_FontInfo))
+		.SelectorType(SDefault_PinTypeSelector::ESelectorType::Full);
 }
 
 FEdGraphPinType SDefault_GraphPinIndex::OnGetPinType() const
@@ -1503,7 +1510,7 @@ TSharedRef<SWidget> SDefault_GraphPinKey::GetDefaultValueWidget()
 	float SpacingBetweenIconAndArrow = UDefaultThemeSettings::GetSpacing(ComboButton.DownArrowSpacing);
 	bool bHasDownArrow = ComboButton.bHasDownArrow;
 	const auto& CaptureButton = Key.Button.Get();
-	uint16 IconSize = UDefaultThemeSettings::GetIconSize(CaptureButton.IconSize); 
+	uint16 IconSize = UDefaultThemeSettings::GetIconSize(CaptureButton.IconSize);
 	FMargin ButtonContentPadding = UDefaultThemeSettings::GetMargin(CaptureButton.Padding);
 	return SNew(SDefault_KeySelector)
 	.ComboButtonStyle(FAppStyle::Get(), FPinRestyleStyles::KeyInput_ComboButton)
@@ -1935,7 +1942,7 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GetDefaultValueWidget()
 		float ErrorReportingSpacing = UDefaultThemeSettings::GetSpacing(
 			UPinRestyleSettings::Get()->Inputs.String.ErrorReportingSpacing);
 		const auto& Body = UPinRestyleSettings::Get()->Inputs.String.Body.Get();
-		auto Padding = UDefaultThemeSettings::GetMargin(Body.Padding); 
+		auto Padding = UDefaultThemeSettings::GetMargin(Body.Padding);
 		return SNew(SDefault_EditableTextBox)
 			.Style(FEditorStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
 			.Text(this, &SDefault_GraphPinObject::GetValue)
@@ -1964,9 +1971,9 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GetDefaultValueWidget()
 			SNew(SHorizontalBox)
 			.Visibility(this, &SGraphPin::GetDefaultValueVisibility)
 			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			.Padding(0)
-			.MaxWidth(AssetPicker.ButtonMaxWidth)
+			  .AutoWidth()
+			  .Padding(0)
+			  .MaxWidth(AssetPicker.ButtonMaxWidth)
 			[
 				SAssignNew(AssetPickerAnchor, SComboButton)
 				.ComboButtonStyle(FAppStyle::Get(), FPinRestyleStyles::AssetPicker_ComboButton)
@@ -1978,7 +1985,7 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GetDefaultValueWidget()
 				.ButtonContent()
 				[
 					SNew(SHorizontalBox)
-					+SHorizontalBox::Slot()
+					+ SHorizontalBox::Slot()
 					.FillWidth(1)
 					[
 						SNew(STextBlock)
@@ -1987,7 +1994,7 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GetDefaultValueWidget()
 						.TextStyle(FAppStyle::Get(), FPinRestyleStyles::AssetPicker_ComboButton_Text)
 						.Text(this, &SDefault_GraphPinObject::OnGetComboTextValue)
 						.ToolTipText(this, &SDefault_GraphPinObject::GetObjectToolTip)
-					] 
+					]
 					+ SHorizontalBox::Slot()
 					.AutoWidth()
 					[
@@ -1996,7 +2003,7 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GetDefaultValueWidget()
 				]
 				.OnGetMenuContent(this, &SDefault_GraphPinObject::GenerateAssetPicker)
 			]
-			+ SHorizontalBox::Slot().Padding(0,0, GeneralSpacing, 0)
+			+ SHorizontalBox::Slot().Padding(0, 0, GeneralSpacing, 0)
 			// Use button
 			+ SHorizontalBox::Slot()
 			  .AutoWidth()

@@ -101,6 +101,11 @@ void UDefaultThemeSettings::SetDefaults()
 		{"Small", 2.f},
 		{"Zero", .0f}
 	};
+	TextShadowMap = {
+		{"Zero", {FVector2D(0.375), 0.0f}},
+		{"Default", {FVector2D(0.375), 0.15f}},
+		{"Small", {FVector2D(0.5), 0.15f}}
+	};
 	BrushMap = {};
 
 	BrushMap.Append(TMap<FName, FDTBrushData>{

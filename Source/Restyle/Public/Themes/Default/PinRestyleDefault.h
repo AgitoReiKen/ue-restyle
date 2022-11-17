@@ -233,7 +233,7 @@ struct FDTPinSequenceInput
 	/*UPROPERTY(Category = "DTPinData",EditAnywhere)
 	float SpacingToPreventOverlapping;*/
 };
-
+ 
 USTRUCT()
 struct FDTPinInputs
 {
@@ -245,6 +245,7 @@ struct FDTPinInputs
 		Vector = FDTVectorInput();
 		Boolean = "Default";
 		Select = "Default";
+		PinSelectorContentSpacing = "Medium";
 		AssetPicker = FDTAssetPicker();
 		Color = FDTPinColor();
 	}
@@ -259,6 +260,8 @@ struct FDTPinInputs
 	FDTCheckBoxRef Boolean;
 	UPROPERTY(Category = "DTPinData",EditAnywhere)
 	FDTComboBoxRef Select;
+	UPROPERTY(Category = "DTPinData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	FName PinSelectorContentSpacing;
 	UPROPERTY(Category = "DTPinData",EditAnywhere)
 	FDTAssetPicker AssetPicker;
 	UPROPERTY(Category = "DTPinData",EditAnywhere)

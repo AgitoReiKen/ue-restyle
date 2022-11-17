@@ -159,7 +159,7 @@ struct FDTNodeTitle
 
 	UPROPERTY(Category = "DTNodeData",EditAnywhere)
 	bool bAlternativeStyle;
-	UPROPERTY(Config, EditAnywhere)
+	UPROPERTY(Category = "DTNodeData",EditAnywhere)
 	bool bRemoveTargetIsTitle;
 };
 #pragma endregion

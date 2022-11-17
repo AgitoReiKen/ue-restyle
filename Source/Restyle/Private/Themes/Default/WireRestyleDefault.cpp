@@ -92,10 +92,14 @@ void UWireRestyleSettings::SetDefaults()
 
 	NumBubbles = 4;
 	BubbleSpeed = 2;
-
 	CornerRadius = 0.25f;
 	bRoundCorners = true;
 	b45DegreeStyle = true;
+
+	GoesBackwardTolerance = 4.f;
+
+	StartFudgeX = 0.f;
+	EndFudgeX = 0.f;
 
 	bDebug = false;
 	bDrawWireframe = false; 

@@ -220,10 +220,13 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 	{
 		return Value * ZoomFactor;
 	};
-	const float StartFudgeX = Zoomed(4.0f);
-	const float EndFudgeX = Zoomed(4.0f);
+	auto WireSettings = UWireRestyleSettings::Get();
+	const float StartFudgeX = Zoomed(WireSettings->StartFudgeX);
+	const float EndFudgeX = Zoomed(WireSettings->EndFudgeX);
+	//FVector2D _Start = FGeometryHelper::VerticalMiddleRightOf(Params.Start) - FVector2D(StartFudgeX, 0.0f);;
+	//FVector2D _End = FGeometryHelper::VerticalMiddleLeftOf(Params.End) - FVector2D(ArrowRadius.X - EndFudgeX, 0);
 	FVector2D _Start = FGeometryHelper::VerticalMiddleRightOf(Params.Start) - FVector2D(StartFudgeX, 0.0f);;
-	FVector2D _End = FGeometryHelper::VerticalMiddleLeftOf(Params.End) - FVector2D(ArrowRadius.X - EndFudgeX, 0);
+	FVector2D _End = FGeometryHelper::VerticalMiddleLeftOf(Params.End) + FVector2D(EndFudgeX, 0);
 
 	FVector2f Start(_Start.X, _Start.Y);
 	FVector2f End(_End.X, _End.Y);
@@ -231,7 +234,6 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 	auto& EndNode = Params.EndNodeGeometry;
 
 	FLinearColor WireColor = WireParams.WireColor;
-	auto WireSettings = UWireRestyleSettings::Get();
 
 	 
 	// Zoomed(WireParams.WireThickness) prevents big lines have bad geometry on corners (due to fixation to intersection point), but also cause on-hover disturbance
@@ -249,7 +251,7 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 	FVector2f Normalized = (End - Start).GetSafeNormal();
 	float Tangent = FMath::Atan(Normalized.Y);
 	bool bIs0Deg = FMath::IsNearlyZero(Tangent, 0.001f);
-	bool bGoesBackward = Start.X + Zoomed(4) >= End.X;
+	bool bGoesBackward = Start.X + Zoomed(WireSettings->GoesBackwardTolerance) >= End.X;
 	bool bTreatEqualLength = (!bGoesBackward && XDifA < MinXL) || FMath::IsNearlyEqual(XL, XDifA * .5f, MinXL);
 	bool bIsPin1Knot = WireParams.AssociatedPin1->GetOwningNode()->IsA<UK2Node_Knot>();
 	bool bIsPin2Knot = WireParams.AssociatedPin2->GetOwningNode()->IsA<UK2Node_Knot>();
@@ -358,9 +360,9 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 	{
 		FVector2f StartX;
 		FVector2f EndX;
-
 		if (b45DegreeStyle)
 		{
+			float XLTolerance = Zoomed(0.1f);
 			if (TransitionPriority == EWireRestylePriority::Output)
 			{
 				StartX = {
@@ -395,9 +397,8 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 					End.Y
 				};
 			}
-
-			bool bBehindOutput = StartX.X - Start.X < XL;
-			bool bAfterInput = End.X - EndX.X < XL;
+			bool bBehindOutput = StartX.X - Start.X + XLTolerance < XL;
+			bool bAfterInput = End.X - EndX.X + XLTolerance < XL;
 			if (bBehindOutput && bAfterInput)
 			{
 				StartX.X = Start.X + XDifA * 0.5f;
@@ -537,7 +538,6 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 			const FVector2f BubbleHalfSize = BubbleSize * 0.5;
 			float Time = (FPlatformTime::Seconds() - GStartTime);
 			float Offset = 0.0f;
-			float OffsetFromPrevious = 0.0f;
 			int Drawn = 0;
 
 			while (Drawn != Instances)
