@@ -53,7 +53,12 @@ Plugin is made of 3 factory providers which represents factories inside of FEdGr
 ### Pins
 - Custom colors [Optional]
 - Custom pin-constructors (Vector4 is only available atm)
-
+  <details>
+  <summary>Thoughts</summary>
+    Maybe having pin constructors for structures with short constructors isn't that bad
+  </details> 
+- Vector that is Rotator may use new labels (RPY) [Optional]
+- Custom text for "Add Pin" [Optional]
 ### Zoom [Optional]
 - Ability to set or even generate zoom behavior
 
