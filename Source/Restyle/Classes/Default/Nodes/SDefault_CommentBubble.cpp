@@ -136,8 +136,8 @@ void SDefault_CommentBubble::UpdateBubble_New()
 	FLinearColor ReadOnlyForegroundColor = ColorAndOpacity.IsSet()  ? ForegroundCorrected : TextSettings.ForegroundReadOnly.Get();
 	if (GraphNode->bCommentBubbleVisible)
 	{
-		const FSlateBrush* CommentCalloutArrowBrush = FEditorStyle::GetBrush(FNodeRestyleStyles::CommentBubble_CommentArrow);
-		const FSlateBrush* DynamicArrow = ColorAndOpacity.IsSet() ? FEditorStyle::GetNoBrush() : CommentCalloutArrowBrush;
+		const FSlateBrush* CommentCalloutArrowBrush = FAppStyle::GetBrush(FNodeRestyleStyles::CommentBubble_CommentArrow);
+		const FSlateBrush* DynamicArrow = ColorAndOpacity.IsSet() ? FAppStyle::GetNoBrush() : CommentCalloutArrowBrush;
 
 		// Create the comment bubble widget
 
@@ -156,7 +156,7 @@ void SDefault_CommentBubble::UpdateBubble_New()
 					+ SOverlay::Slot()
 					[
 						SNew(SImage)
-						.Image(FEditorStyle::GetBrush(ColorAndOpacity.IsSet()
+						.Image(FAppStyle::GetBrush(ColorAndOpacity.IsSet()
 							? FNodeRestyleStyles::CommentBubble_Body_White
 							: FNodeRestyleStyles::CommentBubble_Body))
 						.ColorAndOpacity(ColorAndOpacity.IsSet() || ColorAndOpacity.IsBound() ? ColorAndOpacity : FSlateColor(FLinearColor::White))
@@ -225,7 +225,7 @@ void SDefault_CommentBubble::UpdateBubble_New()
 				  .Padding(CommentBubble.Buttons.ToggleOffset)
 				[
 					SNew(SCheckBox)
-					.Style(&FEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
+					.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
 						               FNodeRestyleStyles::CommentBubble_Checkbox_TitleButton))
 					.IsChecked(ToggleButtonCheck)
 					.OnCheckStateChanged(this, &SDefault_CommentBubble::OnCommentBubbleToggle_New)
@@ -288,7 +288,7 @@ TSharedPtr<SWidget> SDefault_CommentBubble::UpdateBubbleControls(bool bHorizonta
 						  .VAlign(VAlign_Center)
 						[
 							SNew(SCheckBox)
-							.Style(&FEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
+							.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
 								               FNodeRestyleStyles::CommentBubble_Checkbox_Pin))
 							.IsChecked(this, &SDefault_CommentBubble::GetPinnedButtonCheck)
 							.OnCheckStateChanged(this, &SDefault_CommentBubble::OnPinStateToggle)
@@ -310,7 +310,7 @@ TSharedPtr<SWidget> SDefault_CommentBubble::UpdateBubbleControls(bool bHorizonta
 						[
 
 							SNew(SCheckBox)
-							.Style(&FEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
+							.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
 								               FNodeRestyleStyles::CommentBubble_Checkbox_Button))
 							.IsChecked(ToggleButtonCheck)
 							.OnCheckStateChanged(this, &SDefault_CommentBubble::OnCommentBubbleToggle_New)
@@ -335,7 +335,7 @@ TSharedPtr<SWidget> SDefault_CommentBubble::UpdateBubbleControls(bool bHorizonta
 						[
 
 							SNew(SCheckBox)
-							.Style(&FEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
+							.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
 								               FNodeRestyleStyles::CommentBubble_Checkbox_Pin))
 							.IsChecked(this, &SDefault_CommentBubble::GetPinnedButtonCheck)
 							.OnCheckStateChanged(this, &SDefault_CommentBubble::OnPinStateToggle)
@@ -356,7 +356,7 @@ TSharedPtr<SWidget> SDefault_CommentBubble::UpdateBubbleControls(bool bHorizonta
 						  .VAlign(VAlign_Top)
 						[
 							SNew(SCheckBox)
-							.Style(&FEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
+							.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
 								               FNodeRestyleStyles::CommentBubble_Checkbox_Button))
 							.IsChecked(ToggleButtonCheck)
 							.OnCheckStateChanged(this, &SDefault_CommentBubble::OnCommentBubbleToggle_New)
@@ -377,7 +377,7 @@ TSharedPtr<SWidget> SDefault_CommentBubble::UpdateBubbleControls(bool bHorizonta
 				  .VAlign(VAlign_Top)
 				[
 					SNew(SCheckBox)
-					.Style(&FEditorStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
+					.Style(&FAppStyle::Get().GetWidgetStyle<FCheckBoxStyle>(
 						               FNodeRestyleStyles::CommentBubble_Checkbox_Button))
 					.IsChecked(ToggleButtonCheck)
 					.OnCheckStateChanged(this, &SDefault_CommentBubble::OnCommentBubbleToggle_New)

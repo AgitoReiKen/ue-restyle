@@ -95,7 +95,7 @@ protected:
 				[
 					SNew(SBorder)
 					.Padding(4)
-					.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+					.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 					[
 						ClassViewerModule.CreateClassViewer(Options, FOnClassPicked::CreateSP(this, &SDefault_GraphPinActorBasedBlueprintClass::OnClassPicked))
 					]
@@ -175,7 +175,7 @@ protected:
 				[ 
 					SNew(SBorder)
 					.Padding(4)
-					.BorderImage( FEditorStyle::GetBrush("ToolPanel.GroupBorder") )
+					.BorderImage( FAppStyle::GetBrush("ToolPanel.GroupBorder") )
 					[
 						ClassViewerModule.CreateClassViewer(Options, FOnClassPicked::CreateSP(this, &SGraphPinActorBasedBlueprintClass::OnClassPicked))
 					]

@@ -20,7 +20,7 @@ public:
 	 */
 	FORCEINLINE FSlateStyleSet* GetStyle()
 	{
-		return (FSlateStyleSet*)(&FEditorStyle::Get());
+		return (FSlateStyleSet*)(&FAppStyle::Get());
 	}
 	TMap<FName, FSlateBrush*>& GetBrushResources();
 	TMap<FName, FSlateBrush*>& GetCachedBrushResources();

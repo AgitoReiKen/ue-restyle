@@ -46,7 +46,6 @@ public:
 
 	virtual bool SupportsKeyboardFocus() const override;
 	virtual FReply OnFocusReceived(const FGeometry& MyGeometry, const FFocusEvent& InFocusEvent) override;
-	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 protected:
 	virtual void GetDesiredWidth(float& OutMinDesiredWidth, float& OutMaxDesiredWidth);
 	virtual bool CanEdit() const;

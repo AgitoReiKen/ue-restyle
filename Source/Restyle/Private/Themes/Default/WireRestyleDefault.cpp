@@ -98,8 +98,8 @@ void UWireRestyleSettings::SetDefaults()
 
 	GoesBackwardTolerance = 4.f;
 
-	StartFudgeX = 1.f;
-	EndFudgeX = 1.f;
+	StartFudgeX = 2.f;
+	EndFudgeX = 2.f;
 
 	HoverThicknessMultiplier = 2.f;
 	HoverFadeInBias = 0.75f;

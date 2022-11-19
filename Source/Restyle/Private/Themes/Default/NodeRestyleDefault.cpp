@@ -253,7 +253,7 @@ void FNodeRestyleDefault::Update()
 			auto x = StyleSet->GetWidgetStyle<FInlineEditableTextBlockStyle>(
 				"Graph.Node.NodeTitleInlineEditableText");
 			UDefaultThemeSettings::Get()->ModifyTextBlockStyle(&x.TextStyle, Node.Title.MainText.Get(), true);
-			x.EditableTextBoxStyle.Font = x.TextStyle.Font;
+			x.EditableTextBoxStyle.TextStyle.Font = x.TextStyle.Font;
 			x.EditableTextBoxStyle.ForegroundColor = x.TextStyle.ColorAndOpacity;
 			x.EditableTextBoxStyle.FocusedForegroundColor = x.TextStyle.ColorAndOpacity;
 			// dunno why it adds some sort of padding when getting into editing mode
@@ -392,7 +392,7 @@ void FNodeRestyleDefault::Update()
 			FInlineEditableTextBlockStyle MainText = FInlineEditableTextBlockStyle();
 			UDefaultThemeSettings::Get()->ModifyTextBlockStyle(&MainText.TextStyle, CollapsedNode.Title.MainText.Get(),
 			                                                   true);
-			MainText.EditableTextBoxStyle.Font = MainText.TextStyle.Font;
+			MainText.EditableTextBoxStyle.TextStyle.Font = MainText.TextStyle.Font;
 			MainText.EditableTextBoxStyle.ForegroundColor = MainText.TextStyle.ColorAndOpacity;
 			MainText.EditableTextBoxStyle.FocusedForegroundColor = MainText.TextStyle.ColorAndOpacity;
 			// dunno why it adds some sort of padding when getting into editing mode

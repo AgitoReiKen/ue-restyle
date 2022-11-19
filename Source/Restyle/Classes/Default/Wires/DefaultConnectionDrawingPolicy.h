@@ -58,17 +58,18 @@ struct FRestyleConnectionParams
 		return *this;
 	}
 };
-/*
- * @todo Idea for caching. Make static class and pass Output pin / Input pin / StartGeom / EndGeom
- */
+/* Disable warning about hiding virtual function by DrawConnection */
+#pragma warning (push)
+#pragma warning (disable: 4263)
+#pragma warning (disable: 4264)
 class FDefaultConnectionDrawingPolicy : public FKismetConnectionDrawingPolicy
 {
 public:
 
 	FDefaultConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor,
 		const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements, UEdGraph* InGraphObj);
-  
-	void DrawConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams);
+ 
+	virtual void DrawConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams);
 	virtual void DrawPreviewConnector(const FGeometry& PinGeometry, const FVector2D& StartPoint,
 		const FVector2D& EndPoint, UEdGraphPin* Pin) override;
 	virtual void ApplyHoverDeemphasis(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, float& Thickness,
@@ -83,3 +84,4 @@ public:
 
 	TSharedPtr<class FPathDrawingSlateElement> LineDrawer;
 };
+#pragma warning(pop)

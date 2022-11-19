@@ -242,7 +242,7 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 			  .Padding(0)
 			[
 				SNew(SBorder)
-				.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+				.BorderImage(FAppStyle::GetBrush("NoBorder"))
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Fill)
 				.Padding(0)
@@ -256,6 +256,7 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 					[
 						// LEFT
 						SAssignNew(LeftNodeBox, SVerticalBox)
+						
 					]
 					+ SHorizontalBox::Slot()
 					  .AutoWidth()
@@ -328,7 +329,7 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 					.Padding(0)
 					[
 						SAssignNew(ContentBorder, SBorder)
-						.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+						.BorderImage(FAppStyle::GetBrush("NoBorder"))
 						.Padding(0)
 						[
 							InnerVerticalBox.ToSharedRef()
@@ -479,7 +480,7 @@ void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
 					  .AutoHeight()
 					[
 						SAssignNew(CompactTitleTextBlock, STextBlock)
-						.TextStyle(FEditorStyle::Get(), FNodeRestyleStyles::GraphNode_Compact_AlternativeTitle)
+						.TextStyle(FAppStyle::Get(), FNodeRestyleStyles::GraphNode_Compact_AlternativeTitle)
 						.ColorAndOpacity(State.TitleColor.Get())
 						//.Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
 						.Text(NodeTitle->GetHeadTitle())
@@ -541,7 +542,7 @@ void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
 				  .AutoHeight()
 				[
 					SAssignNew(CompactTitleTextBlock, STextBlock)
-					.TextStyle(FEditorStyle::Get(),
+					.TextStyle(FAppStyle::Get(),
 					           bIsOneSymbolText
 						           ? FNodeRestyleStyles::GraphNode_Compact_Title_OneSymbol
 						           : FNodeRestyleStyles::GraphNode_Compact_Title)
@@ -617,7 +618,7 @@ void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
 				+ SOverlay::Slot()
 				[
 					SAssignNew(CompactBody, SImage)
-					.Image(FEditorStyle::GetBrush(FNodeRestyleStyles::GraphNode_Compact_Body(CachedState)))
+					.Image(FAppStyle::GetBrush(FNodeRestyleStyles::GraphNode_Compact_Body(CachedState)))
 				]
 				+ SOverlay::Slot()
 				.Padding(0.f)
@@ -749,7 +750,7 @@ const FSlateBrush* SDefault_GraphNodeK2Default::GetShadowBrush(bool bSelected) c
 			}
 			if (CompactBody.IsValid())
 			{
-				auto Body = FEditorStyle::GetBrush(FNodeRestyleStyles::GraphNode_Compact_Body(CachedState));
+				auto Body = FAppStyle::GetBrush(FNodeRestyleStyles::GraphNode_Compact_Body(CachedState));
 				CachedOutlineWidth = Body->OutlineSettings.Width;
 				CompactBody->SetImage(Body);
 			}

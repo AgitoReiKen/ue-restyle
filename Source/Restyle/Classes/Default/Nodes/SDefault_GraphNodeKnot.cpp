@@ -166,142 +166,6 @@ void FAmbivalentDirectionDragConnection::ValidateGraphPinList(TArray<UEdGraphPin
 	}
 }
 
-/////////////////////////////////////////////////////
-// SDefault_GraphPinKnot
-
-class SDefault_GraphPinKnot : public SGraphPin
-{
-public:
-	SLATE_BEGIN_ARGS(SDefault_GraphPinKnot) {}
-	SLATE_END_ARGS()
-
-		void Construct(const FArguments& InArgs, UEdGraphPin* InPin);
-
-	// SWidget interface
-	virtual void OnDragEnter(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent) override;
-	// End of SWidget interface
-
-protected:
-	// Begin SGraphPin interface
-	virtual TSharedRef<SWidget>	GetDefaultValueWidget() override;
-	virtual TSharedRef<FDragDropOperation> SpawnPinDragEvent(const TSharedRef<SGraphPanel>& InGraphPanel, const TArray< TSharedRef<SGraphPin> >& InStartingPins) override;
-	virtual FReply OnPinMouseDown(const FGeometry& SenderGeometry, const FPointerEvent& MouseEvent) override;
-	virtual FSlateColor GetPinColor() const override;
-	// End SGraphPin interface
-};
-
-void SDefault_GraphPinKnot::Construct(const FArguments& InArgs, UEdGraphPin* InPin)
-{
-	SGraphPin::Construct(SGraphPin::FArguments().SideToSideMargin(0.0f), InPin);
-}
-
-void SDefault_GraphPinKnot::OnDragEnter(const FGeometry& MyGeometry, const FDragDropEvent& DragDropEvent)
-{
-	TSharedPtr<FDragDropOperation> Operation = DragDropEvent.GetOperation();
-	if (Operation.IsValid() && Operation->IsOfType<FDefaultDragConnection>())
-	{
-		TSharedPtr<FDefaultDragConnection> DragConnectionOp = StaticCastSharedPtr<FDefaultDragConnection>(Operation);
-
-		TArray<UEdGraphPin*> ValidPins;
-		DragConnectionOp->ValidateGraphPinList(/*out*/ ValidPins);
-
-		if (ValidPins.Num() > 0)
-		{
-			UEdGraphPin* PinToHoverOver = nullptr;
-			UEdGraphNode* Knot = GraphPinObj->GetOwningNode();
-			int32 InputPinIndex = -1;
-			int32 OutputPinIndex = -1;
-
-			if (Knot != nullptr && Knot->ShouldDrawNodeAsControlPointOnly(InputPinIndex, OutputPinIndex))
-			{
-				// Dragging to another pin, pick the opposite direction as a source to maximize connection chances
-				PinToHoverOver = (ValidPins[0]->Direction == EGPD_Input) ? Knot->GetPinAt(OutputPinIndex) : Knot->GetPinAt(InputPinIndex);
-				check(PinToHoverOver);
-			}
-
-			if (PinToHoverOver != nullptr)
-			{
-				DragConnectionOp->SetHoveredPin(PinToHoverOver);
-
-				// Pins treat being dragged over the same as being hovered outside of drag and drop if they know how to respond to the drag action.
-				SBorder::OnMouseEnter(MyGeometry, DragDropEvent);
-
-				return;
-			}
-		}
-	}
-
-	SGraphPin::OnDragEnter(MyGeometry, DragDropEvent);
-}
-
-FSlateColor SDefault_GraphPinKnot::GetPinColor() const
-{
-	// Make ourselves transparent if we're the input, since we are underneath the output pin and would double-blend looking ugly
-	return (GetPinObj()->Direction == EEdGraphPinDirection::EGPD_Input) ? FLinearColor::Transparent : SGraphPin::GetPinColor();
-}
-
-TSharedRef<SWidget>	SDefault_GraphPinKnot::GetDefaultValueWidget()
-{
-	return SNullWidget::NullWidget;
-}
-
-TSharedRef<FDragDropOperation> SDefault_GraphPinKnot::SpawnPinDragEvent(const TSharedRef<SGraphPanel>& InGraphPanel, const TArray< TSharedRef<SGraphPin> >& InStartingPins)
-{
-	FAmbivalentDirectionDragConnection::FDraggedPinTable PinHandles;
-	PinHandles.Reserve(InStartingPins.Num());
-	// since the graph can be refreshed and pins can be reconstructed/replaced 
-	// behind the scenes, the DragDropOperation holds onto FGraphPinHandles 
-	// instead of direct widgets/graph-pins
-	for (const TSharedRef<SGraphPin>& PinWidget : InStartingPins)
-	{
-		PinHandles.Add(PinWidget->GetPinObj());
-	}
-
-	TSharedRef<FAmbivalentDirectionDragConnection> Operation = FAmbivalentDirectionDragConnection::New(GetPinObj()->GetOwningNode(), InGraphPanel, PinHandles);
-	return Operation;
-}
-
-FReply SDefault_GraphPinKnot::OnPinMouseDown(const FGeometry& SenderGeometry, const FPointerEvent& MouseEvent)
-{
-	if (MouseEvent.GetEffectingButton() == EKeys::LeftMouseButton)
-	{
-		if (!GraphPinObj->bNotConnectable && IsEditingEnabled())
-		{
-			if (MouseEvent.IsAltDown())
-			{
-				// Normally break connections, but overloaded here to delete the node entirely
-				const FScopedTransaction Transaction(FGenericCommands::Get().Delete->GetDescription());
-
-				UEdGraphNode* NodeToDelete = GetPinObj()->GetOwningNode();
-				if (NodeToDelete != nullptr)
-				{
-					UEdGraph* Graph = NodeToDelete->GetGraph();
-					if (Graph != nullptr)
-					{
-						const UEdGraphSchema* Schema = Graph->GetSchema();
-						if (Schema != nullptr && Schema->SafeDeleteNodeFromGraph(Graph, NodeToDelete))
-						{
-							return FReply::Handled();
-						}
-					}
-				}
-
-				return FReply::Unhandled();
-			}
-			else if (MouseEvent.IsControlDown())
-			{
-				// Normally moves the connections from one pin to another, but moves the node instead since it's really representing a set of connections
-				// Returning unhandled will cause the node behind us to catch it and move us
-				return FReply::Unhandled();
-			}
-		}
-	}
-
-	return SGraphPin::OnPinMouseDown(SenderGeometry, MouseEvent);
-}
-//////////////////////////////////////////////////////////////////////////
-// SDefault_GraphNodeKnot
-
 void SDefault_GraphNodeKnot::Construct(const FArguments& InArgs, UEdGraphNode* InKnot)
 {
 	int32 InputPinIndex = -1;
@@ -324,7 +188,7 @@ void SDefault_GraphNodeKnot::UpdateGraphNode()
 	//@TODO: Keyboard focus on edit doesn't work unless the node is visible, but the text is just the comment and it's already shown in a bubble, so Transparent black it is...
 	InlineEditableText = SNew(SInlineEditableTextBlock)
 		.ColorAndOpacity(FLinearColor::Transparent)
-		.Style(FEditorStyle::Get(), "Graph.Node.NodeTitleInlineEditableText")
+		.Style(FAppStyle::Get(), "Graph.Node.NodeTitleInlineEditableText")
 		.Text(this, &SDefault_GraphNodeKnot::GetEditableNodeTitleAsText)
 		.OnVerifyTextChanged(this, &SDefault_GraphNodeKnot::OnVerifyNameTextChanged)
 		.OnTextCommitted(this, &SDefault_GraphNodeKnot::OnNameTextCommited)
@@ -410,12 +274,12 @@ void SDefault_GraphNodeKnot::UpdateGraphNode()
 const FSlateBrush* SDefault_GraphNodeKnot::GetShadowBrush(bool bSelected) const
 {
 	bCachedSelected = bSelected;
-	return /*bSelected ? FEditorStyle::GetBrush(TEXT("Graph.Node.ShadowSelected")) : */FEditorStyle::GetNoBrush();
+	return /*bSelected ? FAppStyle::GetBrush(TEXT("Graph.Node.ShadowSelected")) : */FAppStyle::GetNoBrush();
 }
 
 TSharedPtr<SGraphPin> SDefault_GraphNodeKnot::CreatePinWidget(UEdGraphPin* Pin) const
 {
-	return SNew(SDefault_GraphPinKnot, Pin);
+	return SNew(SGraphPinKnot, Pin);
 }
 
 void SDefault_GraphNodeKnot::AddPin(const TSharedRef<SGraphPin>& PinToAdd)

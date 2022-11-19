@@ -499,7 +499,7 @@ void UDefaultThemeSettings::ModifyEditableTextBox(FEditableTextBoxStyle* Style,
 	ModifyBrush(&Style->BackgroundImageHovered, Config.BackgroundHovered.Get());
 	ModifyBrush(&Style->BackgroundImageFocused, Config.BackgroundFocused.Get());
 	ModifyBrush(&Style->BackgroundImageReadOnly, Config.BackgroundReadOnly.Get());
-	ModifyFontInfo(&Style->Font, Config.Text.Get());
+	ModifyFontInfo(&Style->TextStyle.Font, Config.Text.Get());
 	Style->ForegroundColor = Config.ForegroundNormal.Get();
 	Style->FocusedForegroundColor = Config.ForegroundFocused.Get();
 	Style->ReadOnlyForegroundColor = Config.ForegroundReadOnly.Get();

@@ -14,12 +14,13 @@ class SDefault_PinTypeSelector : public SPinTypeSelector
 		, _bAllowArrays(true)
 		, _TreeViewWidth(300.f)
 		, _TreeViewHeight(400.f)
-		, _Font(FEditorStyle::GetFontStyle(TEXT("NormalFont")))
+		, _Font(FAppStyle::GetFontStyle(TEXT("NormalFont")))
 		, _SelectorType(ESelectorType::Full)
-		, _ReadOnly(false)
 		, _TypeComboButtonStyle(nullptr)
 		, _TypeComboButtonPadding(FMargin(0))
 		, _TypeComboButtonContentSpacing(0.f)
+		, _ReadOnly(false)
+
 		{
 		}
 		SLATE_STYLE_ARGUMENT(FComboButtonStyle, TypeComboButtonStyle)
@@ -37,7 +38,8 @@ class SDefault_PinTypeSelector : public SPinTypeSelector
 		SLATE_ATTRIBUTE(FSlateFontInfo, Font)
 		SLATE_ARGUMENT(ESelectorType, SelectorType)
 		SLATE_ATTRIBUTE(bool, ReadOnly)
-		SLATE_ARGUMENT(TSharedPtr<class IPinTypeSelectorFilter>, CustomFilter)
+		SLATE_ARGUMENT_DEPRECATED(TSharedPtr<class IPinTypeSelectorFilter>, CustomFilter, 5.1, "Please use CustomFilters instead")
+		SLATE_ARGUMENT(TArray<TSharedPtr<class IPinTypeSelectorFilter>>, CustomFilters)
 	SLATE_END_ARGS()
 
 public:

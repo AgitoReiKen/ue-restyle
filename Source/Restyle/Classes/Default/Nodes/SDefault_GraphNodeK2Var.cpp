@@ -39,6 +39,14 @@ FSlateColor SDefault_GraphNodeK2Var::GetVariableColor() const
 	return CachedVariableColor;
 }
 
+void SDefault_GraphNodeK2Var::GetDiffHighlightBrushes(const FSlateBrush*& BackgroundOut,
+	const FSlateBrush*& ForegroundOut) const
+{
+	BackgroundOut = FAppStyle::GetBrush(TEXT("Graph.VarNode.DiffHighlight"));
+	ForegroundOut = FAppStyle::GetBrush(TEXT("Graph.VarNode.DiffHighlightShading"));
+
+}
+
 TSharedRef<SWidget> SDefault_GraphNodeK2Var::UpdateTitleWidget(FText InTitleText, TSharedPtr<SWidget> InTitleWidget,
                                                                EHorizontalAlignment& InOutTitleHAlign,
                                                                FMargin& InOutTitleMargin) const
@@ -51,7 +59,7 @@ TSharedRef<SWidget> SDefault_GraphNodeK2Var::UpdateTitleWidget(FText InTitleText
 	if (!TitleTextBlock.IsValid())
 	{
 		TitleTextBlock = SNew(STextBlock)
-			.TextStyle(FEditorStyle::Get(), FNodeRestyleStyles::VarNode_Title_Text)
+			.TextStyle(FAppStyle::Get(), FNodeRestyleStyles::VarNode_Title_Text)
 			.Text(InTitleText);
 	}
 
@@ -171,7 +179,7 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 				[
 					SNew(STextBlock)
 					.WrapTextAt(128.0f)
-					.TextStyle(FEditorStyle::Get(), "Graph.Node.NodeTitle")
+					.TextStyle(FAppStyle::Get(), "Graph.Node.NodeTitle")
 					.Text(TitleText)
 				]
 
@@ -182,7 +190,7 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 					SNew(STextBlock)
 					.Visibility(TitleText.IsEmpty() ? EVisibility::Collapsed : EVisibility::Visible)
 					.WrapTextAt(128.0f)
-					.TextStyle(FEditorStyle::Get(), "Graph.Node.NodeTitleExtraLines")
+					.TextStyle(FAppStyle::Get(), "Graph.Node.NodeTitleExtraLines")
 					.Text(SubTitleText)
 				]
 			];
@@ -224,7 +232,7 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 				+ SOverlay::Slot()
 				[
 					SAssignNew(VarNodeBody, SImage)
-					.Image(FEditorStyle::GetBrush(FNodeRestyleStyles::VarNode_Body(VarType, CachedState)))
+					.Image(FAppStyle::GetBrush(FNodeRestyleStyles::VarNode_Body(VarType, CachedState)))
 				]
 				+ SOverlay::Slot()
 				  .VAlign(VAlign_Top)

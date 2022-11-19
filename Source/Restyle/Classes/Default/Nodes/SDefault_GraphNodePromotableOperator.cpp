@@ -56,11 +56,11 @@ void SDefault_GraphNodePromotableOperator::LoadCachedIcons()
 	// Outer ring icons
 	if (!CachedOuterIcon)
 	{
-		CachedOuterIcon = FEditorStyle::GetBrush(PromotableTypeOuterName);
+		CachedOuterIcon = FAppStyle::GetBrush(PromotableTypeOuterName);
 	}
 
 	if (!CachedInnerIcon)
 	{
-		CachedInnerIcon = FEditorStyle::GetBrush(PromotableTypeInnerName);
+		CachedInnerIcon = FAppStyle::GetBrush(PromotableTypeInnerName);
 	}
 }

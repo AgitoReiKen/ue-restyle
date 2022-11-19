@@ -154,7 +154,7 @@ protected:
 	virtual FSlateFontInfo DetermineFont() const
 	{
 		check(Style);
-		return FontOverride.IsSet() ? FontOverride.Get() : Style->Font;
+		return FontOverride.IsSet() ? FontOverride.Get() : Style->TextStyle.Font;
 	}
 
 	virtual FSlateColor DetermineBackgroundColor() const

@@ -35,8 +35,7 @@ public class Restyle : ModuleRules
                 "Slate",
                 "SlateCore",
                 "RenderCore",
-                "Projects",
-                "EditorStyle",
+                "Projects", 
                 "EngineSettings",
                 "Kismet",
                 "UnrealEd",
@@ -52,7 +51,8 @@ public class Restyle : ModuleRules
                 "RHI",
                 "UMGEditor",
                 "MaterialEditor", 
-                "AnimGraph"
+                "AnimGraph",
+                "KismetCompiler"
                 // ... add private dependencies that you statically link with here ...	
             }
         );

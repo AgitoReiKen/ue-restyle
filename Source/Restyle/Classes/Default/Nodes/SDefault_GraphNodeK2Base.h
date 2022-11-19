@@ -19,8 +19,8 @@ public:
 		CachedOutlineWidth = .0f;
 		CachedState = EDTGraphNodeState::Num;
 		ErrorInfoType = EDTNodeReportType::Num;
-		IChevronDown = FEditorStyle::GetBrush("Icons.ChevronDown");
-		IChevronUp = FEditorStyle::GetBrush("Icons.ChevronUp");
+		IChevronDown = FAppStyle::GetBrush("Icons.ChevronDown");
+		IChevronUp = FAppStyle::GetBrush("Icons.ChevronUp");
 	}
 
 	virtual bool IsInvalid() const;

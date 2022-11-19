@@ -11,7 +11,7 @@ public:
 		: _CurrentKey(FKey())
 		, _TreeViewWidth(300.f)
 		, _TreeViewHeight(400.f)
-		, _Font(FEditorStyle::GetFontStyle(TEXT("NormalFont")))
+		, _Font(FAppStyle::GetFontStyle(TEXT("NormalFont")))
 		, _FilterBlueprintBindable(true)
 		, _AllowClear(true)
 		, _ButtonStyle(&FAppStyle::Get().GetWidgetStyle<FButtonStyle>("Button"))

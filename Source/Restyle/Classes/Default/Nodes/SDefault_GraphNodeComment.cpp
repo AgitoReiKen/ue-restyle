@@ -150,7 +150,7 @@ void SDefault_GraphNodeComment::UpdateGraphNode()
 	CachedFontSize = CommentNode->GetFontSize();
 
 	CommentStyle = FAppStyle::Get().GetWidgetStyle<FInlineEditableTextBlockStyle>(FNodeRestyleStyles::CommentNode_Title_Text);
-	CommentStyle.EditableTextBoxStyle.Font.Size = CachedFontSize;
+	CommentStyle.EditableTextBoxStyle.TextStyle.Font.Size = CachedFontSize;
 	CommentStyle.TextStyle.Font.Size = CachedFontSize;
 	ContentScale.Bind(this, &SGraphNode::GetContentScale);
 
@@ -161,7 +161,7 @@ void SDefault_GraphNodeComment::UpdateGraphNode()
 		.VAlign(VAlign_Fill)
 		[
 			SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("WhiteBrush"))
+			.BorderImage(FAppStyle::GetBrush("WhiteBrush"))
 			.ColorAndOpacity(FLinearColor::White)
 			.BorderBackgroundColor(this, &SDefault_GraphNodeComment::GetCommentBodyColor)
 			.Padding(0)
@@ -175,7 +175,7 @@ void SDefault_GraphNodeComment::UpdateGraphNode()
 				.VAlign(VAlign_Top)
 				[
 					SAssignNew(TitleBar, SBorder)
-					.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+					.BorderImage(FAppStyle::GetBrush("NoBorder"))
 					.BorderBackgroundColor(this, &SDefault_GraphNodeComment::GetCommentTitleBarColor)
 					.Padding(TitlePadding)
 					.HAlign(HAlign_Fill)
@@ -206,7 +206,7 @@ void SDefault_GraphNodeComment::UpdateGraphNode()
 				[
 					// NODE CONTENT AREA
 					SNew(SBorder)
-					.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+					.BorderImage(FAppStyle::GetBrush("NoBorder"))
 				]
 			]
 		];
@@ -349,7 +349,7 @@ bool SDefault_GraphNodeComment::IsNodeUnderComment(UEdGraphNode_Comment* InComme
 const FSlateBrush* SDefault_GraphNodeComment::GetShadowBrush(bool bSelected) const
 {
 	HandleSelection(bSelected);
-	return FEditorStyle::GetNoBrush();
+	return FAppStyle::GetNoBrush();
 }
 
 void SDefault_GraphNodeComment::GetOverlayBrushes(bool bSelected, const FVector2D WidgetSize, TArray<FOverlayBrushInfo>& Brushes) const
@@ -358,7 +358,7 @@ void SDefault_GraphNodeComment::GetOverlayBrushes(bool bSelected, const FVector2
 
 	HandleSelection(bSelected);
 
-	FOverlayBrushInfo HandleBrush = FEditorStyle::GetBrush(TEXT("Graph.Node.Comment.Handle"));
+	FOverlayBrushInfo HandleBrush = FAppStyle::GetBrush(TEXT("Graph.Node.Comment.Handle"));
 
 	HandleBrush.OverlayOffset.X = WidgetSize.X - HandleBrush.Brush->ImageSize.X - Fudge;
 	HandleBrush.OverlayOffset.Y = WidgetSize.Y - HandleBrush.Brush->ImageSize.Y - Fudge;
@@ -549,7 +549,7 @@ FReply SDefault_GraphNodeComment::OnMouseMove(const FGeometry& MyGeometry, const
 
 			// apply snap
 			//const float SnapSize = SNodePanel::GetSnapGridSize();
-			const float SnapSize = SNodePanel::GetSnapGridSize();
+			const float SnapSize = static_cast<float>(SNodePanel::GetSnapGridSize());
 			FVector2D SnappedSize;
 			SnappedSize.X = SnapSize * FMath::RoundToFloat(DragSize.X / SnapSize);
 			SnappedSize.Y = SnapSize * FMath::RoundToFloat(DragSize.Y / SnapSize);

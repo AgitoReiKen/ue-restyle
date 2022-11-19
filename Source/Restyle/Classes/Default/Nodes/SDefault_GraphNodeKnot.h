@@ -6,7 +6,7 @@
 #include "Widgets/DeclarativeSyntaxSupport.h"
 #include "SGraphPin.h"
 #include "SDefault_GraphNodeDefault.h"
-
+#include "SGraphNodeKnot.h"
 class SCommentBubble;
 
 /** The visual representation of a control point meant to adjust how connections are routed, also known as a Reroute node.
@@ -48,3 +48,4 @@ protected:
 	const FSlateBrush* ShadowBrushSelected;
 	mutable bool bCachedSelected;
 };
+ 

@@ -80,28 +80,36 @@ void SDefault_PinTypeSelector::PreConstruct(const FArguments& InArgs, FGetPinTyp
 	SelectorType = InArgs._SelectorType;
 
 	NumFilteredPinTypeItems = 0;
-	if (InArgs._CustomFilter.IsValid())
+
+	if (InArgs._CustomFilters.Num() > 0)
 	{
-		CustomFilter = MakeShared<FPinTypeSelectorCustomFilterProxy>(InArgs._CustomFilter.ToSharedRef(), FSimpleDelegate::CreateSP(this, &SDefault_PinTypeSelector::OnCustomFilterChanged));
+		for (const TSharedPtr<IPinTypeSelectorFilter>& Filter : InArgs._CustomFilters)
+		{
+			CustomFilters.Add(MakeShared<FPinTypeSelectorCustomFilterProxy>(Filter.ToSharedRef(), FSimpleDelegate::CreateSP(this, &SDefault_PinTypeSelector::OnCustomFilterChanged)));
+		}
 	}
-	else if (UClass* PinTypeSelectorFilterClass = GetDefault<UPinTypeSelectorFilter>()->FilterClass.LoadSynchronous() )
+	else if (InArgs._CustomFilter.IsValid())
+	{
+		CustomFilters.Add(MakeShared<FPinTypeSelectorCustomFilterProxy>(InArgs._CustomFilter.ToSharedRef(), FSimpleDelegate::CreateSP(this, &SDefault_PinTypeSelector::OnCustomFilterChanged)));
+	}
+	else if (UClass* PinTypeSelectorFilterClass = GetDefault<UPinTypeSelectorFilter>()->FilterClass.LoadSynchronous())
 	{
 		TSharedPtr<IPinTypeSelectorFilter> SelectorFilter = GetDefault<UPinTypeSelectorFilter>(PinTypeSelectorFilterClass)->GetPinTypeSelectorFilter();
-		CustomFilter = MakeShared<FPinTypeSelectorCustomFilterProxy>(SelectorFilter.ToSharedRef(), FSimpleDelegate::CreateSP(this, &SDefault_PinTypeSelector::OnCustomFilterChanged));
+		CustomFilters.Add(MakeShared<FPinTypeSelectorCustomFilterProxy>(SelectorFilter.ToSharedRef(), FSimpleDelegate::CreateSP(this, &SDefault_PinTypeSelector::OnCustomFilterChanged)));
 	}
 
 	bIsRightMousePressed = false;
+
+
 	TypeComboButtonStyle = InArgs._TypeComboButtonStyle;
 	if (!TypeComboButtonStyle)
 	{
 		TypeComboButtonStyle = &FAppStyle::Get().GetWidgetStyle<FComboButtonStyle>("ComboButton");
 	}
 	 
-}
-
+} 
 void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinTypeTree GetPinTypeTreeFunc)
 {
-
 	// Depending on whether this is a full selector or not, we generate a different primary type image widget
 	TSharedPtr<SWidget> PrimaryTypeImage;
 	if (SelectorType == ESelectorType::Full)
@@ -127,16 +135,40 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 
 	// Depending on if this is a compact selector or not, we generate a different compound widget
 	TSharedPtr<SWidget> Widget;
+	const TSharedPtr<SWidget> ReadOnlyWidget = SNew(SHorizontalBox)
+			.Clipping(EWidgetClipping::OnDemand)
+			+ SHorizontalBox::Slot()
+			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Left)
+			.Padding(FMargin(2.0f, 3.0f, 2.0f, 3.0f))
+			.AutoWidth()
+			[
+				// Read-only version does not display container or secondary type separately, so we need to jam it all in the one image
+				SNew(SLayeredImage, TAttribute<const FSlateBrush*>(this, &SDefault_PinTypeSelector::GetSecondaryTypeIconImage), TAttribute<FSlateColor>(this, &SDefault_PinTypeSelector::GetSecondaryTypeIconColor))
+				.Image(this, &SDefault_PinTypeSelector::GetTypeIconImage)
+				.ColorAndOpacity(this, &SDefault_PinTypeSelector::GetTypeIconColor)
+			]
+			+ SHorizontalBox::Slot()
+			.Padding(2.0f, 2.0f)
+			.VAlign(VAlign_Center)
+			.HAlign(HAlign_Left)
+			.AutoWidth()
+			[
+				SNew(STextBlock)
+				.Text(this, &SDefault_PinTypeSelector::GetTypeDescription, false)
+				.Font(InArgs._Font)
+				.ColorAndOpacity(FSlateColor::UseForeground())
+			];
 
 	if (SelectorType == ESelectorType::Compact)
 	{
 		// Only have a combo button with an icon
 		Widget = SAssignNew( TypeComboButton, SComboButton )
 			.OnGetMenuContent(this, &SDefault_PinTypeSelector::GetMenuContent, false)
-			.ContentPadding(0)
+			.ContentPadding(0.0f)
 			.ToolTipText(this, &SDefault_PinTypeSelector::GetToolTipForComboBoxType)
 			.HasDownArrow(false)
-			.ButtonStyle(FEditorStyle::Get(),  "BlueprintEditor.CompactPinTypeSelector")
+			.ButtonStyle(FAppStyle::Get(),  "BlueprintEditor.CompactPinTypeSelector")
 			.ButtonContent()
 			[
 				PrimaryTypeImage.ToSharedRef()
@@ -144,8 +176,7 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 	}
 	else if (SelectorType == ESelectorType::None)
 	{
-		Widget = PrimaryTypeImage.ToSharedRef();
-		Widget->SetToolTipText(TAttribute<FText>::CreateSP(this, &SDefault_PinTypeSelector::GetToolTipForComboBoxType));
+		Widget = ReadOnlyWidget;
 	}
 	else if (SelectorType == ESelectorType::Full || SelectorType == ESelectorType::Partial)
 	{
@@ -158,7 +189,7 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 				.ComboButtonStyle(FAppStyle::Get(),"BlueprintEditor.CompactVariableTypeSelector")
 				.MenuPlacement(EMenuPlacement::MenuPlacement_ComboBoxRight)
 				.OnGetMenuContent(this, &SDefault_PinTypeSelector::GetPinContainerTypeMenuContent)
-				.ContentPadding(0)
+				.ContentPadding(0.0f)
 				.ToolTip(IDocumentation::Get()->CreateToolTip(TAttribute<FText>(this, &SDefault_PinTypeSelector::GetToolTipForContainerWidget), NULL, *PinTypeSelectorStatics::BigTooltipDocLink, TEXT("Containers")))
 				.IsEnabled(TargetPinType.Get().PinCategory != UEdGraphSchema_K2::PC_Exec)
 				.Visibility(InArgs._bAllowArrays ? EVisibility::Visible : EVisibility::Collapsed)
@@ -185,6 +216,9 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 				.ComboButtonStyle(TypeComboButtonStyle)
 				.OnGetMenuContent(this, &SDefault_PinTypeSelector::GetMenuContent, false)
 				.ContentPadding(InArgs._TypeComboButtonPadding)
+				.ComboButtonStyle(FAppStyle::Get(), "ComboButton")
+				.OnGetMenuContent(this, &SDefault_PinTypeSelector::GetMenuContent, false)
+				.ContentPadding(0.0f)
 				.ToolTipText(this, &SDefault_PinTypeSelector::GetToolTipForComboBoxType)
 				.ForegroundColor(FSlateColor::UseForeground())
 				.ButtonContent()
@@ -194,11 +228,11 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 					+ SHorizontalBox::Slot()
 					.VAlign(VAlign_Center)
 					.HAlign(HAlign_Left)
-					.Padding(0.f)
+					.Padding(0.0f, 0.0f, 0.0f, 0.0f)
 					.AutoWidth()
 					[
 						PrimaryTypeImage.ToSharedRef()
-					] 
+					]
 					+ SHorizontalBox::Slot()
 					.Padding(InArgs._TypeComboButtonContentSpacing, 0.0f, 0.0f, 0.0f)
 					.VAlign(VAlign_Center)
@@ -206,7 +240,7 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 					.AutoWidth()
 					[
 						SNew(STextBlock)
-						.Text(this, &SDefault_PinTypeSelector::GetTypeDescription )
+						.Text(this, &SDefault_PinTypeSelector::GetTypeDescription, false)
 						.Font(InArgs._Font)
 						.ColorAndOpacity(FSlateColor::UseForeground())
 					]
@@ -233,7 +267,7 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 				[
 					SAssignNew( SecondaryTypeComboButton, SComboButton )
 					.OnGetMenuContent(this, &SDefault_PinTypeSelector::GetMenuContent, true )
-					.ContentPadding(0)
+					.ContentPadding(0.0f)
 					.ToolTipText(this, &SDefault_PinTypeSelector::GetToolTipForComboBoxSecondaryType)
 					.ButtonContent()
 					[
@@ -255,7 +289,7 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 						.Padding(2.0f, 0.0f, 0.0f, 0.0f)
 						[
 							SNew(STextBlock)
-							.Text( this, &SDefault_PinTypeSelector::GetSecondaryTypeDescription )
+							.Text(this, &SDefault_PinTypeSelector::GetSecondaryTypeDescription, false)
 							.Font(InArgs._Font)
 						]
 					]
@@ -263,6 +297,7 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 			];
 		}
 	}
+
 
 	this->ChildSlot
 	[
@@ -275,34 +310,10 @@ void SDefault_PinTypeSelector::InConstruct(const FArguments& InArgs, FGetPinType
 		]
 		+ SWidgetSwitcher::Slot() // read-only version
 		[
-			SNew(SHorizontalBox)
-			.Clipping(EWidgetClipping::OnDemand)
-			+ SHorizontalBox::Slot()
-			.VAlign(VAlign_Center)
-			.HAlign(HAlign_Left)
-			.Padding(FMargin(2.0f, 3.0f, 2.0f, 3.0f))
-			.AutoWidth()
-			[
-				// Read-only version does not display container or secondary type separately, so we need to jam it all in the one image
-				SNew(SLayeredImage, TAttribute<const FSlateBrush*>(this, &SDefault_PinTypeSelector::GetSecondaryTypeIconImage), TAttribute<FSlateColor>(this, &SDefault_PinTypeSelector::GetSecondaryTypeIconColor))
-				.Image(this, &SDefault_PinTypeSelector::GetTypeIconImage)
-				.ColorAndOpacity(this, &SDefault_PinTypeSelector::GetTypeIconColor)
-			]
-			+ SHorizontalBox::Slot()
-			.Padding(2.0f, 2.0f)
-			.VAlign(VAlign_Center)
-			.HAlign(HAlign_Left)
-			.AutoWidth()
-			[
-				SNew(STextBlock)
-				.Text(this, &SDefault_PinTypeSelector::GetTypeDescription)
-				.Font(InArgs._Font)
-				.ColorAndOpacity(FSlateColor::UseForeground())
-			]
+			ReadOnlyWidget.ToSharedRef()
 		]	
 	];
-}
-
+} 
 void SDefault_PinTypeSelector::PostConstruct(const FArguments& InArgs, FGetPinTypeTree GetPinTypeTreeFunc)
 {
 }

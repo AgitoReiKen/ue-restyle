@@ -101,7 +101,7 @@ void SDefault_GraphNodeK2Composite::UpdateGraphNode()
 						.AutoHeight()
 						[
 							SAssignNew(InlineEditableText, SInlineEditableTextBlock)
-							.Style(FEditorStyle::Get(), FNodeRestyleStyles::CollapsedNode_Title_MainText)
+							.Style(FAppStyle::Get(), FNodeRestyleStyles::CollapsedNode_Title_MainText)
 							//.Text(NodeTitle.Get(), &sSDefault_NodeTitle::GetHeadTitle)
 							.Text(NodeTitle->GetHeadTitle())
 							.OnVerifyTextChanged(this, &SDefault_GraphNodeK2Composite::OnVerifyNameTextChanged)
@@ -281,7 +281,7 @@ TSharedRef<SWidget> SDefault_GraphNodeK2Composite::CreateNodeBody()
 		float ContentSpacing = UDefaultThemeSettings::Get()->GetSpacing(CollapsedNode.ContentSpacing);
 		// Create the input and output pin areas if there are pins
 		return SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+			.BorderImage(FAppStyle::GetBrush("NoBorder"))
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			.Padding(0)

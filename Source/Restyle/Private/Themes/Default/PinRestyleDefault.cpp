@@ -305,7 +305,7 @@ void FPinRestyleDefault::Update()
 		//	[
 		//		SNew(STextBlock).ToolTipText(NSLOCTEXT("PinComboBox", "ToolTip", "Select enum values from the list"))
 		//		.Text(this, &SPinComboBox::OnGetVisibleTextInternal)
-		//	.Font(FEditorStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
+		//	.Font(FAppStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
 		//	]
 		//	]
 		//.MenuContent()
@@ -315,7 +315,7 @@ void FPinRestyleDefault::Update()
 		//	.MaxHeight(450.0f)
 		//	[
 		//		SNew(SBorder)
-		//		.BorderImage(FEditorStyle::GetBrush("Menu.Background"))
+		//		.BorderImage(FAppStyle::GetBrush("Menu.Background"))
 		//	.Padding(0)
 		//	[
 		//		SAssignNew(ComboList, SComboList)
@@ -334,7 +334,7 @@ void FPinRestyleDefault::Update()
 			FEditableTextBoxStyle TextBoxStyle = FEditableTextBoxStyle();
 			UDefaultThemeSettings::Get()->ModifyEditableTextBox(&TextBoxStyle, Vector.Body.Get());
 			StyleSet->Set(FPinRestyleStyles::Graph_VectorEditableTextBox, TextBoxStyle);
-			StyleSet->Set(FPinRestyleStyles::Graph_VectorEditableTextBox, TextBoxStyle.Font);
+			StyleSet->Set(FPinRestyleStyles::Graph_VectorEditableTextBox, TextBoxStyle.TextStyle.Font);
 		}
 		//CheckBox
 		{

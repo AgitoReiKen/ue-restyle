@@ -115,7 +115,7 @@ TSharedPtr<SGraphPin> FDefaultGraphPanelPinFactory::CreatePin(UEdGraphPin* InPin
 		{
 			if (InPin->PinType.PinSubCategoryObject == Vector4Struct)
 			{
-				return SNew(SDefault_GraphPinVector4, InPin);
+				return SNew(SDefault_GraphPinVector4<double>, InPin);
 			}
 		}
 		if (InPin->PinType.PinSubCategoryObject == ColorStruct)
@@ -125,11 +125,11 @@ TSharedPtr<SGraphPin> FDefaultGraphPanelPinFactory::CreatePin(UEdGraphPin* InPin
 		if ((InPin->PinType.PinSubCategoryObject == VectorStruct) || (InPin->PinType.PinSubCategoryObject ==
 			Vector3fStruct) || (InPin->PinType.PinSubCategoryObject == RotatorStruct))
 		{
-			return SNew(SDefault_GraphPinVector, InPin);
+			return SNew(SDefault_GraphPinVector<double>, InPin);
 		}
 		if (InPin->PinType.PinSubCategoryObject == Vector2DStruct)
 		{
-			return SNew(SDefault_GraphPinVector2D, InPin);
+			return SNew(SDefault_GraphPinVector2D<double>, InPin);
 		}
 
 		if (InPin->PinType.PinSubCategoryObject == FKey::StaticStruct())

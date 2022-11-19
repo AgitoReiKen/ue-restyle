@@ -35,7 +35,7 @@ TSharedPtr<SWidget> SDefault_GraphNodeK2Base::CreateEnabledStateWidget()
 			                                   : NSLOCTEXT("SGraphNode", "DisabledNodeTooltip",
 			                                               "This node is currently disabled and will not be executed");
 
-		/*FEditorStyle::GetBrush(bDevelopmentOnly
+		/*FAppStyle::GetBrush(bDevelopmentOnly
 			? "Graph.Node.DevelopmentBanner"
 			: "Graph.Node.DisabledBanner"*/
 		auto Type = bDevelopmentOnly ? EDTEnabledStateType::Development : EDTEnabledStateType::Disabled;
@@ -86,7 +86,7 @@ void SDefault_GraphNodeK2Base::CreateAdvancedViewArrowNew(TSharedPtr<SVerticalBo
 			[
 				SNew(SButton)
 				.Visibility(this, &SDefault_GraphNodeK2Base::AdvancedViewArrowVisibility)
-				.ButtonStyle(FEditorStyle::Get(), FNodeRestyleStyles::AdvancedDisplay)
+				.ButtonStyle(FAppStyle::Get(), FNodeRestyleStyles::AdvancedDisplay)
 				.OnClicked(this, &SDefault_GraphNodeK2Base::OnAdvancedDisplayClicked)
 				.Cursor(EMouseCursor::Default)
 				[
@@ -130,7 +130,8 @@ TSharedRef<SWidget> SDefault_GraphNodeK2Base::AddPinButtonContent_New(FText PinT
 
 	auto Style = UPinRestyleSettings::Get();
 	const auto& Seq = Style->Inputs.Sequence;
-	FVector2D IconSize = UDefaultThemeSettings::GetIconSize(Seq.IconSize);
+
+	FVector2D IconSize(UDefaultThemeSettings::GetIconSize(Seq.IconSize));
 	FText Text = !Seq.OverrideText.IsEmpty() ? Seq.OverrideText : PinText;
 	FMargin ButtonContentPadding = UDefaultThemeSettings::GetMargin(Seq.ButtonStyle.Get().Padding);
 	float Spacing = UDefaultThemeSettings::GetSpacing(Seq.Spacing);
@@ -154,7 +155,7 @@ TSharedRef<SWidget> SDefault_GraphNodeK2Base::AddPinButtonContent_New(FText PinT
 			  .Padding(Spacing, 0, 0, 0)
 			[
 				SNew(SImage)
-				.Image(FEditorStyle::GetBrush(FPinRestyleStyles::Icon_AddPin))
+				.Image(FAppStyle::GetBrush(FPinRestyleStyles::Icon_AddPin))
 				.DesiredSizeOverride(IconSize)
 				.ColorAndOpacity(FSlateColor::UseStyle())
 			];
@@ -168,7 +169,7 @@ TSharedRef<SWidget> SDefault_GraphNodeK2Base::AddPinButtonContent_New(FText PinT
 			  .Padding(0, 0, Spacing, 0)
 			[
 				SNew(SImage)
-				.Image(FEditorStyle::GetBrush(FPinRestyleStyles::Icon_AddPin))
+				.Image(FAppStyle::GetBrush(FPinRestyleStyles::Icon_AddPin))
 				.DesiredSizeOverride(IconSize)
 				.ColorAndOpacity(FSlateColor::UseStyle())
 			]

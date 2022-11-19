@@ -184,7 +184,7 @@ TSharedRef<SWidget> SOptionalPinStateView::CreateSelectionWidget(UEdGraphPin* In
 	{
 		return
 			SNew(SComboBox<TSharedPtr<FOptionalPinOverrideState>>)
-			.ButtonStyle(FEditorStyle::Get(), "NoBorder")
+			.ButtonStyle(FAppStyle::Get(), "NoBorder")
 			.ForegroundColor(FLinearColor::White)
 			.ContentPadding(FMargin(0.0f, 0.0f, 0.0f, 0.0f))
 			.OptionsSource(&ListItems)
@@ -194,7 +194,7 @@ TSharedRef<SWidget> SOptionalPinStateView::CreateSelectionWidget(UEdGraphPin* In
 			[
 				SNew(SBorder)
 				.Padding(0.0f)
-			.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+			.BorderImage(FAppStyle::GetBrush("NoBorder"))
 			.ColorAndOpacity(this, &SOptionalPinStateView::GetPinOverrideIconColor, &InPropertyEntry)
 			[
 				SNew(SImage)
@@ -205,13 +205,13 @@ TSharedRef<SWidget> SOptionalPinStateView::CreateSelectionWidget(UEdGraphPin* In
 	}
 	return
 		SNew(SButton)
-		.ButtonStyle(FEditorStyle::Get(), "NoBorder")
+		.ButtonStyle(FAppStyle::Get(), "NoBorder")
 		.OnClicked(this, &SOptionalPinStateView::OnOverrideStateToggled, InPin, &InPropertyEntry)
 		.ContentPadding(FMargin(0.0f, 0.0f, 0.0f, 0.0f))
 		[
 			SNew(SBorder)
 			.Padding(0.0f)
-		.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+		.BorderImage(FAppStyle::GetBrush("NoBorder"))
 		.ColorAndOpacity(this, &SOptionalPinStateView::GetPinOverrideIconColor, &InPropertyEntry)
 		[
 			SNew(SImage)
@@ -235,7 +235,7 @@ TSharedRef<SWidget> SOptionalPinStateView::OnGenerateWidget(TSharedPtr<FOptional
 		[
 			SNew(SBorder)
 			.Padding(0.0f)
-		.BorderImage(FEditorStyle::GetBrush("NoBorder"))
+		.BorderImage(FAppStyle::GetBrush("NoBorder"))
 		.ColorAndOpacity(Color)
 		[
 			SNew(SImage)
@@ -258,15 +258,15 @@ void SOptionalPinStateView::GetIconForOptionalPinOverrideState(bool bInIsOverrid
 	const FSlateBrush* Brush = nullptr;
 	if (!bInIsOverridePinVisible || (bInIsOverridePinVisible && !bInIsOverrideEnabled && bIsSetValuePinVisible))
 	{
-		Brush = FEditorStyle::GetBrush("Icons.Warning");
+		Brush = FAppStyle::GetBrush("Icons.Warning");
 	}
 	else if (!bInIsOverrideEnabled && !bIsSetValuePinVisible)
 	{
-		Brush = FEditorStyle::GetBrush("Kismet.VariableList.HideForInstance");
+		Brush = FAppStyle::GetBrush("Kismet.VariableList.HideForInstance");
 	}
 	else
 	{
-		Brush = FEditorStyle::GetBrush("Kismet.VariableList.ExposeForInstance");
+		Brush = FAppStyle::GetBrush("Kismet.VariableList.ExposeForInstance");
 	}
 	OutBrush = Brush;
 }
@@ -380,39 +380,45 @@ TSharedPtr<SGraphPin> SDefault_GraphNodeMakeStruct::CreatePinWidget(UEdGraphPin*
 
 	if (!Pin->PinType.bIsReference && Pin->PinType.PinCategory != UEdGraphSchema_K2::PC_Exec && Pin->Direction != EGPD_Output)
 	{
-		FOptionalPinFromProperty ReturnedPropertyEntry;
-		for (FOptionalPinFromProperty& PropertyEntry : SetFieldsNode->ShowPinForProperties)
-		{
-			if (PropertyEntry.bHasOverridePin)
+		// Attempt to find a matching optional pin entry that is bound to an edit condition as a potential override.
+		FOptionalPinFromProperty* BoundPropertyEntryPtr = SetFieldsNode->ShowPinForProperties.FindByPredicate([Pin](const FOptionalPinFromProperty& PropertyEntry)
 			{
-				if (PropertyEntry.PropertyName == Pin->PinName)
+				return PropertyEntry.bHasOverridePin && PropertyEntry.PropertyName == Pin->PinName;
+			});
+
+		if (BoundPropertyEntryPtr)
+		{
+			FOptionalPinFromProperty& PropertyEntry = *BoundPropertyEntryPtr;
+
+			// Find the member property that's bound to the input pin.
+			const FProperty* BoundProperty = FindFProperty<FProperty>(SetFieldsNode->StructType, Pin->PinName);
+			check(BoundProperty);
+
+			// If this member is also bound to an override condition, insert the widget that allows the user to toggle input on/off for the override value.
+			if (const FBoolProperty* OverrideProperty = SetFieldsNode->GetOverrideConditionForProperty(BoundProperty))
+			{
+				TWeakPtr<SHorizontalBox> HorizontalPin = ResultPin->GetFullPinHorizontalRowWidget();
+				if (HorizontalPin.IsValid())
 				{
-					TWeakPtr<SHorizontalBox> HorizontalPin = ResultPin->GetFullPinHorizontalRowWidget();
-					if (HorizontalPin.IsValid())
-					{
-						// Setup the pin's editable state to be dependent on whether the override is enabled
-						TAttribute<bool> IsEditableAttribute;
-						TAttribute<bool>::FGetter IsEditableGetter;
-						IsEditableGetter.BindSP(this, &SDefault_GraphNodeMakeStruct::IsPinEnabled, &PropertyEntry);
-						IsEditableAttribute.Bind(IsEditableGetter);
-						ResultPin->SetIsEditable(IsEditableAttribute);
+					// Setup the pin's editable state to be dependent on whether the override is enabled
+					TAttribute<bool> IsEditableAttribute;
+					TAttribute<bool>::FGetter IsEditableGetter;
+					IsEditableGetter.BindSP(this, &SDefault_GraphNodeMakeStruct::IsPinEnabled, &PropertyEntry);
+					IsEditableAttribute.Bind(IsEditableGetter);
+					ResultPin->SetIsEditable(IsEditableAttribute);
 
-						HorizontalPin.Pin()->InsertSlot(1)
-							.Padding(0.0f, 0.0f, 2.0f, 0.0f)
-							[
-								SNew(SOptionalPinStateView, Pin, PropertyEntry)
-							];
-					}
-
-
-					break;
+					HorizontalPin.Pin()->InsertSlot(1)
+						.Padding(0.0f, 0.0f, 2.0f, 0.0f)
+						[
+							SNew(SOptionalPinStateView, Pin, PropertyEntry)
+						];
 				}
 			}
 		}
-
 	}
 	return ResultPin;
 }
+
 
 void SDefault_GraphNodeMakeStruct::CreatePinWidgets()
 {

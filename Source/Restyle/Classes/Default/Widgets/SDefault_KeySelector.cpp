@@ -190,7 +190,7 @@ const FSlateBrush* SDefault_KeySelector::GetKeyIconImage_New() const
 		const FKey& Key = CurrentKeyValue.GetValue();
 		if (Key.IsValid() && (Key.IsDeprecated() || !Key.IsBindableToActions()))
 		{
-			return FEditorStyle::GetBrush("Icons.Warning");
+			return FAppStyle::GetBrush("Icons.Warning");
 		}
 		return GetIconFromKey(CurrentKeyValue.GetValue());
 	}

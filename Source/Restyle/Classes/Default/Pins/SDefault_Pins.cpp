@@ -171,14 +171,16 @@
 #pragma region GraphPin
 void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 {
+	check(InGraphPinObj != NULL);
+
 	const UGraphEditorSettings* GraphSettings = GetDefault<UGraphEditorSettings>();
 	const auto& Style = UPinRestyleSettings::Get()->Base;
 	const float Spacing = UDefaultThemeSettings::GetSpacing(Style.Spacing);
+
 	bUsePinColorForText = InArgs._UsePinColorForText;
+	GraphPinObj = InGraphPinObj;
 	SetCursor(EMouseCursor::Default);
 	SetVisibility(MakeAttributeSP(this, &SDefault_GraphPin::GetPinVisiblity));
-	GraphPinObj = InGraphPinObj;
-	check(GraphPinObj != NULL);
 
 	const UEdGraphSchema* Schema = GraphPinObj->GetSchema();
 	checkf(
@@ -224,7 +226,7 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 	// Create the pin indicator widget (used for watched values)
 	TSharedRef<SWidget> PinStatusIndicator =
 		SNew(SButton)
-		.ButtonStyle(FEditorStyle::Get(), "NoBorder")
+		.ButtonStyle(FAppStyle::Get(), "NoBorder")
 		.Visibility(this, &SDefault_GraphPin::GetPinStatusIconVisibility)
 		.ContentPadding(0)
 		.OnClicked(this, &SDefault_GraphPin::ClickedOnPinStatusIcon)
@@ -384,34 +386,41 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 	}
 	// Set up a hover for pins that is tinted the color of the pin.
 	SBorder::Construct(SBorder::FArguments()
+		//.BorderImage(this, &SGraphPin::GetPinBorder)
 	                   .BorderImage(FAppStyle::Get().GetBrush("NoBorder"))
 	                   .Padding(0)
 	                   .OnMouseButtonDown(this, &SDefault_GraphPin::OnPinNameMouseDown)
 		[
-			SNew(SLevelOfDetailBranchNode)
-		.UseLowDetailSlot(this, &SDefault_GraphPin::UseLowDetailPinNames)
-		.LowDetail()
+			SNew(SBorder)
+			.BorderImage(CachedImg_Pin_DiffOutline)
+			.BorderBackgroundColor(this, &SDefault_GraphPin::GetPinDiffColor)
+			.Padding(0)
 			[
-				LowLodBox.ToSharedRef()
-			]
-			.HighDetail()
-			[
-				SNew(SOverlay)
-				+ SOverlay::Slot()
-				.Padding(FMargin(-GraphSettings->PaddingTowardsNodeEdge, 0))
+				SNew(SLevelOfDetailBranchNode)
+				.UseLowDetailSlot(this, &SDefault_GraphPin::UseLowDetailPinNames)
+				.LowDetail()
 				[
-					SNew(SBorder)
-				.BorderImage(this, &SDefault_GraphPin::GetPinBorder)
-				.BorderBackgroundColor(this, &SDefault_GraphPin::GetPinColor)
-
+					LowLodBox.ToSharedRef()
 				]
-				+ SOverlay::Slot()
-				.Padding(0)
+				.HighDetail()
 				[
-					SNew(SBox)
-					.MinDesiredHeight(Style.MinDesiredHeight)
+					SNew(SOverlay)
+					+ SOverlay::Slot()
+					.Padding(FMargin(-GraphSettings->PaddingTowardsNodeEdge, 0))
 					[
-						HighLodBox.ToSharedRef()
+						SNew(SBorder)
+					.BorderImage(this, &SDefault_GraphPin::GetPinBorder)
+					.BorderBackgroundColor(this, &SDefault_GraphPin::GetPinColor)
+
+					]
+					+ SOverlay::Slot()
+					.Padding(0)
+					[
+						SNew(SBox)
+						.MinDesiredHeight(Style.MinDesiredHeight)
+						[
+							HighLodBox.ToSharedRef()
+						]
 					]
 				]
 			]
@@ -433,25 +442,31 @@ SDefault_GraphPin::SDefault_GraphPin() : SGraphPin()
 		FPinRestyleStyles::Kismet_VariableList_MapValueTypeIcon_Connected);
 	CachedImg_MapPin_Value_Disconnected = FAppStyle::Get().GetBrush(
 		FPinRestyleStyles::Kismet_VariableList_MapValueTypeIcon_Disconnected);
-	CachedImg_WatchedPinIcon = FEditorStyle::GetBrush(TEXT("Graph.WatchedPinIcon_Pinned"));
+	CachedImg_WatchedPinIcon = FAppStyle::GetBrush(TEXT("Graph.WatchedPinIcon_Pinned"));
+
 }
 
 FSlateColor SDefault_GraphPin::GetPinTextColor() const
 {
 	UEdGraphPin* GraphPin = GetPinObj();
 	// If there is no schema there is no owning node (or basically this is a deleted node)
-	if (GraphPin)
+	if (UEdGraphNode* GraphNode = GraphPin ? GraphPin->GetOwningNodeUnchecked() : nullptr)
 	{
+		const bool bDisabled = (!GraphNode->IsNodeEnabled() || GraphNode->IsDisplayAsDisabledForced() || !IsEditingEnabled() || GraphNode->IsNodeUnrelated());
 		if (GraphPin->bOrphanedPin)
-		{
-			return IsEditingEnabled() ? OrphanedColor : NonEditableOrphanedColor;
+		{ 
+			return bDisabled ? NonEditableOrphanedColor : OrphanedColor;
 		}
-		if (GraphPin->bIsDiffing)
+		if (bDisabled)
 		{
-			return IsEditingEnabled() ? DiffingColor : NonEditableDiffingColor;
+			return NonEditableNormalColor;
+		}
+		if (bUsePinColorForText)
+		{
+			return GetPinColor();
 		}
 	}
-	return IsEditingEnabled() ? NormalColor : NonEditableNormalColor;
+	return NormalColor;
 }
 
 const FSlateBrush* SDefault_GraphPin::GetPinIcon() const
@@ -477,13 +492,15 @@ FSlateColor SDefault_GraphPin::GetPinColor() const
 		{
 			return IsEditingEnabled() ? OrphanedColor : NonEditableOrphanedColor;
 		}
-		if (GraphPin->bIsDiffing)
+		if (bIsDiffHighlighted)
 		{
 			return IsEditingEnabled() ? DiffingColor : NonEditableDiffingColor;
 		}
 		if (const UEdGraphSchema* Schema = GraphPin->GetSchema())
 		{
-			return (IsEditingEnabled() ? PinTypeColor : NonEditablePinTypeColor) * PinColorModifier;
+			const bool bDisabled = !GetPinObj()->GetOwningNode()->IsNodeEnabled() || GetPinObj()->GetOwningNode()->IsDisplayAsDisabledForced() || !IsEditingEnabled() || GetPinObj()->GetOwningNode()->IsNodeUnrelated();
+
+			return (!bDisabled ? PinTypeColor : NonEditablePinTypeColor) * PinColorModifier;
 		}
 	}
 
@@ -508,18 +525,10 @@ FSlateColor SDefault_GraphPin::GetSecondaryPinColor_New() const
 	UEdGraphPin* GraphPin = GetPinObj();
 	if (GraphPin && !GraphPin->IsPendingKill())
 	{
-		if (GraphPin->bOrphanedPin)
-		{
-			return IsEditingEnabled() ? OrphanedColor : NonEditableOrphanedColor;
-		}
-		if (GraphPin->bIsDiffing)
-		{
-			return IsEditingEnabled() ? DiffingColor : NonEditableDiffingColor;
-		}
 		return (IsEditingEnabled() ? SecPinTypeColor : NonEditableSecPinTypeColor) * PinColorModifier;
 	}
-
-	return IsEditingEnabled() ? NormalColor : NonEditableNormalColor;
+	// use same color if invalid
+	return GetPinColor();
 }
 
 TSharedRef<SWidget> SDefault_GraphPin::GetLabelWidget(const FName& InPinLabelStyle)
@@ -527,7 +536,7 @@ TSharedRef<SWidget> SDefault_GraphPin::GetLabelWidget(const FName& InPinLabelSty
 	return SNew(STextBlock)
 		//.Text(this, &SDefault_GraphPin::GetPinLabel)
 		.Text(GetPinLabel())
-		.TextStyle(FEditorStyle::Get(), InPinLabelStyle)
+		.TextStyle(FAppStyle::Get(), InPinLabelStyle)
 		.Visibility(this, &SDefault_GraphPin::GetPinLabelVisibility)
 		.ColorAndOpacity(this, &SDefault_GraphPin::GetPinTextColor);
 }
@@ -824,7 +833,7 @@ TSharedRef<SWidget> SDefault_GraphPinInteger::GetDefaultValueWidget()
 				[
 					SNew(STextBlock)
 					.Text_Lambda(GetComboButtonText)
-					.Font(FEditorStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
+					.Font(FAppStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
 				]
 			]
 			.OnGetMenuContent_Lambda([this, BitmaskFlags]()
@@ -989,7 +998,7 @@ TSharedRef<SWidget> SDefault_GraphPinClass::GenerateAssetPicker()
 		FString PossibleInterface = ParentNode->GetPinMetaData(GraphPinObj->PinName, TEXT("MustImplement"));
 		if (!PossibleInterface.IsEmpty())
 		{
-			Filter->RequiredInterface = FindObject<UClass>(ANY_PACKAGE, *PossibleInterface);
+			Filter->RequiredInterface = UClass::TryFindTypeSlow<UClass>(PossibleInterface);
 		}
 	}
 
@@ -1005,7 +1014,7 @@ TSharedRef<SWidget> SDefault_GraphPinClass::GenerateAssetPicker()
 			[
 				SNew(SBorder)
 			.Padding(4)
-		.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+		.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 				[
 					ClassViewerModule.CreateClassViewer(
 						Options, FOnClassPicked::CreateSP(this, &SDefault_GraphPinClass::OnPickedNewClass))
@@ -1055,7 +1064,7 @@ const FAssetData& SDefault_GraphPinClass::GetAssetData(bool bRuntimePath) const
 		return SDefault_GraphPinObject::GetAssetData(bRuntimePath);
 	}
 
-	FString CachedRuntimePath = CachedEditorAssetData.ObjectPath.ToString() + TEXT("_C");
+	FString CachedRuntimePath = CachedEditorAssetData.GetObjectPathString() + TEXT("_C");
 
 	if (GraphPinObj->DefaultObject)
 	{
@@ -1071,10 +1080,9 @@ const FAssetData& SDefault_GraphPinClass::GetAssetData(bool bRuntimePath) const
 		{
 			FString EditorPath = GraphPinObj->DefaultValue;
 			EditorPath.RemoveFromEnd(TEXT("_C"));
-			const FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(
-				TEXT("AssetRegistry"));
+			const FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
 
-			CachedEditorAssetData = AssetRegistryModule.Get().GetAssetByObjectPath(FName(*EditorPath));
+			CachedEditorAssetData = AssetRegistryModule.Get().GetAssetByObjectPath(FSoftObjectPath(EditorPath));
 
 			if (!CachedEditorAssetData.IsValid())
 			{
@@ -1083,8 +1091,7 @@ const FAssetData& SDefault_GraphPinClass::GetAssetData(bool bRuntimePath) const
 				FString ObjectName = FPackageName::ObjectPathToObjectName(EditorPath);
 
 				// Fake one
-				CachedEditorAssetData = FAssetData(FName(*PackageName), FName(*PackagePath), FName(*ObjectName),
-				                                   UObject::StaticClass()->GetFName());
+				CachedEditorAssetData = FAssetData(FName(*PackageName), FName(*PackagePath), FName(*ObjectName), UObject::StaticClass()->GetClassPathName());
 			}
 		}
 	}
@@ -1151,9 +1158,7 @@ public:
 		return !MetaStruct || InStruct->IsChildOf(MetaStruct);
 	}
 
-	virtual bool IsUnloadedStructAllowed(const FStructViewerInitializationOptions& InInitOptions,
-	                                     const FName InStructPath,
-	                                     TSharedRef<FStructViewerFilterFuncs> InFilterFuncs) override
+	virtual bool IsUnloadedStructAllowed(const FStructViewerInitializationOptions& InInitOptions, const FSoftObjectPath& InStructPath, TSharedRef<FStructViewerFilterFuncs> InFilterFuncs) override
 	{
 		// User Defined Structs don't support inheritance, so only include them if we have don't a MetaStruct set
 		return MetaStruct == nullptr;
@@ -1188,7 +1193,7 @@ TSharedRef<SWidget> SDefault_GraphPinStruct::GenerateAssetPicker()
 			[
 				SNew(SBorder)
 			.Padding(4)
-		.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+		.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 				[
 					StructViewerModule.CreateStructViewer(
 						Options, FOnStructPicked::CreateSP(this, &SDefault_GraphPinStruct::OnPickedNewStruct))
@@ -1647,10 +1652,6 @@ namespace
 		}
 #endif // USE_STABLE_LOCALIZATION_KEYS
 
-		virtual void RequestRefresh() override
-		{
-		}
-
 	private:
 		FEdGraphPinReference GraphPinObjRef;
 	};
@@ -1670,7 +1671,7 @@ TSharedRef<SWidget> SDefault_GraphPinText::GetDefaultValueWidget()
 	bool bHasDownArrow = ComboButton.bHasDownArrow;
 	uint16 IconSize = UDefaultThemeSettings::GetIconSize(ComboButton.Button.Get().IconSize);
 	return SNew(SDefault_TextPropertyEditableTextBox, MakeShareable(new FEditableTextGraphPin(GraphPinObj)))
-		.Style(FEditorStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
+		.Style(FAppStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
 		.ComboButtonStyle(FAppStyle::Get(), FPinRestyleStyles::Graph_TextInput_AdvancedText_ComboButton)
 		.Visibility(this, &SGraphPin::GetDefaultValueVisibility)
 		.ForegroundColor(FSlateColor::UseForeground())
@@ -1865,10 +1866,10 @@ void SDefault_GraphPinExec::Construct(const FArguments& InArgs, UEdGraphPin* InG
 
 void SDefault_GraphPinExec::CachePinIcons()
 {
-	CachedImg_Pin_ConnectedHovered = FEditorStyle::GetBrush(TEXT("Graph.ExecPin.ConnectedHovered"));
-	CachedImg_Pin_Connected = FEditorStyle::GetBrush(TEXT("Graph.ExecPin.Connected"));
-	CachedImg_Pin_DisconnectedHovered = FEditorStyle::GetBrush(TEXT("Graph.ExecPin.DisconnectedHovered"));
-	CachedImg_Pin_Disconnected = FEditorStyle::GetBrush(TEXT("Graph.ExecPin.Disconnected"));
+	CachedImg_Pin_ConnectedHovered = FAppStyle::GetBrush(TEXT("Graph.ExecPin.ConnectedHovered"));
+	CachedImg_Pin_Connected = FAppStyle::GetBrush(TEXT("Graph.ExecPin.Connected"));
+	CachedImg_Pin_DisconnectedHovered = FAppStyle::GetBrush(TEXT("Graph.ExecPin.DisconnectedHovered"));
+	CachedImg_Pin_Disconnected = FAppStyle::GetBrush(TEXT("Graph.ExecPin.Disconnected"));
 }
 
 TSharedRef<SWidget> SDefault_GraphPinExec::GetDefaultValueWidget()
@@ -1944,7 +1945,7 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GetDefaultValueWidget()
 		const auto& Body = UPinRestyleSettings::Get()->Inputs.String.Body.Get();
 		auto Padding = UDefaultThemeSettings::GetMargin(Body.Padding);
 		return SNew(SDefault_EditableTextBox)
-			.Style(FEditorStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
+			.Style(FAppStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
 			.Text(this, &SDefault_GraphPinObject::GetValue)
 			.SelectAllTextWhenFocused(false)
 			.Visibility(this, &SDefault_GraphPinObject::GetDefaultValueVisibility)
@@ -2112,7 +2113,7 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GenerateAssetPicker()
 		TEXT("ContentBrowser"));
 
 	FAssetPickerConfig AssetPickerConfig;
-	AssetPickerConfig.Filter.ClassNames.Add(AllowedClass->GetFName());
+	AssetPickerConfig.Filter.ClassPaths.Add(AllowedClass->GetClassPathName());
 	AssetPickerConfig.bAllowNullSelection = true;
 	AssetPickerConfig.Filter.bRecursiveClasses = true;
 	AssetPickerConfig.OnAssetSelected = FOnAssetSelected::CreateSP(
@@ -2128,14 +2129,15 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GenerateAssetPicker()
 	if (!AllowedClassesFilterString.IsEmpty())
 	{
 		// Clear out the allowed class names and have the pin's metadata override.
-		AssetPickerConfig.Filter.ClassNames.Empty();
+		AssetPickerConfig.Filter.ClassPaths.Empty();
 
 		// Parse and add the classes from the metadata
 		TArray<FString> AllowedClassesFilterNames;
 		AllowedClassesFilterString.ParseIntoArrayWS(AllowedClassesFilterNames, TEXT(","), true);
 		for (const FString& AllowedClassesFilterName : AllowedClassesFilterNames)
 		{
-			AssetPickerConfig.Filter.ClassNames.Add(FName(*AllowedClassesFilterName));
+			ensureAlwaysMsgf(!FPackageName::IsShortPackageName(AllowedClassesFilterName), TEXT("Short class names are not supported as AllowedClasses on pin \"%s\": class \"%s\""), *GraphPinObj->PinName.ToString(), *AllowedClassesFilterName);
+			AssetPickerConfig.Filter.ClassPaths.Add(FTopLevelAssetPath(AllowedClassesFilterName));
 		}
 	}
 
@@ -2147,7 +2149,8 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GenerateAssetPicker()
 		DisallowedClassesFilterString.ParseIntoArrayWS(DisallowedClassesFilterNames, TEXT(","), true);
 		for (const FString& DisallowedClassesFilterName : DisallowedClassesFilterNames)
 		{
-			AssetPickerConfig.Filter.RecursiveClassesExclusionSet.Add(FName(*DisallowedClassesFilterName));
+			ensureAlwaysMsgf(!FPackageName::IsShortPackageName(DisallowedClassesFilterName), TEXT("Short class names are not supported as DisallowedClasses on pin \"%s\": class \"%s\""), *GraphPinObj->PinName.ToString(), *DisallowedClassesFilterName);
+			AssetPickerConfig.Filter.RecursiveClassPathsExclusionSet.Add(FTopLevelAssetPath(DisallowedClassesFilterName));
 		}
 	}
 
@@ -2157,7 +2160,7 @@ TSharedRef<SWidget> SDefault_GraphPinObject::GenerateAssetPicker()
 		.WidthOverride(300)
 		[
 			SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("Menu.Background"))
+			.BorderImage(FAppStyle::GetBrush("Menu.Background"))
 			[
 				ContentBrowserModule.Get().CreateAssetPicker(AssetPickerConfig)
 			]
@@ -2182,7 +2185,7 @@ void SDefault_GraphPinObject::OnAssetSelectedFromPicker(const struct FAssetData&
 		AssetPickerAnchor->SetIsOpen(false);
 
 		// Set the object found from the asset picker
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, AssetData.ObjectPath.ToString());
+		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, AssetData.GetObjectPathString());
 	}
 }
 
@@ -2326,8 +2329,7 @@ const FAssetData& SDefault_GraphPinObject::GetAssetData(bool bRuntimePath) const
 	// For normal assets, the editor and runtime path are the same
 	if (GraphPinObj->DefaultObject)
 	{
-		if (!GraphPinObj->DefaultObject->GetPathName().Equals(CachedAssetData.ObjectPath.ToString(),
-		                                                      ESearchCase::CaseSensitive))
+		if (!GraphPinObj->DefaultObject->GetPathName().Equals(CachedAssetData.GetObjectPathString(), ESearchCase::CaseSensitive))
 		{
 			// This always uses the exact object pointed at
 			CachedAssetData = FAssetData(GraphPinObj->DefaultObject, true);
@@ -2335,11 +2337,10 @@ const FAssetData& SDefault_GraphPinObject::GetAssetData(bool bRuntimePath) const
 	}
 	else if (!GraphPinObj->DefaultValue.IsEmpty())
 	{
-		FName ObjectPath = FName(*GraphPinObj->DefaultValue);
-		if (ObjectPath != CachedAssetData.ObjectPath)
+		FSoftObjectPath ObjectPath = FSoftObjectPath(GraphPinObj->DefaultValue);
+		if (ObjectPath != CachedAssetData.GetSoftObjectPath())
 		{
-			const FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(
-				TEXT("AssetRegistry"));
+			const FAssetRegistryModule& AssetRegistryModule = FModuleManager::LoadModuleChecked<FAssetRegistryModule>(TEXT("AssetRegistry"));
 
 			CachedAssetData = AssetRegistryModule.Get().GetAssetByObjectPath(ObjectPath);
 
@@ -2350,8 +2351,7 @@ const FAssetData& SDefault_GraphPinObject::GetAssetData(bool bRuntimePath) const
 				FString ObjectName = FPackageName::ObjectPathToObjectName(GraphPinObj->DefaultValue);
 
 				// Fake one
-				CachedAssetData = FAssetData(FName(*PackageName), FName(*PackagePath), FName(*ObjectName),
-				                             UObject::StaticClass()->GetFName());
+				CachedAssetData = FAssetData(FName(*PackageName), FName(*PackagePath), FName(*ObjectName), UObject::StaticClass()->GetClassPathName());
 			}
 		}
 	}
@@ -2363,7 +2363,7 @@ const FAssetData& SDefault_GraphPinObject::GetAssetData(bool bRuntimePath) const
 		}
 	}
 
-	return CachedAssetData;
+	return CachedAssetData; 
 }
 
 #undef LOCTEXT_NAMESPACE
@@ -2392,7 +2392,7 @@ TSharedRef<SWidget> SDefault_GraphPinString::GetDefaultValueWidget()
 			.MaxDesiredHeight(200)
 		[
 			SNew(SDefault_MultiLineEditableTextBox)
-			.Style(FEditorStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
+			.Style(FAppStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
 			.Text(this, &SDefault_GraphPinString::GetTypeInValue)
 			.SelectAllTextWhenFocused(true)
 			.Visibility(this, &SGraphPin::GetDefaultValueVisibility)
@@ -2412,7 +2412,7 @@ TSharedRef<SWidget> SDefault_GraphPinString::GetDefaultValueWidget()
 			.MaxDesiredWidth(400)
 		[
 			SNew(SDefault_EditableTextBox)
-			.Style(FEditorStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
+			.Style(FAppStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
 			.Text(this, &SDefault_GraphPinString::GetTypeInValue)
 			.SelectAllTextWhenFocused(true)
 			.Visibility(this, &SGraphPin::GetDefaultValueVisibility)
@@ -2594,7 +2594,7 @@ TSharedRef<SWidget> SDefault_GraphPinStructInstance::GetEditContent()
 		.MinDesiredWidth(350)
 	[
 		SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+			.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 		.Visibility(this, &SGraphPin::GetDefaultValueVisibility)
 		[
 			StructureDetailsView->GetWidget().ToSharedRef()
@@ -2633,843 +2633,6 @@ void SDefault_GraphPinStructInstance::PropertyValueChanged(const FPropertyChange
 #undef LOCTEXT_NAMESPACE
 
 #pragma endregion
-
-#pragma region Vector
-#define LOCTEXT_NAMESPACE "VectorTextBox"
-
-void SDefault_GraphPinVector::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
-{
-	SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
-}
-
-//Class implementation to create 3 editable text boxes to represent vector/rotator graph pin
-class SVectorTextBox : public SCompoundWidget
-{
-public:
-	SLATE_BEGIN_ARGS(SVectorTextBox)
-		{
-		}
-
-		SLATE_ATTRIBUTE(FString, VisibleText_0)
-		SLATE_ATTRIBUTE(FString, VisibleText_1)
-		SLATE_ATTRIBUTE(FString, VisibleText_2)
-		SLATE_EVENT(FOnFloatValueCommitted, OnFloatCommitted_Box_0)
-		SLATE_EVENT(FOnFloatValueCommitted, OnFloatCommitted_Box_1)
-		SLATE_EVENT(FOnFloatValueCommitted, OnFloatCommitted_Box_2)
-	SLATE_END_ARGS()
-
-	//Construct editable text boxes with the appropriate getter & setter functions along with tool tip text
-	void Construct(const FArguments& InArgs, const bool bInIsRotator)
-	{
-		const auto& Vector = UPinRestyleSettings::Get()->Inputs.Vector;
-		const auto& Base = UPinRestyleSettings::Get()->Base;
-		float BaseSpacing = UDefaultThemeSettings::GetSpacing(Base.Spacing);
-		float LabelSpacing = UDefaultThemeSettings::GetSpacing(Vector.Spacing);
-		bIsRotator = bInIsRotator;
-		const bool bUseRPY = Vector.bNewLabelsForRotator;
-		VisibleText_0 = InArgs._VisibleText_0;
-		VisibleText_1 = InArgs._VisibleText_1;
-		VisibleText_2 = InArgs._VisibleText_2;
-		const FLinearColor LabelClr = Vector.LabelsColor.Get();
-		const FLinearColor XColor = Vector.ForegroundX.Get();
-		const FLinearColor YColor = Vector.ForegroundY.Get();
-		const FLinearColor ZColor = Vector.ForegroundZ.Get();
-		// @formatter:off
-		this->ChildSlot
-			[
-			 
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
-				.AutoWidth().Padding(0, 0, 0, 0).HAlign(HAlign_Fill)
-				[
-					//Create Text box 0 
-					SNew(SNumericEntryBox<float>)
-					.LabelVAlign(VAlign_Center)
-					.Label()
-					[
-						SNew(STextBlock)
-						.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-						.Text(bIsRotator && bUseRPY
-							? LOCTEXT("VectorNodeRollValueLabel", "R")
-							: LOCTEXT("VectorNodeXAxisValueLabel", "X"))
-							.ColorAndOpacity(LabelClr)
-					]
-					.LabelPadding(FMargin(0, 0, LabelSpacing, 0))
-					.Value(this, &SVectorTextBox::GetTypeInValue_0)
-					.OnValueCommitted(InArgs._OnFloatCommitted_Box_0)
-					.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.UndeterminedString(LOCTEXT("MultipleValues", "Multiple Values"))
-					.ToolTipText(bIsRotator
-						? LOCTEXT("VectorNodeRollValueLabel_ToolTip", "Roll value (around X)")
-						: LOCTEXT("VectorNodeXAxisValueLabel_ToolTip", "X value"))
-					.EditableTextBoxStyle(&FEditorStyle::GetWidgetStyle<FEditableTextBoxStyle>(
-						FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.BorderForegroundColor(XColor)
-				]
-				+ SHorizontalBox::Slot()
-				.AutoWidth().Padding(BaseSpacing, 0, 0, 0).HAlign(HAlign_Fill)
-				[
-					//Create Text box 1
-					SNew(SNumericEntryBox<float>)
-					.LabelVAlign(VAlign_Center)
-					.Label()
-					[
-						SNew(STextBlock)
-						.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-						.Text(bIsRotator && bUseRPY
-						? LOCTEXT("VectorNodePitchValueLabel", "P")
-						: LOCTEXT("VectorNodeYAxisValueLabel", "Y"))
-						.ColorAndOpacity(LabelClr)
-					]
-					.LabelPadding(FMargin(0, 0, LabelSpacing, 0))
-					.Value(this, &SVectorTextBox::GetTypeInValue_1)
-					.OnValueCommitted(InArgs._OnFloatCommitted_Box_1)
-					.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.UndeterminedString(LOCTEXT("MultipleValues", "Multiple Values"))
-					.ToolTipText(bIsRotator
-						? LOCTEXT("VectorNodePitchValueLabel_ToolTip", "Pitch value (around Y)")
-						: LOCTEXT("VectorNodeYAxisValueLabel_ToolTip", "Y value"))
-					.EditableTextBoxStyle(&FEditorStyle::GetWidgetStyle<FEditableTextBoxStyle>(
-						FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.BorderForegroundColor(YColor)
-				]
-				+ SHorizontalBox::Slot()
-				.AutoWidth().Padding(BaseSpacing, 0, 0, 0).HAlign(HAlign_Fill)
-				[
-					//Create Text box 2
-					SNew(SNumericEntryBox<float>)
-					.LabelVAlign(VAlign_Center)
-					.Label()
-					[
-						SNew(STextBlock)
-						.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-						.Text(bIsRotator && bUseRPY
-						? LOCTEXT("VectorNodeYawValueLabel", "Y")
-						: LOCTEXT("VectorNodeZAxisValueLabel", "Z"))
-						.ColorAndOpacity(LabelClr)
-					]
-					.LabelPadding(FMargin(0, 0, LabelSpacing, 0))
-					.Value(this, &SVectorTextBox::GetTypeInValue_2)
-					.OnValueCommitted(InArgs._OnFloatCommitted_Box_2)
-					.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.UndeterminedString(LOCTEXT("MultipleValues", "Multiple Values"))
-					.ToolTipText(bIsRotator
-						? LOCTEXT("VectorNodeYawValueLabel_Tooltip", "Yaw value (around Z)")
-						: LOCTEXT("VectorNodeZAxisValueLabel_ToolTip", "Z value"))
-					.EditableTextBoxStyle(&FEditorStyle::GetWidgetStyle<FEditableTextBoxStyle>(
-						FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.BorderForegroundColor(ZColor)
-					]
-			];
-		// @formatter:on
-	}
-
-private:
-	//Get value for text box 0
-	TOptional<float> GetTypeInValue_0() const
-	{
-		return FCString::Atof(*(VisibleText_0.Get()));
-	}
-
-	//Get value for text box 1
-	TOptional<float> GetTypeInValue_1() const
-	{
-		return FCString::Atof(*(VisibleText_1.Get()));
-	}
-
-	//Get value for text box 2
-	TOptional<float> GetTypeInValue_2() const
-	{
-		return FCString::Atof(*(VisibleText_2.Get()));
-	}
-
-	TAttribute<FString> VisibleText_0;
-	TAttribute<FString> VisibleText_1;
-	TAttribute<FString> VisibleText_2;
-
-	bool bIsRotator;
-};
-
-TSharedRef<SWidget> SDefault_GraphPinVector::GetDefaultValueWidget()
-{
-	UScriptStruct* RotatorStruct = TBaseStructure<FRotator>::Get();
-	bIsRotator = (GraphPinObj->PinType.PinSubCategoryObject == RotatorStruct) ? true : false;
-
-	//Create widget
-	return SNew(SVectorTextBox, bIsRotator)
-		.VisibleText_0(this, &SDefault_GraphPinVector::GetCurrentValue_0)
-		.VisibleText_1(this, &SDefault_GraphPinVector::GetCurrentValue_1)
-		.VisibleText_2(this, &SDefault_GraphPinVector::GetCurrentValue_2)
-		.Visibility(this, &SGraphPin::GetDefaultValueVisibility)
-		.IsEnabled(this, &SGraphPin::GetDefaultValueIsEditable)
-		.OnFloatCommitted_Box_0(this, &SDefault_GraphPinVector::OnChangedValueTextBox_0)
-		.OnFloatCommitted_Box_1(this, &SDefault_GraphPinVector::OnChangedValueTextBox_1)
-		.OnFloatCommitted_Box_2(this, &SDefault_GraphPinVector::OnChangedValueTextBox_2);
-}
-
-//Rotator is represented as X->Roll, Y->Pitch, Z->Yaw
-
-FString SDefault_GraphPinVector::GetCurrentValue_0() const
-{
-	//Text box 0: Rotator->Roll, Vector->X
-	return GetValue(bIsRotator ? TextBox_2 : TextBox_0);
-}
-
-FString SDefault_GraphPinVector::GetCurrentValue_1() const
-{
-	//Text box 1: Rotator->Pitch, Vector->Y
-	return GetValue(bIsRotator ? TextBox_0 : TextBox_1);
-}
-
-FString SDefault_GraphPinVector::GetCurrentValue_2() const
-{
-	//Text box 2: Rotator->Yaw, Vector->Z
-	return GetValue(bIsRotator ? TextBox_1 : TextBox_2);
-}
-
-FString SDefault_GraphPinVector::GetValue(ETextBoxIndex Index) const
-{
-	FString DefaultString = GraphPinObj->GetDefaultAsString();
-	TArray<FString> ResultString;
-
-	//Parse string to split its contents separated by ','
-	DefaultString.TrimStartInline();
-	DefaultString.TrimEndInline();
-	DefaultString.ParseIntoArray(ResultString, TEXT(","), true);
-
-	if (Index < ResultString.Num())
-	{
-		return ResultString[Index];
-	}
-	else
-	{
-		return FString(TEXT("0"));
-	}
-}
-
-void SDefault_GraphPinVector::OnChangedValueTextBox_0(float NewValue, ETextCommit::Type CommitInfo)
-{
-	if (GraphPinObj->IsPendingKill())
-	{
-		return;
-	}
-
-	const FString ValueStr = FString::Printf(TEXT("%f"), NewValue);
-
-	FString DefaultValue;
-	if (bIsRotator)
-	{
-		//Update Roll value
-		DefaultValue = GetValue(TextBox_0) + FString(TEXT(",")) + GetValue(TextBox_1) + FString(TEXT(",")) + ValueStr;
-	}
-	else
-	{
-		//Update X value
-		DefaultValue = ValueStr + FString(TEXT(",")) + GetValue(TextBox_1) + FString(TEXT(",")) + GetValue(TextBox_2);
-	}
-
-	if (GraphPinObj->GetDefaultAsString() != DefaultValue)
-	{
-		const FScopedTransaction Transaction(
-			NSLOCTEXT("GraphEditor", "ChangeVectorPinValue", "Change Vector Pin Value"));
-		GraphPinObj->Modify();
-
-		//Set new default value
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, DefaultValue);
-	}
-}
-
-void SDefault_GraphPinVector::OnChangedValueTextBox_1(float NewValue, ETextCommit::Type CommitInfo)
-{
-	if (GraphPinObj->IsPendingKill())
-	{
-		return;
-	}
-
-	const FString ValueStr = FString::Printf(TEXT("%f"), NewValue);
-
-	FString DefaultValue;
-	if (bIsRotator)
-	{
-		//Update Pitch value
-		DefaultValue = ValueStr + FString(TEXT(",")) + GetValue(TextBox_1) + FString(TEXT(",")) + GetValue(TextBox_2);
-	}
-	else
-	{
-		//Update Y value
-		DefaultValue = GetValue(TextBox_0) + FString(TEXT(",")) + ValueStr + FString(TEXT(",")) + GetValue(TextBox_2);
-	}
-
-	if (GraphPinObj->GetDefaultAsString() != DefaultValue)
-	{
-		const FScopedTransaction Transaction(
-			NSLOCTEXT("GraphEditor", "ChangeVectorPinValue", "Change Vector Pin Value"));
-		GraphPinObj->Modify();
-
-		//Set new default value
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, DefaultValue);
-	}
-}
-
-void SDefault_GraphPinVector::OnChangedValueTextBox_2(float NewValue, ETextCommit::Type CommitInfo)
-{
-	if (GraphPinObj->IsPendingKill())
-	{
-		return;
-	}
-
-	const FString ValueStr = FString::Printf(TEXT("%f"), NewValue);
-
-	FString DefaultValue;
-	if (bIsRotator)
-	{
-		//Update Yaw value
-		DefaultValue = GetValue(TextBox_0) + FString(TEXT(",")) + ValueStr + FString(TEXT(",")) + GetValue(TextBox_2);
-	}
-	else
-	{
-		//Update Z value
-		DefaultValue = GetValue(TextBox_0) + FString(TEXT(",")) + GetValue(TextBox_1) + FString(TEXT(",")) + ValueStr;
-	}
-
-	if (GraphPinObj->GetDefaultAsString() != DefaultValue)
-	{
-		const FScopedTransaction Transaction(
-			NSLOCTEXT("GraphEditor", "ChangeVectorPinValue", "Change Vector Pin Value"));
-		GraphPinObj->Modify();
-
-		//Set new default value
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, DefaultValue);
-	}
-}
-#undef LOCTEXT_NAMESPACE
-#pragma endregion
-
-#pragma region Vector2D
-
-void SDefault_GraphPinVector2D::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
-{
-	SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
-}
-
-#define LOCTEXT_NAMESPACE "VectorTextBox"
-
-//Class implementation to create 2 editable text boxes to represent vector2D graph pin
-class SVector2DTextBox : public SCompoundWidget
-{
-public:
-	SLATE_BEGIN_ARGS(SVector2DTextBox)
-		{
-		}
-
-		SLATE_ATTRIBUTE(FString, VisibleText_X)
-		SLATE_ATTRIBUTE(FString, VisibleText_Y)
-		SLATE_EVENT(FOnFloatValueCommitted, OnFloatCommitted_Box_X)
-		SLATE_EVENT(FOnFloatValueCommitted, OnFloatCommitted_Box_Y)
-	SLATE_END_ARGS()
-
-	//Construct editable text boxes with the appropriate getter & setter functions along with tool tip text
-	void Construct(const FArguments& InArgs)
-	{
-		const auto& Vector = UPinRestyleSettings::Get()->Inputs.Vector;
-		const auto& Base = UPinRestyleSettings::Get()->Base;
-		float BaseSpacing = UDefaultThemeSettings::GetSpacing(Base.Spacing);
-		float LabelSpacing = UDefaultThemeSettings::GetSpacing(Vector.Spacing);
-		const FLinearColor LabelClr = Vector.LabelsColor.Get();
-		const FLinearColor XColor = Vector.ForegroundX.Get();
-		const FLinearColor YColor = Vector.ForegroundY.Get();
-		VisibleText_X = InArgs._VisibleText_X;
-		VisibleText_Y = InArgs._VisibleText_Y;
-
-		this->ChildSlot
-		[
-			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot()
-			  .AutoWidth().Padding(0, 0, 0, 0).HAlign(HAlign_Fill)
-			[
-				//Create Text box 0 
-				SNew(SNumericEntryBox<float>)
-				.LabelVAlign(VAlign_Center)
-				.Label()
-				                             [
-					                             SNew(STextBlock)
-					.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.Text(LOCTEXT("VectorNodeXAxisValueLabel", "X"))
-					.ColorAndOpacity(LabelClr)
-				                             ]
-				.LabelPadding(FMargin(0, 0, LabelSpacing, 0))
-				.Value(this, &SVector2DTextBox::GetTypeInValue_X)
-				.OnValueCommitted(InArgs._OnFloatCommitted_Box_X)
-				.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.UndeterminedString(LOCTEXT("MultipleValues", "Multiple Values"))
-				.ToolTipText(LOCTEXT("VectorNodeXAxisValueLabel_ToolTip", "X value"))
-				.EditableTextBoxStyle(
-					                             &FEditorStyle::GetWidgetStyle<FEditableTextBoxStyle>(
-						                             FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.BorderForegroundColor(XColor)
-			]
-			+ SHorizontalBox::Slot()
-			  .AutoWidth().Padding(BaseSpacing, 0, 0, 0).HAlign(HAlign_Fill)
-			[
-				//Create Text box 1
-				SNew(SNumericEntryBox<float>)
-				.LabelVAlign(VAlign_Center)
-				.Label()
-				                             [
-					                             SNew(STextBlock)
-					.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.Text(LOCTEXT("VectorNodeYAxisValueLabel", "Y"))
-					.ColorAndOpacity(LabelClr)
-				                             ]
-				.LabelPadding(FMargin(0, 0, LabelSpacing, 0))
-				.Value(this, &SVector2DTextBox::GetTypeInValue_Y)
-				.OnValueCommitted(InArgs._OnFloatCommitted_Box_Y)
-				.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.UndeterminedString(LOCTEXT("MultipleValues", "Multiple Values"))
-				.ToolTipText(LOCTEXT("VectorNodeYAxisValueLabel_ToolTip", "Y value"))
-				.EditableTextBoxStyle(
-					                             &FEditorStyle::GetWidgetStyle<FEditableTextBoxStyle>(
-						                             FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.BorderForegroundColor(YColor)
-			]
-		];
-	}
-
-private:
-	//Get value for X text box
-	TOptional<float> GetTypeInValue_X() const
-	{
-		return FCString::Atof(*(VisibleText_X.Get()));
-	}
-
-	//Get value for Y text box
-	TOptional<float> GetTypeInValue_Y() const
-	{
-		return FCString::Atof(*(VisibleText_Y.Get()));
-	}
-
-	TAttribute<FString> VisibleText_X;
-	TAttribute<FString> VisibleText_Y;
-};
-
-TSharedRef<SWidget> SDefault_GraphPinVector2D::GetDefaultValueWidget()
-{
-	//Create widget
-	return SNew(SVector2DTextBox)
-		.VisibleText_X(this, &SDefault_GraphPinVector2D::GetCurrentValue_X)
-		.VisibleText_Y(this, &SDefault_GraphPinVector2D::GetCurrentValue_Y)
-		.Visibility(this, &SGraphPin::GetDefaultValueVisibility)
-		.IsEnabled(this, &SGraphPin::GetDefaultValueIsEditable)
-		.OnFloatCommitted_Box_X(this, &SDefault_GraphPinVector2D::OnChangedValueTextBox_X)
-		.OnFloatCommitted_Box_Y(this, &SDefault_GraphPinVector2D::OnChangedValueTextBox_Y);
-}
-
-FString SDefault_GraphPinVector2D::GetCurrentValue_X() const
-{
-	return GetValue(TextBox_X);
-}
-
-FString SDefault_GraphPinVector2D::GetCurrentValue_Y() const
-{
-	return GetValue(TextBox_Y);
-}
-
-FString SDefault_GraphPinVector2D::GetValue(ETextBoxIndex Index) const
-{
-	FString DefaultString = GraphPinObj->GetDefaultAsString();
-	TArray<FString> ResultString;
-
-	FVector2D Value;
-	Value.InitFromString(DefaultString);
-
-	if (Index == TextBox_X)
-	{
-		return FString::Printf(TEXT("%f"), Value.X);
-	}
-	else
-	{
-		return FString::Printf(TEXT("%f"), Value.Y);
-	}
-}
-
-FString MakeVector2DString(const FString& X, const FString& Y)
-{
-	return FString(TEXT("(X=")) + X + FString(TEXT(",Y=")) + Y + FString(TEXT(")"));
-}
-
-void SDefault_GraphPinVector2D::OnChangedValueTextBox_X(float NewValue, ETextCommit::Type CommitInfo)
-{
-	if (GraphPinObj->IsPendingKill())
-	{
-		return;
-	}
-
-	const FString ValueStr = FString::Printf(TEXT("%f"), NewValue);
-	const FString Vector2DString = MakeVector2DString(ValueStr, GetValue(TextBox_Y));
-
-	if (GraphPinObj->GetDefaultAsString() != Vector2DString)
-	{
-		const FScopedTransaction Transaction(
-			NSLOCTEXT("GraphEditor", "ChangeVectorPinValue", "Change Vector Pin Value"));
-		GraphPinObj->Modify();
-
-		//Set new default value
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, Vector2DString);
-	}
-}
-
-void SDefault_GraphPinVector2D::OnChangedValueTextBox_Y(float NewValue, ETextCommit::Type CommitInfo)
-{
-	if (GraphPinObj->IsPendingKill())
-	{
-		return;
-	}
-
-	const FString ValueStr = FString::Printf(TEXT("%f"), NewValue);
-	const FString Vector2DString = MakeVector2DString(GetValue(TextBox_X), ValueStr);
-
-	if (GraphPinObj->GetDefaultAsString() != Vector2DString)
-	{
-		const FScopedTransaction Transaction(
-			NSLOCTEXT("GraphEditor", "ChangeVectorPinValue", "Change Vector Pin Value"));
-		GraphPinObj->Modify();
-
-		//Set new default value
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, Vector2DString);
-	}
-}
-
-#undef LOCTEXT_NAMESPACE
-
-#pragma endregion
-
-#pragma region Vector4
-
-#define LOCTEXT_NAMESPACE "VectorTextBox"
-
-class SVector4TextBox : public SCompoundWidget
-{
-public:
-	SLATE_BEGIN_ARGS(SVector4TextBox)
-		{
-		}
-
-		SLATE_ATTRIBUTE(FString, VisibleText_0)
-		SLATE_ATTRIBUTE(FString, VisibleText_1)
-		SLATE_ATTRIBUTE(FString, VisibleText_2)
-		SLATE_ATTRIBUTE(FString, VisibleText_3)
-		SLATE_EVENT(FOnFloatValueCommitted, OnFloatCommitted_Box_0)
-		SLATE_EVENT(FOnFloatValueCommitted, OnFloatCommitted_Box_1)
-		SLATE_EVENT(FOnFloatValueCommitted, OnFloatCommitted_Box_2)
-		SLATE_EVENT(FOnFloatValueCommitted, OnFloatCommitted_Box_3)
-	SLATE_END_ARGS()
-
-	//Construct editable text boxes with the appropriate getter & setter functions along with tool tip text
-	void Construct(const FArguments& InArgs)
-	{
-		VisibleText_0 = InArgs._VisibleText_0;
-		VisibleText_1 = InArgs._VisibleText_1;
-		VisibleText_2 = InArgs._VisibleText_2;
-		VisibleText_3 = InArgs._VisibleText_3;
-		const auto& Vector = UPinRestyleSettings::Get()->Inputs.Vector;
-		const auto& Base = UPinRestyleSettings::Get()->Base;
-		float BaseSpacing = UDefaultThemeSettings::GetSpacing(Base.Spacing);
-		float LabelSpacing = UDefaultThemeSettings::GetSpacing(Vector.Spacing);
-		const FLinearColor LabelClr = Vector.LabelsColor.Get();
-		const FLinearColor XColor = Vector.ForegroundX.Get();
-		const FLinearColor YColor = Vector.ForegroundY.Get();
-		const FLinearColor ZColor = Vector.ForegroundZ.Get();
-		const FLinearColor WColor = Vector.ForegroundW.Get();
-		//@formatter:off
-		this->ChildSlot
-		[
-
-			SNew(SHorizontalBox)
-			+ SHorizontalBox::Slot()
-			  .AutoWidth().Padding(0).HAlign(HAlign_Fill)
-			[
-				//Create Text box 0 
-				SNew(SNumericEntryBox<float>)
-				.LabelVAlign(VAlign_Center)
-				.Label()
-				                             [
-					                             SNew(STextBlock)
-					.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.Text(LOCTEXT("VectorNodeXAxisValueLabel", "X"))
-					.ColorAndOpacity(LabelClr)
-				                             ]
-				.LabelPadding(FMargin(0, 0, LabelSpacing, 0))
-				.Value(this, &SVector4TextBox::GetTypeInValue_0)
-				.OnValueCommitted(InArgs._OnFloatCommitted_Box_0)
-				.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.UndeterminedString(LOCTEXT("MultipleValues", "Multiple Values"))
-				.ToolTipText(LOCTEXT("VectorNodeXAxisValueLabel_ToolTip", "X value"))
-				.EditableTextBoxStyle(&FEditorStyle::GetWidgetStyle<FEditableTextBoxStyle>(
-					                             FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.BorderForegroundColor(XColor)
-			]
-			+ SHorizontalBox::Slot()
-			  .AutoWidth().Padding(BaseSpacing, 0, 0, 0).HAlign(HAlign_Fill)
-			[
-				//Create Text box 1
-				SNew(SNumericEntryBox<float>)
-				.LabelVAlign(VAlign_Center)
-				.Label()
-				                             [
-					                             SNew(STextBlock)
-					.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.Text(LOCTEXT("VectorNodeYAxisValueLabel", "Y"))
-					.ColorAndOpacity(LabelClr)
-				                             ]
-				.LabelPadding(FMargin(0, 0, LabelSpacing, 0))
-				.Value(this, &SVector4TextBox::GetTypeInValue_1)
-				.OnValueCommitted(InArgs._OnFloatCommitted_Box_1)
-				.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.UndeterminedString(LOCTEXT("MultipleValues", "Multiple Values"))
-				.ToolTipText(LOCTEXT("VectorNodeYAxisValueLabel_ToolTip", "Y value"))
-				.EditableTextBoxStyle(&FEditorStyle::GetWidgetStyle<FEditableTextBoxStyle>(
-					                             FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.BorderForegroundColor(YColor)
-			]
-			+ SHorizontalBox::Slot()
-			  .AutoWidth().Padding(BaseSpacing, 0, 0, 0).HAlign(HAlign_Fill)
-			[
-				//Create Text box 2
-				SNew(SNumericEntryBox<float>)
-				.LabelVAlign(VAlign_Center)
-				.Label()
-				                             [
-					                             SNew(STextBlock)
-					.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.Text(LOCTEXT("VectorNodeZAxisValueLabel", "Z"))
-					.ColorAndOpacity(LabelClr)
-				                             ]
-				.LabelPadding(FMargin(0, 0, LabelSpacing, 0))
-				.Value(this, &SVector4TextBox::GetTypeInValue_2)
-				.OnValueCommitted(InArgs._OnFloatCommitted_Box_2)
-				.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.UndeterminedString(LOCTEXT("MultipleValues", "Multiple Values"))
-				.ToolTipText(LOCTEXT("VectorNodeZAxisValueLabel_ToolTip", "Z value"))
-				.EditableTextBoxStyle(&FEditorStyle::GetWidgetStyle<FEditableTextBoxStyle>(
-					                             FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.BorderForegroundColor(ZColor)
-			]
-			+ SHorizontalBox::Slot()
-			  .AutoWidth().Padding(BaseSpacing, 0, 0, 0).HAlign(HAlign_Fill)
-			[
-				//Create Text box 3
-				SNew(SNumericEntryBox<float>)
-				.LabelVAlign(VAlign_Center)
-				.Label()
-				                             [
-					                             SNew(STextBlock)
-					.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-					.Text(LOCTEXT("VectorNodeWAxisValueLabel", "W"))
-					.ColorAndOpacity(LabelClr)
-				                             ]
-				.LabelPadding(FMargin(0, 0, LabelSpacing, 0))
-				.Value(this, &SVector4TextBox::GetTypeInValue_3)
-				.OnValueCommitted(InArgs._OnFloatCommitted_Box_3)
-				.Font(FEditorStyle::GetFontStyle(FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.UndeterminedString(LOCTEXT("MultipleValues", "Multiple Values"))
-				.ToolTipText(LOCTEXT("VectorNodeWAxisValueLabel_ToolTip", "W value"))
-				.EditableTextBoxStyle(&FEditorStyle::GetWidgetStyle<FEditableTextBoxStyle>(
-					                             FPinRestyleStyles::Graph_VectorEditableTextBox))
-				.BorderForegroundColor(WColor)
-			]
-
-		];
-		//@formatter:on
-	}
-
-private:
-	//Get value for text box 0
-	TOptional<float> GetTypeInValue_0() const
-	{
-		return FCString::Atof(*(VisibleText_0.Get()));
-	}
-
-	//Get value for text box 1
-	TOptional<float> GetTypeInValue_1() const
-	{
-		return FCString::Atof(*(VisibleText_1.Get()));
-	}
-
-	//Get value for text box 2
-	TOptional<float> GetTypeInValue_2() const
-	{
-		return FCString::Atof(*(VisibleText_2.Get()));
-	}
-
-	//Get value for text box 3
-	TOptional<float> GetTypeInValue_3() const
-	{
-		return FCString::Atof(*(VisibleText_3.Get()));
-	}
-
-	TAttribute<FString> VisibleText_0;
-	TAttribute<FString> VisibleText_1;
-	TAttribute<FString> VisibleText_2;
-	TAttribute<FString> VisibleText_3;
-};
-
-void SDefault_GraphPinVector4::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
-{
-	SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
-}
-
-TSharedRef<SWidget> SDefault_GraphPinVector4::GetDefaultValueWidget()
-{
-	return SNew(SVector4TextBox)
-		.VisibleText_0(this, &SDefault_GraphPinVector4::GetCurrentValue_0)
-		.VisibleText_1(this, &SDefault_GraphPinVector4::GetCurrentValue_1)
-		.VisibleText_2(this, &SDefault_GraphPinVector4::GetCurrentValue_2)
-		.VisibleText_3(this, &SDefault_GraphPinVector4::GetCurrentValue_3)
-		.Visibility(this, &SGraphPin::GetDefaultValueVisibility)
-		.IsEnabled(this, &SGraphPin::GetDefaultValueIsEditable)
-		.OnFloatCommitted_Box_0(this, &SDefault_GraphPinVector4::OnChangedValueTextBox_0)
-		.OnFloatCommitted_Box_1(this, &SDefault_GraphPinVector4::OnChangedValueTextBox_1)
-		.OnFloatCommitted_Box_2(this, &SDefault_GraphPinVector4::OnChangedValueTextBox_2)
-		.OnFloatCommitted_Box_3(this, &SDefault_GraphPinVector4::OnChangedValueTextBox_3);
-}
-
-//Rotator is represented as X->Roll, Y->Pitch, Z->Yaw
-
-FString SDefault_GraphPinVector4::GetCurrentValue_0() const
-{
-	//Text box 0: Rotator->Roll, Vector->X
-	return GetValue(TextBox_0);
-}
-
-FString SDefault_GraphPinVector4::GetCurrentValue_1() const
-{
-	//Text box 1: Rotator->Pitch, Vector->Y
-	return GetValue(TextBox_1);
-}
-
-FString SDefault_GraphPinVector4::GetCurrentValue_2() const
-{
-	//Text box 2: Rotator->Yaw, Vector->Z
-	return GetValue(TextBox_2);
-}
-
-FString SDefault_GraphPinVector4::GetCurrentValue_3() const
-{
-	//Text box 3: Vector->W
-	return GetValue(TextBox_3);
-}
-
-FString SDefault_GraphPinVector4::GetValue(ETextBoxIndex Index) const
-{
-	FString DefaultString = GraphPinObj->GetDefaultAsString();
-	TArray<FString> ResultString;
-	FVector4 Vector;
-	Vector.InitFromString(DefaultString);
-
-	if (Index == ETextBoxIndex::TextBox_0)
-	{
-		return FString::Printf(TEXT("%f"), Vector.X);
-	}
-	if (Index == ETextBoxIndex::TextBox_1)
-	{
-		return FString::Printf(TEXT("%f"), Vector.Y);
-	}
-	if (Index == ETextBoxIndex::TextBox_2)
-	{
-		return FString::Printf(TEXT("%f"), Vector.Z);
-	}
-	if (Index == ETextBoxIndex::TextBox_3)
-	{
-		return FString::Printf(TEXT("%f"), Vector.W);
-	}
-	return FString::Printf(TEXT("0"));
-}
-
-
-void SDefault_GraphPinVector4::OnChangedValueTextBox_0(float NewValue, ETextCommit::Type CommitInfo)
-{
-	const FString ValueStr = FString::Printf(TEXT("%f"), NewValue);
-
-	//Update X value
-	FString DefaultValue = FString::Printf(TEXT("(X=%s,Y=%s,Z=%s,W=%s)"), *ValueStr, *GetValue(TextBox_1),
-	                                       *GetValue(TextBox_2),
-	                                       *GetValue(TextBox_3));
-
-	if (GraphPinObj->GetDefaultAsString() != DefaultValue)
-	{
-		const FScopedTransaction Transaction(NSLOCTEXT("GraphEditor", "ChangeVector4PinValue",
-		                                               "Change Vector4 Pin Value"));
-		GraphPinObj->Modify();
-
-		//Set new default value
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, DefaultValue);
-	}
-}
-
-void SDefault_GraphPinVector4::OnChangedValueTextBox_1(float NewValue, ETextCommit::Type CommitInfo)
-{
-	const FString ValueStr = FString::Printf(TEXT("%f"), NewValue);
-
-	//Update Y value
-	FString DefaultValue = FString::Printf(TEXT("(X=%s,Y=%s,Z=%s,W=%s)"), *GetValue(TextBox_0), *ValueStr,
-	                                       *GetValue(TextBox_2),
-	                                       *GetValue(TextBox_3));
-
-	if (GraphPinObj->GetDefaultAsString() != DefaultValue)
-	{
-		const FScopedTransaction Transaction(NSLOCTEXT("GraphEditor", "ChangeVector4PinValue",
-		                                               "Change Vector4 Pin Value"));
-		GraphPinObj->Modify();
-
-		//Set new default value
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, DefaultValue);
-	}
-}
-
-void SDefault_GraphPinVector4::OnChangedValueTextBox_2(float NewValue, ETextCommit::Type CommitInfo)
-{
-	const FString ValueStr = FString::Printf(TEXT("%f"), NewValue);
-
-	//Update Z value
-	FString DefaultValue = FString::Printf(TEXT("(X=%s,Y=%s,Z=%s,W=%s)"), *GetValue(TextBox_0), *GetValue(TextBox_1),
-	                                       *ValueStr,
-	                                       *GetValue(TextBox_3));
-
-	if (GraphPinObj->GetDefaultAsString() != DefaultValue)
-	{
-		const FScopedTransaction Transaction(NSLOCTEXT("GraphEditor", "ChangeVector4PinValue",
-		                                               "Change Vector4 Pin Value"));
-		GraphPinObj->Modify();
-
-		//Set new default value
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, DefaultValue);
-	}
-}
-
-void SDefault_GraphPinVector4::OnChangedValueTextBox_3(float NewValue, ETextCommit::Type CommitInfo)
-{
-	const FString ValueStr = FString::Printf(TEXT("%f"), NewValue);
-
-	//Update W value
-	FString DefaultValue = FString::Printf(TEXT("(X=%s,Y=%s,Z=%s,W=%s)"), *GetValue(TextBox_0), *GetValue(TextBox_1),
-	                                       *GetValue(TextBox_2), *ValueStr);
-
-	if (GraphPinObj->GetDefaultAsString() != DefaultValue)
-	{
-		const FScopedTransaction Transaction(NSLOCTEXT("GraphEditor", "ChangeVector4PinValue",
-		                                               "Change Vector4 Pin Value"));
-		GraphPinObj->Modify();
-
-		//Set new default value
-		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, DefaultValue);
-	}
-}
-
-
-#undef LOCTEXT_NAMESPACE
-
-#pragma endregion
-
 
 //
 //void SDefault_GraphPinNameList::Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)

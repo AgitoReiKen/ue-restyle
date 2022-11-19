@@ -294,7 +294,8 @@ void SDefault_GraphNodeK2CreateDelegate::CreateBelowPinControls(TSharedPtr<SVert
 			for (TFieldIterator<UFunction> It(ScopeClass); It; ++It)
 			{
 				UFunction* Func = *It;
-				if (Func && FunctionSignature->IsSignatureCompatibleWith(Func) &&
+				if (Func &&
+					(FKismetCompilerUtilities::DoSignaturesHaveConvertibleFloatTypes(Func, FunctionSignature) != ConvertibleSignatureMatchResult::Different) &&
 					UEdGraphSchema_K2::FunctionCanBeUsedInDelegate(Func))
 				{
 					FFunctionItemData ItemData;

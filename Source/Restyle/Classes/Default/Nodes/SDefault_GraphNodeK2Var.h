@@ -24,7 +24,10 @@ public:
 	virtual bool IsInvalid() const override;
 protected:
 	FSlateColor GetVariableColor() const;
-
+public:
+	virtual void
+	GetDiffHighlightBrushes(const FSlateBrush*& BackgroundOut, const FSlateBrush*& ForegroundOut) const override;
+protected:
 	// Allow derived classes to override title widget
 	virtual TSharedRef<SWidget> UpdateTitleWidget(FText InTitleText, TSharedPtr<SWidget> InTitleWidget, EHorizontalAlignment& InOutTitleHAlign, FMargin& InOutTitleMargin) const;
 	TSharedPtr<SImage> VarNodeBody;
