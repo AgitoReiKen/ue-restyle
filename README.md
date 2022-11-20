@@ -2,14 +2,16 @@
 ## Motivation
 I did really want to see new design for blueprints in ue-5, but that didn't happen. 
 
-My manically configured part couldn't handle seeing blurry background.png anymore  
+So i've searched through the marketplace, found some projects: 
 
-So i decided to take the responsibility and remake it :) 
+- The first one was free, but had visual issues.
+- The second one did seem better, but was paid. I couldn't afford it.
+
+At the end of the day i decided to take the reponsibility and bring the thing i wanted to see
 <details>
   <summary>Spoiler</summary>
   It took a half of a year lmao 
 </details> 
-
 
 ## Features
 Plugin is made of 3 factory providers which represents factories inside of FEdGraphUtilities, which are used by engine to spawn Nodes, Pins, Connections.
