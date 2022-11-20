@@ -18,7 +18,7 @@
 
 #include "Styling/SlateIconFinder.h"
 #include "TutorialMetaData.h"
-
+#include "EditorStyle/Public/EditorStyleSet.h"
 void SDefault_GraphNodeK2Var::Construct(const FArguments& InArgs, UK2Node* InNode)
 {
 	GraphNode = InNode;
@@ -82,9 +82,11 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 	float ContentSpacing = UDefaultThemeSettings::GetSpacing(VarNode.ContentSpacing);
 	FMargin TitleMargin = UDefaultThemeSettings::GetMargin(VarNode.TitlePadding);
 	FMargin ContentAreaMargin = UDefaultThemeSettings::GetMargin(VarNode.ContentAreaPadding); //FMargin(0.0f, 4.0f);
+	bool bIsSet = false;
 	if (GraphNode->IsA(UK2Node_VariableSet::StaticClass()))
 	{
 		UK2Node_VariableSet* SetNode = Cast<UK2Node_VariableSet>(GraphNode);
+		bIsSet = true;
 		if (SetNode->HasLocalRepNotify())
 		{
 			TitleText = NSLOCTEXT("GraphEditor", "VariableSetWithNotify", "SET w/ Notify");
@@ -191,8 +193,9 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 	{
 		if (!VariableGet->IsNodePure())
 		{
-			TitleText = NSLOCTEXT("GraphEditor", "VariableGet", "GET");
-			//ContentAreaMargin.Top += 16;
+			if (!VarNode.bHideGetTitle)
+				TitleText = NSLOCTEXT("GraphEditor", "VariableGet", "GET");
+				//ContentAreaMargin.Top += 16;
 		}
 	}
 	TitleWidget = UpdateTitleWidget(TitleText, TitleWidget, TitleHAlign, TitleMargin);
@@ -211,15 +214,27 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 	//            |_______|________|
 	//
 	ContentScale.Bind(this, &SGraphNode::GetContentScale);
-	GetOrAddSlot(ENodeZone::Center)
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
+	TSharedPtr<SHorizontalBox> NodeContent = SNew(SHorizontalBox)
+		+ SHorizontalBox::Slot()
+		.HAlign(HAlign_Left)
+		.FillWidth(1.0f)
+		.Padding(0)
 		[
-			SNew(SVerticalBox)
-			+ SVerticalBox::Slot()
-			.AutoHeight()
-			[
-				SNew(SOverlay)
+			// LEFT
+			SAssignNew(LeftNodeBox, SVerticalBox)
+		]
+	+ SHorizontalBox::Slot()
+		.AutoWidth()
+		.HAlign(HAlign_Right)
+		.Padding(ContentSpacing, 0, 0, 0)
+		[
+			// RIGHT
+			SAssignNew(RightNodeBox, SVerticalBox)
+		];
+	TSharedPtr<SOverlay> BodyOverlay = nullptr;
+	if (TitleText.IsEmpty() || bIsSet)
+	{
+		BodyOverlay = SNew(SOverlay)
 				.AddMetaData<FGraphNodeMetaData>(TagMeta)
 				+ SOverlay::Slot()
 				[
@@ -238,25 +253,61 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 				  .VAlign(VAlign_Center)
 				  .Padding(ContentAreaMargin)
 				[
-					// NODE CONTENT AREA
-					SNew(SHorizontalBox)
-					+ SHorizontalBox::Slot()
-					  .HAlign(HAlign_Left)
-					  .FillWidth(1.0f)
-					  .Padding(0)
-					[
-						// LEFT
-						SAssignNew(LeftNodeBox, SVerticalBox)
-					]
-					+ SHorizontalBox::Slot()
-					  .AutoWidth()
-					  .HAlign(HAlign_Right)
-					  .Padding(ContentSpacing, 0, 0, 0)
-					[
-						// RIGHT
-						SAssignNew(RightNodeBox, SVerticalBox)
-					]
+					NodeContent.ToSharedRef()
+				];
+	}
+	else {
+			BodyOverlay = SNew(SOverlay)
+				.AddMetaData<FGraphNodeMetaData>(TagMeta)
+				+ SOverlay::Slot()
+				[
+					SAssignNew(VarNodeBody, SImage)
+					.Image(FEditorStyle::GetBrush(FNodeRestyleStyles::VarNode_Body(VarType, CachedState)))
 				]
+				/*+ SOverlay::Slot()
+				  .VAlign(VAlign_Top)
+				  .HAlign(TitleHAlign)
+				  .Padding(TitleMargin)
+				[
+					TitleWidget.ToSharedRef()
+				]*/
+				+ SOverlay::Slot()
+				  .Padding(0)
+				  .VAlign(VAlign_Center)
+				  .Padding(ContentAreaMargin)
+				[
+					SNew(SVerticalBox)
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					.HAlign(TitleHAlign)
+					.VAlign(VAlign_Top)
+					//.Padding(TitleMargin)
+					[
+						SNew(SBox)
+						.HeightOverride(VarNode.TitleHeight)
+						.Padding(TitleMargin)
+						.VAlign(VAlign_Top)
+						[
+							TitleWidget.ToSharedRef()
+						]
+					]
+					+ SVerticalBox::Slot()
+					.AutoHeight()
+					[
+						NodeContent.ToSharedRef()
+						 
+					]
+				];
+	}
+	GetOrAddSlot(ENodeZone::Center)
+		.HAlign(HAlign_Center)
+		.VAlign(VAlign_Center)
+		[
+			SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+			.AutoHeight()
+			[
+				BodyOverlay.ToSharedRef()
 			]
 		+ SVerticalBox::Slot()
 		  .VAlign(VAlign_Bottom)
@@ -266,6 +317,7 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 			ErrorReporting->AsWidget()
 		]
 	];
+
 
 	float VerticalPaddingAmount = 0.0f;
 
