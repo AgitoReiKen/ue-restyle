@@ -82,16 +82,17 @@ bool FWireRestyleDefault::OnSettingsChanged()
 void UWireRestyleSettings::SetDefaults()
 {
 	BackwardConnectionPriority = EWireRestylePriority::Input;
-	TransitionPriority = EWireRestylePriority::Output;
+	TransitionPriority = EWireRestylePriority::Input;
 	ExecToExecTransitionPriority = EWireRestylePriority::Input;
-	ExecToKnotTransitionPriority = EWireRestylePriority::Input;
 	KnotToExecTransitionPriority = EWireRestylePriority::Output;
+	ExecToKnotTransitionPriority = EWireRestylePriority::Input;
 
 	BackwardSnapPointOffset = 8.f;
-	MinHorizontalLength = 24.f;
+	MinHorizontalLength = 20.f;
 
 	NumBubbles = 4;
 	BubbleSpeed = 2;
+
 	CornerRadius = 0.01f;
 	bRoundCorners = false;
 	b45DegreeStyle = true;
