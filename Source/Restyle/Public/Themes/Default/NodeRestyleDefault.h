@@ -630,6 +630,8 @@ struct FDTVarNode
 		ContentSpacing = "Large+";
 		TitlePadding = "HugeXMediumY";
 		ContentAreaPadding = "Zero";
+		bHideGetTitle = false;
+		TitleHeight = 20;
 	}
 
 	const FDTVarNodeTypeData& GetTypeData(EDTVarType Type) const
@@ -674,6 +676,10 @@ struct FDTVarNode
 	FName ContentSpacing;
 	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ContentAreaPadding;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	bool bHideGetTitle;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0", ClampMax = "64"))
+	float TitleHeight;
 };
 
 USTRUCT()
