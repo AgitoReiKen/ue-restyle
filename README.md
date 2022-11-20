@@ -24,6 +24,9 @@ Plugin is made of 3 factory providers which represents factories inside of FEdGr
 - New title style 
 - Ability to disable "Target Is"
 
+### Variable Nodes
+- Ability to hide "GET" title [Optional]
+
 ### Compact Nodes
 - New title style with ability to apply it if title length exceeds <n>
 - Background icons for Function and Macro
