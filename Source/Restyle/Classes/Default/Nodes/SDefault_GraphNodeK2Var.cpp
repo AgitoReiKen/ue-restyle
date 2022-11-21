@@ -240,11 +240,6 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 			SAssignNew(RightNodeBox, SVerticalBox)
 	];
 	TSharedPtr<SOverlay> BodyOverlay = nullptr;
-	bool bIsPure = false;
-	if (UK2Node* K2Node = Cast<UK2Node>(GraphNode))
-	{
-		bIsPure = K2Node->IsNodePure();
-	}
 	/* when to have no padding*/
 	// validated get
 	if (TitleText.IsEmpty() || bIsSet)
