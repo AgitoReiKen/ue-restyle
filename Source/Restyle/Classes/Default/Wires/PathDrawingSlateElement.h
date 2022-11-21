@@ -9,7 +9,6 @@
 #include "Widgets/SLeafWidget.h"
 #include "SlateRHIRenderer/Private/SlateElementIndexBuffer.h"
 #include "SlateRHIRenderer/Private/SlateElementVertexBuffer.h"
-#include "WireShaders.h"
 #include "ScreenRendering.h"
 
 enum class ERestylePathJoinType

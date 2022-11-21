@@ -32,8 +32,6 @@ void FRestyleModule::StartupModule()
 {
 	if (GIsEditor && !IsRunningCommandlet()) 
 	{
-		FString ShaderDirectory = FPaths::Combine(FPaths::ProjectPluginsDir(), TEXT("/Restyle/Shaders"));
-		AddShaderSourceDirectoryMapping("/Plugin/Restyle", ShaderDirectory);
 		DelayLoadThread = FRunnableThread::Create(new FDelayLoadRunnable(), TEXT("RestyleDelayLoad"));
 		if (!DelayLoadThread)
 		{

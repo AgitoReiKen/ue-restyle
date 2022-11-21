@@ -1,28 +1,36 @@
 {
-  "CanContainContent": true,
-  "Category": "Other",
-  "CreatedBy": "AgitoReiKen",
-  "CreatedByURL": "https://github.com/AgitoReiKen/ue-restyle",
-  "Description": "",
-  "DocsURL": "",
-  "EngineVersion": [ "5.1" ],
-  "FileVersion": 3,
-  "FriendlyName": "Restyle",
-  "Installed": false,
-  "IsBetaVersion": false,
-  "IsExperimentalVersion": true,
-  "MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/cac2768eef8947ffab3aee7f5ddd039d",
-  "Modules": [
-    {
-      "Name": "Restyle",
-      "Type": "DeveloperTool",
-      "LoadingPhase": "PostConfigInit",
-      "WhitelistPlatforms": [
-        "Win64"
-      ]
-    }
-  ],
-  "SupportURL": "https://github.com/AgitoReiKen/ue-restyle",
-  "Version": 1,
-  "VersionName": "0.0.1"
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.0.1",
+	"FriendlyName": "Restyle",
+	"Description": "",
+	"Category": "Other",
+	"CreatedBy": "AgitoReiKen",
+	"CreatedByURL": "https://github.com/AgitoReiKen/ue-restyle",
+	"DocsURL": "",
+	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/cac2768eef8947ffab3aee7f5ddd039d",
+	"SupportURL": "https://github.com/AgitoReiKen/ue-restyle",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": true,
+	"Installed": false,
+	"EngineVersion": [ "5.1" ],
+	"Modules": [
+		{
+			"Name": "RestyleShaders",
+			"Type": "DeveloperTool",
+			"LoadingPhase": "PostConfigInit",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		},
+		{
+			"Name": "Restyle",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		}
+	]
 }

@@ -13,7 +13,6 @@ public class Restyle : ModuleRules
 {
     public Restyle(ReadOnlyTargetRules Target) : base(Target)
     {
-        PublicDependencyModuleNames.AddRange(new string[] { "GraphEditor"  });
         // PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
         var EngineDir = Path.GetFullPath(Target.RelativeEnginePath);
@@ -52,7 +51,8 @@ public class Restyle : ModuleRules
                 "UMGEditor",
                 "MaterialEditor", 
                 "AnimGraph",
-                "KismetCompiler"
+                "KismetCompiler",
+                // "RestyleShaders"
                 // ... add private dependencies that you statically link with here ...	
             }
         );
