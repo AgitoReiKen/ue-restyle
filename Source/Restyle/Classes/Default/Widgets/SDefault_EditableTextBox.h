@@ -2,6 +2,7 @@
 
 #pragma once
 #include "DefineSlateUtils.h"
+#include "Widgets/Input/SEditableTextBox.h"
 class SDefault_EditableTextBox : public SEditableTextBox
 {
 public:

@@ -67,12 +67,14 @@ public:
 	virtual void StartupModule() override;
 	void Load();
 	virtual void ShutdownModule() override;
+
 	static FRestyleModule* Get()
 	{
 		return static_cast<FRestyleModule*>(FModuleManager::Get().GetModule("Restyle"));
 	}
+
 public:
-	void RegisterTheme(TSharedPtr<IRestyleThemeInterface> Theme);	
+	void RegisterTheme(TSharedPtr<IRestyleThemeInterface> Theme);
 	void UnregisterTheme(const FName& Id);
 	void SetSubjectProvider(ERestyleSubject Subject, const FName& Id);
 	bool IsSubjectProviderRegistered(const FName& ThemeId, ERestyleSubject Subject);
@@ -112,3 +114,5 @@ class RESTYLE_API FDelayLoadRunnable : public FRunnable
 public:
 	virtual uint32 Run() override;
 };
+
+ 

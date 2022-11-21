@@ -13,7 +13,6 @@ public class Restyle : ModuleRules
 {
     public Restyle(ReadOnlyTargetRules Target) : base(Target)
     {
-        PublicDependencyModuleNames.AddRange(new string[] { "GraphEditor"  });
         // PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
         var EngineDir = Path.GetFullPath(Target.RelativeEnginePath);
@@ -25,7 +24,7 @@ public class Restyle : ModuleRules
                 Path.Combine(EngineDir, @"Source/Editor/GraphEditor/Private"),
                 Path.Combine(EngineDir, @"Source/Editor/UMGEditor/Private"),
             }
-        ); 
+        );  
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
@@ -38,12 +37,12 @@ public class Restyle : ModuleRules
                 "Projects",
                 "EditorStyle",
                 "EngineSettings",
+                "GraphEditor",
                 "Kismet",
                 "UnrealEd",
                 "BlueprintGraph",
                 "KismetWidgets",
                 "EditorWidgets",
-                "GraphEditor", 
                 "UMG",
                 "InputCore", 
                 "AppFramework",
@@ -52,7 +51,8 @@ public class Restyle : ModuleRules
                 "RHI",
                 "UMGEditor",
                 "MaterialEditor", 
-                "AnimGraph"
+                "AnimGraph",
+                "RestyleShaders"
                 // ... add private dependencies that you statically link with here ...	
             }
         );

@@ -9,7 +9,7 @@
 #include "Widgets/Input/SCheckBox.h"
 #include "SGraphPanel.h"
 #include "Styling/StyleColors.h"
-
+#include "Widgets/Layout/SSpacer.h"
 #include "Themes/Default/NodeRestyleDefault.h"
 
 #include "Widgets/Layout/SScaleBox.h"

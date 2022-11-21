@@ -1,7 +1,6 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
 #pragma once
 
-#include "CoreMinimal.h"
 #include "RenderResource.h"
 #include "ShaderParameters.h"
 #include "Shader.h"
@@ -9,36 +8,27 @@
 #include "ShaderParameterUtils.h"
 #include "Rendering/RenderingCommon.h"
 #include "RHIStaticStates.h"
-#include "TextureResource.h"
 #include "RenderUtils.h"
- 
-class FRestyleVertexShader : public FGlobalShader
+
+class RESTYLESHADERS_API FRestyleVertexShader : public FGlobalShader
 {
 	DECLARE_SHADER_TYPE(FRestyleVertexShader, Global);
 public:
 	//** Indicates that this shader should be cached */
 	static bool ShouldCompilePermutation(const FGlobalShaderPermutationParameters& Parameters) { return true; }
 
-	/** Constructor.  Binds all parameters used by the shader */
-	FRestyleVertexShader(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
-	: FGlobalShader(Initializer)
-	{
-		ViewProjection.Bind(Initializer.ParameterMap, TEXT("ViewProjection"));
-	}
+	FRestyleVertexShader();
 
-	FRestyleVertexShader()
-	{
-	}
-	void SetViewProjection(FRHICommandList& RHICmdList, const FMatrix44f& InViewProjection)
-	{
-		SetShaderValue(RHICmdList, RHICmdList.GetBoundVertexShader(), ViewProjection, InViewProjection);
-	}
+	/** Constructor.  Binds all parameters used by the shader */
+	FRestyleVertexShader(const ShaderMetaType::CompiledShaderInitializerType& Initializer);
+
+	void SetViewProjection(FRHICommandList& RHICmdList, const FMatrix44f& InViewProjection);
 
 private:
 	LAYOUT_FIELD(FShaderParameter, ViewProjection)
 };
 
-class FRestylePixelShader : public FGlobalShader
+class RESTYLESHADERS_API FRestylePixelShader : public FGlobalShader
 {
 	DECLARE_SHADER_TYPE(FRestylePixelShader, Global);
 	/** Indicates that this shader should be cached */
@@ -47,23 +37,13 @@ class FRestylePixelShader : public FGlobalShader
 		return true;
 	}
 
-	FRestylePixelShader()
-	{
-	}
+	FRestylePixelShader();
 
 	/** Constructor.  Binds all parameters used by the shader */
-	FRestylePixelShader(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
-		: FGlobalShader(Initializer)
-	{
-		ShaderParams.Bind(Initializer.ParameterMap, TEXT("ShaderParams"));
-		ShaderParams2.Bind(Initializer.ParameterMap, TEXT("ShaderParams2"));
-	}
+	FRestylePixelShader(const ShaderMetaType::CompiledShaderInitializerType& Initializer);
 
-	void SetShaderParams(FRHICommandList& RHICmdList, const FShaderParams& InShaderParams)
-	{
-		SetShaderValue(RHICmdList, RHICmdList.GetBoundPixelShader(), ShaderParams, (FVector4f)InShaderParams.PixelParams);
-		SetShaderValue(RHICmdList, RHICmdList.GetBoundPixelShader(), ShaderParams2, (FVector4f)InShaderParams.PixelParams2);
-	} 
+
+	void SetShaderParams(FRHICommandList& RHICmdList, const FShaderParams& InShaderParams);
 	static void ModifyCompilationEnvironment(const FGlobalShaderPermutationParameters& Parameters, FShaderCompilerEnvironment& OutEnvironment)
 	{
 		//static const auto CVar = IConsoleManager::Get().FindTConsoleVariableDataInt(TEXT("r.HDR.Display.OutputDevice"));

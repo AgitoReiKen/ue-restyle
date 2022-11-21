@@ -13,16 +13,15 @@
 #include "Async/TaskGraphInterfaces.h"
 #include "Utils/Privates.h"
 
-#define LOCTEXT_NAMESPACE "FRestyleModule"
 
 uint32 FDelayLoadRunnable::Run()
 {
 	while (!GEditor || !GWorld) { FPlatformProcess::Sleep(1); }
 	FFunctionGraphTask::CreateAndDispatchWhenReady([]()
-		{
-			auto Restyle = FModuleManager::Get().GetModule("Restyle");
-			reinterpret_cast<FRestyleModule*>(Restyle)->Load();
-		}, TStatId(), nullptr, ENamedThreads::GameThread);
+	{
+		auto Restyle = FModuleManager::Get().GetModule("Restyle");
+		reinterpret_cast<FRestyleModule*>(Restyle)->Load();
+	}, TStatId(), nullptr, ENamedThreads::GameThread);
 	return 1;
 }
 
@@ -30,10 +29,8 @@ uint32 FDelayLoadRunnable::Run()
 //but technically it is made out to be an editor's extension, so we wait until GEditor get loaded
 void FRestyleModule::StartupModule()
 {
-	if (GIsEditor && !IsRunningCommandlet()) 
+	if (GIsEditor && !IsRunningCommandlet())
 	{
-		FString ShaderDirectory = FPaths::Combine(FPaths::ProjectPluginsDir(), TEXT("/Restyle/Shaders"));
-		AddShaderSourceDirectoryMapping("/Plugin/Restyle", ShaderDirectory);
 		DelayLoadThread = FRunnableThread::Create(new FDelayLoadRunnable(), TEXT("RestyleDelayLoad"));
 		if (!DelayLoadThread)
 		{
@@ -49,7 +46,8 @@ void FRestyleModule::Load()
 	RegisterSettings();
 	RegisterDefaultThemes();
 	OnSettingsChanged();
-	if (DelayLoadThread) {
+	if (DelayLoadThread)
+	{
 		DelayLoadThread->Kill();
 		delete DelayLoadThread;
 	}
@@ -94,7 +92,8 @@ void FRestyleModule::SetSubjectProvider(ERestyleSubject Subject, const FName& Id
 	{
 		if (*Prev == Id) return;
 
-		if (*Prev != NAME_None) {
+		if (*Prev != NAME_None)
+		{
 			if (auto PrevProvider = TryGetSubjectProvider(*Prev, Subject);
 				PrevProvider.IsValid())
 			{
@@ -102,7 +101,6 @@ void FRestyleModule::SetSubjectProvider(ERestyleSubject Subject, const FName& Id
 				SetFactory(Subject, PrevProvider, false);
 			}
 		}
-		 
 	}
 	SubjectProviders.Add(Subject, NAME_None);
 
@@ -172,7 +170,7 @@ void FRestyleModule::UnregisterCommands()
 }
 
 void FRestyleModule::RegisterSettings()
-{ 
+{
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
 		auto SettingsSection = SettingsModule->RegisterSettings(
@@ -221,7 +219,7 @@ void FRestyleModule::CmdRestyle(const TArray<FString>& Args)
 		{
 			FRestyleProcessor::Get().ReloadEditorStyle();
 			UE_LOG(LogTemp, Warning,
-				L"restyle - Resources reloaded")
+			       L"restyle - Resources reloaded")
 		}
 		else if (Args[0].Equals("test"))
 		{
@@ -242,14 +240,14 @@ void FRestyleModule::CmdRestyle(const TArray<FString>& Args)
 	{
 		auto Settings = GetMutableDefault<URestyleSettings>();
 		if (PreviousSubjectProviders.Find(ERestyleSubject::Node))
-		Settings->NodeFactoryProviderId = PreviousSubjectProviders[ERestyleSubject::Node];
+			Settings->NodeFactoryProviderId = PreviousSubjectProviders[ERestyleSubject::Node];
 		if (PreviousSubjectProviders.Find(ERestyleSubject::Pin))
 			Settings->PinFactoryProviderId = PreviousSubjectProviders[ERestyleSubject::Pin];
 		if (PreviousSubjectProviders.Find(ERestyleSubject::PinConnection))
 			Settings->WireFactoryProviderId = PreviousSubjectProviders[ERestyleSubject::PinConnection];
 		OnSettingsChanged();
 		UE_LOG(LogTemp, Warning,
-			L"restyle - Providers enabled")
+		       L"restyle - Providers enabled")
 	}
 }
 
@@ -308,7 +306,7 @@ TMap<FName, ERestyleThemeChange> FRestyleModule::DetectThemeChanges()
 	{
 		if (!ContainsValue(SubjectProviders, it.Value))
 		{
-			Result.Add(it.Value ,ERestyleThemeChange::Removed);
+			Result.Add(it.Value, ERestyleThemeChange::Removed);
 		}
 	}
 	for (const auto& it : SubjectProviders)
@@ -327,52 +325,49 @@ void FRestyleModule::SetFactory(ERestyleSubject Subject, TSharedPtr<ISubjectRest
 	switch (Subject)
 	{
 	case ERestyleSubject::Node:
-	{
-		auto& Factories = access_private_static::FEdGraphUtilities::VisualNodeFactories();
-		auto Factory = StaticCastSharedPtr<INodeRestyleInterface>(Provider)->GetFactory();
-		if (bRegister)
 		{
-			Factories.Insert(Factory, 0);
+			auto& Factories = access_private_static::FEdGraphUtilities::VisualNodeFactories();
+			auto Factory = StaticCastSharedPtr<INodeRestyleInterface>(Provider)->GetFactory();
+			if (bRegister)
+			{
+				Factories.Insert(Factory, 0);
+			}
+			else
+			{
+				Factories.Remove(Factory);
+			}
+			break;
 		}
-		else
-		{
-			Factories.Remove(Factory);
-		}
-		break;
-	}
 	case ERestyleSubject::Pin:
-	{
-		auto& Factories = access_private_static::FEdGraphUtilities::VisualPinFactories();
-		auto Factory = StaticCastSharedPtr<IPinRestyleInterface>(Provider)->GetFactory();
-		if (bRegister)
 		{
-			Factories.Insert(Factory, 0);
+			auto& Factories = access_private_static::FEdGraphUtilities::VisualPinFactories();
+			auto Factory = StaticCastSharedPtr<IPinRestyleInterface>(Provider)->GetFactory();
+			if (bRegister)
+			{
+				Factories.Insert(Factory, 0);
+			}
+			else
+			{
+				Factories.Remove(Factory);
+			}
+			break;
 		}
-		else
-		{
-			Factories.Remove(Factory);
-		}
-		break;
-	}
 	case ERestyleSubject::PinConnection:
-	{
-		auto& Factories = access_private_static::FEdGraphUtilities::VisualPinConnectionFactories();
-		auto Factory = StaticCastSharedPtr<IWireRestyleInterface>(Provider)->GetFactory();
-		if (bRegister)
 		{
-			Factories.Insert(Factory, 0);
+			auto& Factories = access_private_static::FEdGraphUtilities::VisualPinConnectionFactories();
+			auto Factory = StaticCastSharedPtr<IWireRestyleInterface>(Provider)->GetFactory();
+			if (bRegister)
+			{
+				Factories.Insert(Factory, 0);
+			}
+			else
+			{
+				Factories.Remove(Factory);
+			}
+			break;
 		}
-		else
-		{
-			Factories.Remove(Factory);
-		}
-		break;
-	}
 	default: break;
 	}
 }
-
-
-#undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FRestyleModule, Restyle)

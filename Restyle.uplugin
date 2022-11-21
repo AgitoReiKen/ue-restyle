@@ -14,10 +14,21 @@
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": true,
 	"Installed": false,
-	"EngineVersion": ["5.0"],
+	"EngineVersion": [ "5.0" ],
 	"Modules": [
 		{
 			"Name": "Restyle",
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit",
+			"WhitelistPlatforms": [
+				"Win64"
+			],
+			"AdditionalDependencies": [
+				"RestyleShaders"
+			]
+		},
+		{
+			"Name": "RestyleShaders",
 			"Type": "DeveloperTool",
 			"LoadingPhase": "PostConfigInit",
 			"WhitelistPlatforms": [

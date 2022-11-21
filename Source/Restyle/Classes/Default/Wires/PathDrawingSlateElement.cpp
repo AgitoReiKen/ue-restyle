@@ -15,6 +15,8 @@
 #include "ScreenRendering.h"
 #include <Runtime/HeadMountedDisplay/Public/IHeadMountedDisplayModule.h>
 
+#include "WireShader.h"
+
 #include "Themes/Default/WireRestyleDefault.h"
 
 void FPath::Init(TArray<FVector2f> InPoints, FRestylePathSettings InSettings)
