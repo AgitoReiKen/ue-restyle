@@ -1,8 +1,9 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
 #include "WireShader.h"
-
-IMPLEMENT_SHADER_TYPE(, FRestyleVertexShader, TEXT("/Plugin/Restyle/Private/WireShader.usf"), TEXT("MainVS"),
-	SF_Vertex);
+#include "ShaderParameterUtils.h"
+#include "Rendering/RenderingCommon.h"
+IMPLEMENT_SHADER_TYPE(, FRestyleVertexShader, TEXT("/Plugin/Restyle/Private/WireShader.usf"), TEXT("MainVS"), SF_Vertex);
+IMPLEMENT_SHADER_TYPE(, FRestylePixelShader, TEXT("/Plugin/Restyle/Private/WireShader.usf"), TEXT("MainPS"), SF_Pixel);
 
 
 FRestyleVertexShader::FRestyleVertexShader(const ShaderMetaType::CompiledShaderInitializerType& Initializer)
@@ -10,6 +11,7 @@ FRestyleVertexShader::FRestyleVertexShader(const ShaderMetaType::CompiledShaderI
 {
 	ViewProjection.Bind(Initializer.ParameterMap, TEXT("ViewProjection"));
 }
+
 FRestyleVertexShader::FRestyleVertexShader()
 {
 }
@@ -19,8 +21,7 @@ void FRestyleVertexShader::SetViewProjection(FRHICommandList& RHICmdList, const 
 	SetShaderValue(RHICmdList, RHICmdList.GetBoundVertexShader(), ViewProjection, InViewProjection);
 }
 
-IMPLEMENT_SHADER_TYPE(, FRestylePixelShader, TEXT("/Plugin/Restyle/Private/WireShader.usf"), TEXT("MainPS"), SF_Pixel);
-
+ 
 FRestylePixelShader::FRestylePixelShader()
 {
 }
