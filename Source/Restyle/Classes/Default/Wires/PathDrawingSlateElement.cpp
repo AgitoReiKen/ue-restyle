@@ -14,7 +14,7 @@
 #include "PixelShaderUtils.h"
 #include "ScreenRendering.h"
 #include <Runtime/HeadMountedDisplay/Public/IHeadMountedDisplayModule.h>
-//#include "WireShader.h"
+#include "WireShader.h"
 #include "Themes/Default/WireRestyleDefault.h"
 
 void FPath::Init(TArray<FVector2f> InPoints, FRestylePathSettings InSettings)
@@ -485,15 +485,15 @@ void FPathDrawingSlateElement::DrawRenderThread(
 	FVector2f ViewportSize(Buffer->GetSizeX(), Buffer->GetSizeY());
 	{ 
 		 
-		/*TShaderMapRef<FRestyleVertexShader> VertexShader(
+		TShaderMapRef<FRestyleVertexShader> VertexShader(
 			GGlobalShaderMap[GShaderPlatformForFeatureLevel[GMaxRHIFeatureLevel]]);
 		TShaderMapRef<FRestylePixelShader> PixelShader(
-			GGlobalShaderMap[GShaderPlatformForFeatureLevel[GMaxRHIFeatureLevel]]);*/
+			GGlobalShaderMap[GShaderPlatformForFeatureLevel[GMaxRHIFeatureLevel]]);
 
 		FGraphicsPipelineStateInitializer GraphicsPSO;
 		RHICmdList.ApplyCachedRenderTargets(GraphicsPSO);
 		{
-		/*	GraphicsPSO.BlendState = TStaticBlendState<
+			GraphicsPSO.BlendState = TStaticBlendState<
 				CW_RGBA, BO_Add, BF_SourceAlpha, BF_InverseSourceAlpha, BO_Add>::GetRHI();
 			if (Path.Settings.bDrawWireframe)
 			{
@@ -507,16 +507,16 @@ void FPathDrawingSlateElement::DrawRenderThread(
 			GraphicsPSO.BoundShaderState.VertexDeclarationRHI = GScreenVertexDeclaration.VertexDeclarationRHI;
 			GraphicsPSO.BoundShaderState.VertexShaderRHI = VertexShader.GetVertexShader();
 			GraphicsPSO.BoundShaderState.PixelShaderRHI = PixelShader.GetPixelShader();
-			GraphicsPSO.PrimitiveType = PT_TriangleList;*/
+			GraphicsPSO.PrimitiveType = PT_TriangleList;
 		}
 		SetGraphicsPipelineState(RHICmdList, GraphicsPSO, 0);
 
 		{
-			/*PixelShader->SetShaderParams(RHICmdList,
+			PixelShader->SetShaderParams(RHICmdList,
 				FShaderParams(FVector4f(Path.Settings.Thickness, 1.0), Path.Settings.Color));
 
 			FMatrix ProjectionMatrix = CreateProjectionMatrix(ViewportSize.X, ViewportSize.Y);
-			VertexShader->SetViewProjection(RHICmdList, FMatrix44f(ProjectionMatrix));*/
+			VertexShader->SetViewProjection(RHICmdList, FMatrix44f(ProjectionMatrix));
 		}
 
 		auto [Vertices, Indices] = Path.MakeRenderData();

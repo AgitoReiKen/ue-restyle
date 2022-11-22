@@ -4,8 +4,9 @@
 #include "CoreMinimal.h" 
 #include "Modules/ModuleInterface.h"
 #include "Modules/ModuleManager.h"
-class RESTYLESHADERS_API FRestyleShadersModule : public IModuleInterface
+class FRestyleShadersModule : public IModuleInterface
 {
 public:
 	virtual void StartupModule() override;
+
 };

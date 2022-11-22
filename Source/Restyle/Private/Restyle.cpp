@@ -370,7 +370,6 @@ void FRestyleModule::SetFactory(ERestyleSubject Subject, TSharedPtr<ISubjectRest
 	}
 }
 
-
 #undef LOCTEXT_NAMESPACE
 
 IMPLEMENT_MODULE(FRestyleModule, Restyle)

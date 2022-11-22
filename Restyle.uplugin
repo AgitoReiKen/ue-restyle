@@ -16,6 +16,7 @@
 	"Installed": false,
 	"EngineVersion": [ "5.1" ],
 	"Modules": [
+
 		{
 			"Name": "RestyleShaders",
 			"Type": "DeveloperTool",
@@ -30,6 +31,9 @@
 			"LoadingPhase": "PostEngineInit",
 			"WhitelistPlatforms": [
 				"Win64"
+			],
+			"AdditionalDependencies": [
+				"RestyleShaders"
 			]
 		}
 	]
