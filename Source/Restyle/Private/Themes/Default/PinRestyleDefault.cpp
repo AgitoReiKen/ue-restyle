@@ -291,43 +291,7 @@ void FPinRestyleDefault::Update()
 			UDefaultThemeSettings::Get()->ModifyEditableTextBox(&TextBoxStyle, String.Body.Get());
 			StyleSet->Set(FPinRestyleStyles::Graph_EditableTextBox, TextBoxStyle);
 		}
-
-		//this->ChildSlot
-		//	[
-		//		SAssignNew(ComboButton, SComboButton)
-		//		.ContentPadding(3)
-		//	.MenuPlacement(MenuPlacement_BelowAnchor)
-		//	.ButtonContent()
-		//	[
-		//		// Wrap in configurable box to restrain height/width of menu
-		//		SNew(SBox)
-		//		.MinDesiredWidth(150.0f)
-		//	[
-		//		SNew(STextBlock).ToolTipText(NSLOCTEXT("PinComboBox", "ToolTip", "Select enum values from the list"))
-		//		.Text(this, &SPinComboBox::OnGetVisibleTextInternal)
-		//	.Font(FEditorStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
-		//	]
-		//	]
-		//.MenuContent()
-		//	[
-		//		SNew(SVerticalBox)
-		//		+ SVerticalBox::Slot()
-		//	.MaxHeight(450.0f)
-		//	[
-		//		SNew(SBorder)
-		//		.BorderImage(FEditorStyle::GetBrush("Menu.Background"))
-		//	.Padding(0)
-		//	[
-		//		SAssignNew(ComboList, SComboList)
-		//		.ListItemsSource(&ComboItemList)
-		//	//					.ItemHeight( 22 )
-		//	.OnGenerateRow(this, &SPinComboBox::OnGenerateComboWidget)
-		//	.OnSelectionChanged(this, &SPinComboBox::OnSelectionChangedInternal)
-		//	]
-		//	]
-		//	]
-		//	];
-
+		 
 		// VectorEditableTextBox
 		{
 			const auto& Vector = Style->Inputs.Vector;
@@ -348,17 +312,29 @@ void FPinRestyleDefault::Update()
 		}
 		// ComboBox
 		{
+
+			const auto& Select = Style->Inputs.Select.Get();
+			auto ButtonTextData = Select.ComboButton.Get().Button.Get().Text.Get();
+
 			FComboButtonStyle ComboButtonStyle;
 			FComboBoxStyle BoxStyle;
-			const auto& Select = Style->Inputs.Select.Get();
-			UDefaultThemeSettings::Get()->ModifyComboButtonStyle(&ComboButtonStyle, Select.ComboButton.Get(),
-			                                                     ChevronDownSvg);
+			FTextBlockStyle TextBlockStyle;
 			FSlateFontInfo FontInfo;
-			UDefaultThemeSettings::Get()->ModifyFontInfo(&FontInfo, Select.ComboButton.Get().Button.Get().Text.Get());
-			StyleSet->Set(FPinRestyleStyles::ComboBox_Button_FontInfo, FontInfo);
+
+			UDefaultThemeSettings::Get()->ModifyComboButtonStyle(&ComboButtonStyle, Select.ComboButton.Get(),
+				ChevronDownSvg);
 			BoxStyle.ComboButtonStyle = ComboButtonStyle;
 			BoxStyle.MenuRowPadding = UDefaultThemeSettings::GetMargin(Select.MenuRowPadding);
+
+			UDefaultThemeSettings::Get()->ModifyFontInfo(&FontInfo, ButtonTextData);
+			StyleSet->Set(FPinRestyleStyles::ComboBox_Button_FontInfo, FontInfo);
+
 			StyleSet->Set(FPinRestyleStyles::ComboBox, BoxStyle);
+
+			StyleSet->Set(FPinRestyleStyles::ComboButton, ComboButtonStyle);
+
+			UDefaultThemeSettings::Get()->ModifyTextBlockStyle(&TextBlockStyle, ButtonTextData, true);
+			StyleSet->Set(FPinRestyleStyles::ComboButton_Text, TextBlockStyle);
 		}
 		// ComboBox Row
 		{
