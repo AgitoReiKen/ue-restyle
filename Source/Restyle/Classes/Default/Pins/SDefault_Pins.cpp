@@ -821,10 +821,18 @@ TSharedRef<SWidget> SDefault_GraphPinInteger::GetDefaultValueWidget()
 			return NSLOCTEXT("GraphEditor", "BitmaskButtonContentNoFlagsSet", "(No Flags)");
 		};
 
+		const auto& Style = UPinRestyleSettings::Get()->Inputs.Select.Get();
+		const auto& ComboButton = Style.ComboButton.Get();
+		const auto& Button = ComboButton.Button.Get();
+		FMargin ContentPadding = UDefaultThemeSettings::GetMargin(Button.Padding);
+
 		return SNew(SComboButton)
-			.ContentPadding(3)
+			.ContentPadding(ContentPadding)
+			.ComboButtonStyle(FAppStyle::Get(), FPinRestyleStyles::ComboButton)
 			.MenuPlacement(MenuPlacement_BelowAnchor)
 			.Visibility(this, &SGraphPin::GetDefaultValueVisibility)
+			.ForegroundColor(FSlateColor::UseStyle())
+			.HasDownArrow(ComboButton.bHasDownArrow)
 			.ButtonContent()
 			[
 				// Wrap in configurable box to restrain height/width of menu
@@ -832,6 +840,8 @@ TSharedRef<SWidget> SDefault_GraphPinInteger::GetDefaultValueWidget()
 				.MinDesiredWidth(84.0f)
 				[
 					SNew(STextBlock)
+					.TextStyle(FAppStyle::Get(), FPinRestyleStyles::ComboButton_Text)
+					.ColorAndOpacity(FSlateColor::UseStyle())
 					.Text_Lambda(GetComboButtonText)
 					.Font(FAppStyle::GetFontStyle(TEXT("PropertyWindow.NormalFont")))
 				]
