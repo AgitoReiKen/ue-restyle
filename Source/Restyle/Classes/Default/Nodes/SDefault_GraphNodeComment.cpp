@@ -449,7 +449,9 @@ FSlateRect SDefault_GraphNodeComment::GetHitTestingBorder() const
 
 FVector2D SDefault_GraphNodeComment::GetNodeMaximumSize() const
 {
-	return FVector2D(UserSize.X + 100, UserSize.Y + 100);
+	/* causes misbehavior */
+	//return FVector2D(UserSize.X + 100, UserSize.Y + 100);
+	return FVector2D(0x7ffff);
 }
 
 FSlateColor SDefault_GraphNodeComment::GetCommentBodyColor() const
@@ -500,52 +502,27 @@ FSlateRect SDefault_GraphNodeComment::GetTitleRect() const
 FReply SDefault_GraphNodeComment::OnMouseMove(const FGeometry& MyGeometry, const FPointerEvent& MouseEvent)
 {
 	if (bNewResizingMethod) {
+		/*Dragging = Resizing*/
 		if (bUserIsDragging)
 		{
-			FVector2D OldGraphSpaceCoordinates = NodeCoordToGraphCoord(MouseEvent.GetLastScreenSpacePosition());
+			FVector2D Origin = MyGeometry.GetAbsolutePosition();
+			auto LocalSize = MyGeometry.GetLocalSize();
+
+			FVector2D OldGraphSpaceCoordinates = NodeCoordToGraphCoord(Origin);
 			FVector2D GraphSpaceCoordinates = NodeCoordToGraphCoord(MouseEvent.GetScreenSpacePosition());
 			TSharedPtr<SWindow> OwnerWindow = FSlateApplication::Get().FindWidgetWindow(AsShared());
-
-			if (!ResizeTransactionPtr.IsValid())
-			{
-				CachedMouseMoveScreenSpace = OldGraphSpaceCoordinates;
-			}
-
-			FVector2D Delta = (GraphSpaceCoordinates - CachedMouseMoveScreenSpace) /
-
-				(OwnerWindow.IsValid() ? OwnerWindow->GetDPIScaleFactor() : 1.0f);
-			CachedMouseMoveScreenSpace = GraphSpaceCoordinates;
-
-			//Clamp delta value based on resizing direction
+			DragSize = GraphSpaceCoordinates - OldGraphSpaceCoordinates;
 
 			if (MouseZone == CRWZ_LeftBorder || MouseZone == CRWZ_RightBorder)
 			{
-				Delta.Y = 0.0f;
+				DragSize.Y = LocalSize.Y;
 			}
 			else if (MouseZone == CRWZ_TopBorder || MouseZone == CRWZ_BottomBorder)
 			{
-				Delta.X = 0.0f;
+				DragSize.X = LocalSize.X;
 			}
 
-			//Resize node delta value
-			FVector2D DeltaNodeSize = Delta;
-
-			//Modify node size delta value based on resizing direction
-			if ((MouseZone == CRWZ_LeftBorder) || (MouseZone == CRWZ_TopBorder) || (MouseZone == CRWZ_TopLeftBorder))
-			{
-				DeltaNodeSize = -DeltaNodeSize;
-			}
-			else if (MouseZone == CRWZ_TopRightBorder)
-			{
-				DeltaNodeSize.Y = -DeltaNodeSize.Y;
-			}
-			else if (MouseZone == CRWZ_BottomLeftBorder)
-			{
-				DeltaNodeSize.X = -DeltaNodeSize.X;
-			}
-			// Apply delta unfiltered to DragSize
-			DragSize.X += DeltaNodeSize.X;
-			DragSize.Y += DeltaNodeSize.Y;
+			CachedMouseMoveScreenSpace = GraphSpaceCoordinates;
 
 			// apply snap
 			//const float SnapSize = SNodePanel::GetSnapGridSize();
@@ -565,12 +542,10 @@ FReply SDefault_GraphNodeComment::OnMouseMove(const FGeometry& MyGeometry, const
 			SnappedSize.X = FMath::Min(SnappedSize.X, MaxSize.X);
 			SnappedSize.Y = FMath::Min(SnappedSize.Y, MaxSize.Y);
 
-			FVector2D DeltaNodePos(0, 0);
-			 if (UserSize != SnappedSize)
+			if (UserSize != SnappedSize)
 			{
 				UserSize = SnappedSize;
 				GraphNode->ResizeNode(UserSize);
-				DeltaNodePos = GetCorrectedNodePosition() - GetPosition();
 			}
 
 			if (!ResizeTransactionPtr.IsValid() && UserSize != StoredUserSize)
@@ -578,11 +553,8 @@ FReply SDefault_GraphNodeComment::OnMouseMove(const FGeometry& MyGeometry, const
 				// Start resize transaction.  The transaction is started here so all MoveTo actions are captured while empty
 				//	transactions are not created
 				ResizeTransactionPtr = MakeShareable(new FScopedTransaction(NSLOCTEXT("GraphEditor", "ResizeNodeAction", "Resize Node")));
-			}
-
-			FNodeSet NodeFilter;
-			SGraphNode::MoveTo(GetPosition() + DeltaNodePos, NodeFilter);
-		}
+			} 
+		} 
 		else
 		{
 			const FVector2D LocalMouseCoordinates = MyGeometry.AbsoluteToLocal(MouseEvent.GetScreenSpacePosition());
