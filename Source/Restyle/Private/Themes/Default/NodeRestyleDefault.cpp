@@ -136,7 +136,8 @@ void FNodeRestyleDefault::Register()
 		auto SettingsSection = SettingsModule->RegisterSettings(
 			"Editor", "Plugins", "RestyleDefaultNode",
 			FText::FromString("Restyle [Default] [Node]"),
-			FText::FromString("TIP: Use Right Mouse Button (Copy/Paste, Expand/Collapse)"),
+			FText::FromString(
+				"MAKING A CHANGE REQUIRES YOU TO CLOSE ALL OPENED GRAPH EDITORS!\nOTHERWISE, EDITOR MAY CRASH\nTIP: Use Right Mouse Button (Copy/Paste, Expand/Collapse)"),
 			GetMutableDefault<UNodeRestyleSettings>());
 		if (SettingsSection.IsValid())
 		{
