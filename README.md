@@ -97,13 +97,12 @@ Having opened "Editor Settings" window with restyle loaded may cause editor to s
 
 ## FAQ
 ### **Could it break my data?** 
-There is a possibility, but it's not that univocal. 
+It's technically possible, but it's not going to happen.
+  
+The only way it could is when .uplugin "EngineVersion" gets modified for non-updated plugin and used for specific Unreal Engine version containing non-backward compatibility behavioral code.
 
-SGraphPin writes values to UEdGraphPin and some of such functions of course are copies of originals. Non-original writings made for Enum, Custom pins. 
-
-It will break if non-updated plugin is used for Unreal Engine version containing non-backward compatibility behavioral code.
-As such breaking scenario isn't happen only due to external problems, i expect you to understand the volatility of engine itself and have some backups 
-(in case you have not experienced yet the failure of loosing weekly work: blueprint backup system in engine is not a solution) 
+Data corruption scenario may happen not only due to external problems. I expect you to understand the volatility of engine itself and have a backup system.
+(From my experience, UE's backup system isn't a good solution for blueprints) 
 
 ### **I have my own factories defined, will it work?**
 Plugin registers factories at Index 0 and they check if there is any other factory wants to spawn that UClass. 
