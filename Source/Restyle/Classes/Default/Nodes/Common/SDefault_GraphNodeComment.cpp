@@ -6,7 +6,7 @@
 #include "EdGraphNode_Comment.h"
 #include "GraphEditorSettings.h"
 #include "SGraphPanel.h"
-#include "SDefault_CommentBubble.h"
+#include "Default/Nodes/Common/SDefault_CommentBubble.h"
 //#include "TextWrapperHelpers.h"
 #include "TutorialMetaData.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"

@@ -1,6 +1,6 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
 
-#include "SDefault_NodeTitle.h"
+#include "Default/Nodes/Common/SDefault_NodeTitle.h"
 
 void SDefault_NodeTitle::Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime)
 {

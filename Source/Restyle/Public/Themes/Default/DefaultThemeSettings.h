@@ -192,21 +192,59 @@ USTRUCT()
 struct FDTBrushRef
 {
 	GENERATED_BODY()
-	FDTBrushRef() { Id = NAME_None; bOverrideOutlineColor = false; OutlineColor = "Light-4"; bOverrideBackgroundColor = false; BackgroundColor = "Light-4"; }
+	FDTBrushRef()
+	{
+		Id = NAME_None;
+		bOverrideOutlineColor = false;
+		OutlineColor = "Light-4";
+		bOverrideOutlineOpacity = false;
+		OutlineOpacity = 1.0f;
+		bOverrideBackgroundColor = false;
+		BackgroundColor = "Light-4";
+		bOverrideBackgroundOpacity = false;
+		BackgroundOpacity = 1.0f;
+	}
 
-	FDTBrushRef(const char* Id) : Id(Id), bOverrideOutlineColor(false), OutlineColor("Light-4"), bOverrideBackgroundColor(false), BackgroundColor("Light-4")
+	FDTBrushRef(const char* Id)
+	  : Id(Id),
+		bOverrideOutlineColor(false),
+		OutlineColor("Light-4"),
+		bOverrideOutlineOpacity(false),
+		OutlineOpacity(1.0f),
+		bOverrideBackgroundColor(false),
+		BackgroundColor("Light-4"),
+		bOverrideBackgroundOpacity(false),
+		BackgroundOpacity(1.0f)
 	{
 	}
-	 
-	FDTBrushRef(const FName& Id, bool bOverrideOutlineColor = false, const FName& OutlineColor = "Light-4", bool bOverrideBackgroundColor = false,
-	            const FName& BackgroundColor = "Light-4")
-		: Id(Id),
-		  bOverrideOutlineColor(bOverrideOutlineColor),
-		  OutlineColor(OutlineColor),
-		  bOverrideBackgroundColor(bOverrideBackgroundColor),
-		  BackgroundColor(BackgroundColor)
+	FDTBrushRef& SetOutlineColor(bool bOverride, const FName& InOutlineColor = "Light-4")
 	{
+		bOverrideOutlineColor = bOverride;
+		if (bOverride)
+		OutlineColor = InOutlineColor;
+		return *this;
 	}
+	FDTBrushRef& SetOutlineOpacity(bool bOverride, float InOutlineOpacity = 1.0f)
+	{
+		bOverrideOutlineOpacity = bOverride;
+		if (bOverride)
+		OutlineOpacity = InOutlineOpacity;
+		return *this;
+	}
+	FDTBrushRef& SetBackgroundColor(bool bOverride, const FName& InBackgroundColor = "Light-4")
+	{
+		bOverrideBackgroundColor = bOverride;
+		if (bOverride)
+		BackgroundColor = InBackgroundColor;
+		return *this;
+	}
+	FDTBrushRef& SetBackgroundOpacity(bool bOverride, float InBackgroundOpacity = 1.0f)
+	{
+		bOverrideBackgroundOpacity = bOverride;
+		if (bOverride)
+		BackgroundOpacity = InBackgroundOpacity;
+		return *this;
+	} 
 
 	FDTBrushData Get() const;
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "Brush", GetOptions = "Restyle.DefaultThemeSettings.GetBrushOptions"), Category = "DTBrushRef")
@@ -218,11 +256,24 @@ struct FDTBrushRef
 			EditConditionHides), Category = "DTBrushRef")
 	FName OutlineColor;
 	UPROPERTY(EditAnywhere, Category = "DTBrushRef")
+		bool bOverrideOutlineOpacity;
+	UPROPERTY(EditAnywhere,
+		meta = (ClampMin="0.0", ClampMax="1.0", EditCondition = "bOverrideOutlineOpacity",
+			EditConditionHides), Category = "DTBrushRef")
+	float OutlineOpacity;
+
+	UPROPERTY(EditAnywhere, Category = "DTBrushRef")
 		bool bOverrideBackgroundColor;
 	UPROPERTY(EditAnywhere,
 		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions", EditCondition = "bOverrideBackgroundColor",
 			EditConditionHides), Category = "DTBrushRef")
-	FName BackgroundColor;
+		FName BackgroundColor;
+	UPROPERTY(EditAnywhere, Category = "DTBrushRef")
+		bool bOverrideBackgroundOpacity;
+	UPROPERTY(EditAnywhere,
+		meta = (ClampMin = "0.0", ClampMax = "1.0", EditCondition = "bOverrideBackgroundOpacity",
+			EditConditionHides), Category = "DTBrushRef")
+		float BackgroundOpacity;
 };
 
 USTRUCT()
@@ -529,6 +580,7 @@ struct FDTCheckBoxData
 		UndeterminedHoveredImageColor = FDTColor("Light-1");
 		UndeterminedPressedImageColor = FDTColor("Light-1");
 		IconSize = "Medium";
+		Padding = "Zero";
 	}
 
 	FDTCheckBoxData(const FDTBrushRef& BackgroundImage, const FDTBrushRef& BackgroundHoveredImage,
@@ -537,7 +589,7 @@ struct FDTCheckBoxData
 		const FDTColor& CheckedImageColor, const FDTColor& CheckedHoveredImageColor,
 		const FDTColor& CheckedPressedImageColor, const FDTColor& UndeterminedImageColor,
 		const FDTColor& UndeterminedHoveredImageColor, const FDTColor& UndeterminedPressedImageColor,
-		const FName& IconSize)
+		const FName& IconSize, const FName& Padding)
 		: BackgroundImage(BackgroundImage),
 		  BackgroundHoveredImage(BackgroundHoveredImage),
 		  BackgroundPressedImage(BackgroundPressedImage),
@@ -550,7 +602,8 @@ struct FDTCheckBoxData
 		  UndeterminedImageColor(UndeterminedImageColor),
 		  UndeterminedHoveredImageColor(UndeterminedHoveredImageColor),
 		  UndeterminedPressedImageColor(UndeterminedPressedImageColor),
-		  IconSize(IconSize)
+		  IconSize(IconSize),
+		  Padding(Padding)
 	{
 	}
 
@@ -580,6 +633,8 @@ struct FDTCheckBoxData
 	FDTColor UndeterminedPressedImageColor;
 	UPROPERTY(EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetIconSizeOptions"), Category = "DTCheckBoxData")
 	FName IconSize;
+	UPROPERTY(EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"), Category = "DTCheckBoxData")
+	FName Padding;
 };
 
 USTRUCT()

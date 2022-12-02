@@ -15,10 +15,10 @@
 #include "IDocumentation.h"
 #include "TutorialMetaData.h"
 #include "Widgets/Layout/SBox.h"
-#include "SDefault_CommentBubble.h"
-#include "SDefault_NodeTitle.h"
+#include "Default/Nodes/Common/SDefault_CommentBubble.h"
+#include "Default/Nodes/Common/SDefault_NodeTitle.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
-#include "SDefault_ErrorText.h"
+#include "Default/Nodes/Common/SDefault_ErrorText.h"
 #include "Components/ScaleBox.h"
 #include "Slate/SObjectWidget.h"
 #include "Themes/Default/NodeRestyleDefault.h"
@@ -38,13 +38,12 @@ void SDefault_GraphNodeK2Default::Construct(const FArguments& InArgs, UK2Node* I
 	UpdateGraphNode();
 }
 
-EDTGraphNodeTitleType SDefault_GraphNodeK2Default::GetNodeType()
+EDTGraphNodeTitleType SDefault_GraphNodeK2Default::GetNodeType() const
 {
 	FLinearColor RawTitleColor = GetNodeObj()->GetNodeTitleColor();
 
 	return UNodeRestyleSettings::DetermineTitleTypeByColor(RawTitleColor);
 }
-
 
 void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 {
@@ -349,8 +348,6 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 
 		if (SupportsBubble)
 		{
-			//@TODO
-			// Create comment bubble
 			TSharedPtr<SDefault_CommentBubble> CommentBubble;
 			//GetDefault<UGraphEditorSettings>()->DefaultCommentNodeTitleColor;
 			SAssignNew(CommentBubble, SDefault_CommentBubble)
@@ -376,16 +373,13 @@ void SDefault_GraphNodeK2Default::UpdateStandardNode_New()
 	};
 	AddCommentIfNeeded();
 
-	// @WARN <Do Not Touch> zone
-	{
-		CreateBelowWidgetControls(MainVerticalBox);
-		CreatePinWidgets();
-		CreateInputSideAddButton(LeftNodeBox);
-		CreateOutputSideAddButton(RightNodeBox);
-		CreateBelowPinControls(InnerVerticalBox);
-		CreateAdvancedViewArrowNew(InnerVerticalBox);
-		SetToolTip(nullptr);
-	}
+	CreateBelowWidgetControls(MainVerticalBox);
+	CreatePinWidgets();
+	CreateInputSideAddButton(LeftNodeBox);
+	CreateOutputSideAddButton(RightNodeBox);
+	CreateBelowPinControls(InnerVerticalBox);
+	CreateAdvancedViewArrowNew(InnerVerticalBox);
+	SetToolTip(nullptr);
 }
 
 void SDefault_GraphNodeK2Default::UpdateCompactNode_New()
@@ -756,8 +750,7 @@ const FSlateBrush* SDefault_GraphNodeK2Default::GetShadowBrush(bool bSelected) c
 		}
 		else
 		{
-			FLinearColor RawTitleColor = GetNodeObj()->GetNodeTitleColor();
-			EDTGraphNodeTitleType TitleType = UNodeRestyleSettings::DetermineTitleTypeByColor(RawTitleColor);
+			EDTGraphNodeTitleType TitleType = GetNodeType();
 			auto* Style = UNodeRestyleSettings::Get();
 			const auto& State = Style->Node.GetTypeData(TitleType).GetState(CachedState);
 			if (MainBackground.IsValid())

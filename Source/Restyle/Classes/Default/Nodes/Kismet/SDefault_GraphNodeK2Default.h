@@ -18,7 +18,7 @@ public:
 	void UpdateCompactNode_New();
 	virtual void UpdateGraphNode() override;
 	virtual const FSlateBrush* GetShadowBrush(bool bSelected) const override;
-	EDTGraphNodeTitleType GetNodeType();
+	EDTGraphNodeTitleType GetNodeType() const;
 	 
 protected:
 	TSharedPtr<SImage> MainBackground;

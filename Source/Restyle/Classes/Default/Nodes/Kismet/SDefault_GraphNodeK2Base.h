@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "SDefault_NodeTitle.h"
+#include "Default/Nodes/Common/SDefault_NodeTitle.h"
 
 #include "KismetNodes/SGraphNodeK2Default.h"
  

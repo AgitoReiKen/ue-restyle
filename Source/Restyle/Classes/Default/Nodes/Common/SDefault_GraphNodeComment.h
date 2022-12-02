@@ -3,7 +3,7 @@
 #pragma once
 #include "SGraphNodeComment.h"
 #include "CoreMinimal.h"
-#include "SDefault_CommentBubble.h"
+#include "Default/Nodes/Common/SDefault_CommentBubble.h"
 
 #include "Styling/SlateColor.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"

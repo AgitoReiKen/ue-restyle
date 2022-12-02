@@ -14,7 +14,7 @@
 #include "Framework/Commands/GenericCommands.h"
 #include "Widgets/Text/SInlineEditableTextBlock.h"
 #include "DefaultDragConnection.h"
-#include "SDefault_CommentBubble.h"
+#include "Default/Nodes/Common/SDefault_CommentBubble.h"
 
 #include "Default/Pins/SDefault_Pins.h"
 

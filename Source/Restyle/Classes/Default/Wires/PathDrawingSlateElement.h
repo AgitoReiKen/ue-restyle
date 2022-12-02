@@ -243,7 +243,7 @@ class FPathDrawingSlateElement : public ICustomSlateElement
 {
 public:
 	FPathDrawingSlateElement();
-	bool bDestroyed;
+	std::atomic<bool> bDestroyed;
 
 	virtual void DrawRenderThread(FRHICommandListImmediate& RHICmdList, const void* InWindowBackBuffer) override;
 

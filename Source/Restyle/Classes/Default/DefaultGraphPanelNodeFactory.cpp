@@ -6,49 +6,56 @@
 #include "AnimGraphNode_LayeredBoneBlend.h"
 #include "AnimGraphNode_Root.h"
 #include "AnimGraphNode_SequencePlayer.h"
-#include "SCommentBubble.h"
-#include "SGraphNode.h" 
-#include "Editor/BlueprintGraph/Public/BlueprintGraphDefinitions.h"
-#include "SGraphPin.h"
 #include "K2Node.h"
-#include "K2Node_Event.h"
 #include "K2Node_AddPinInterface.h"
 #include "K2Node_CallMaterialParameterCollectionFunction.h"
 #include "K2Node_Composite.h"
 #include "K2Node_Copy.h"
 #include "K2Node_CreateDelegate.h"
+#include "K2Node_Event.h"
 #include "K2Node_FormatText.h"
 #include "K2Node_Knot.h"
 #include "K2Node_MakeStruct.h"
+#include "K2Node_PromotableOperator.h"
 #include "K2Node_SpawnActor.h"
 #include "K2Node_SpawnActorFromClass.h"
 #include "K2Node_Switch.h"
 #include "K2Node_Timeline.h"  
+#include "MaterialGraphNode_Knot.h"
+#include "SCommentBubble.h"
+#include "SGraphNode.h" 
+#include "SGraphPin.h"
+#include "Editor/BlueprintGraph/Public/BlueprintGraphDefinitions.h"
 #include "KismetPins/SGraphPinNum.h" 
-#include "K2Node_PromotableOperator.h"
+
+#include "KismetNodes/SGraphNodeK2Composite.h" 
+#include "KismetNodes/SGraphNodeK2Var.h"
 #include "MaterialNodes/SGraphNodeMaterialBase.h"
 #include "Themes/Default/NodeRestyleDefault.h"
-#include "KismetNodes/SGraphNodeK2Var.h"
-#include "KismetNodes/SGraphNodeK2Composite.h" 
 
+#include "MaterialGraph/MaterialGraphNode_Base.h"
 #include "MaterialGraph/MaterialGraphNode_Comment.h"
+#include "MaterialGraph/MaterialGraphNode_Composite.h"
 
-#include "Nodes/SDefault_GraphNodeK2Event.h"
-#include "Nodes/SDefault_GraphNodeK2Default.h"
-#include "Nodes/SDefault_GraphNodeK2Sequence.h"
-#include "Nodes/SDefault_GraphNodePromotableOperator.h"
-#include "Nodes/SDefault_GraphNodeK2Var.h"
-#include "Nodes/SDefault_GraphNodeK2Composite.h"
-#include "Nodes/SDefault_GraphNodeKnot.h"
-#include "Nodes/SDefault_GraphNodeK2Timeline.h"
-#include "Nodes/SDefault_GraphNodeSpawnActor.h"
-#include "Nodes/SDefault_GraphNodeSpawnActorFromClass.h"
-#include "Nodes/SDefault_GraphNodeFormatText.h"
-#include "Nodes/SDefault_GraphNodeK2CreateDelegate.h"
-#include "Nodes/SDefault_GraphNodeSwitchStatement.h"
-#include "Nodes/SDefault_GraphNodeMakeStruct.h"
-#include "Nodes/SDefault_GraphNodeComment.h"
-#include "Nodes/SDefault_GraphNodeCreateWidget.h"
+#include "Default/Nodes/Common/SDefault_GraphNodeComment.h"
+#include "Default/Nodes/Common/SDefault_GraphNodeKnot.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeCreateWidget.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeFormatText.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeK2Composite.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeK2CreateDelegate.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeK2Default.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeK2Event.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeK2Sequence.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeK2Timeline.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeK2Var.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeMakeStruct.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodePromotableOperator.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeSpawnActor.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeSpawnActorFromClass.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeSwitchStatement.h"
+#include "MaterialGraph/MaterialGraphNode_Root.h"
+#include "Nodes/Material/SDefault_GraphNodeMaterialBase.h"
+#include "Nodes/Material/SDefault_GraphNodeMaterialResult.h"
 #include "UMGEditor/Private/Nodes/K2Node_CreateWidget.h"
 #include "Utils/Privates.h"
 FDefaultGraphPanelNodeFactory::FDefaultGraphPanelNodeFactory()
@@ -226,6 +233,29 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryAnimation(UEdGraphNode*
 
 TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryMaterial(UEdGraphNode* InNode) const
 {
+	if (UMaterialGraphNode_Base* BaseMaterialNode = Cast<UMaterialGraphNode_Base>(InNode))
+	{
+		if (UMaterialGraphNode_Root* RootMaterialNode = Cast<UMaterialGraphNode_Root>(InNode))
+		{
+			return SNew(SDefault_GraphNodeMaterialResult, RootMaterialNode);
+		}
+		else if (UMaterialGraphNode_Knot* MaterialKnot = Cast<UMaterialGraphNode_Knot>(InNode))
+		{
+			return SNew(SDefault_GraphNodeKnot, MaterialKnot);
+		}
+		else if (UMaterialGraphNode* MaterialNode = Cast<UMaterialGraphNode>(InNode))
+		{
+			if (UMaterialGraphNode_Composite* MaterialComposite = Cast<UMaterialGraphNode_Composite>(InNode))
+			{
+				/* @TODO Couldn't find nodes according to this. Delay until i do*/
+				//return SNew(SDefault_GraphNodeMaterialComposite, MaterialComposite);
+			}
+			else
+			{
+				return SNew(SDefault_GraphNodeMaterialBase, MaterialNode);
+			}
+		}
+	}
 	if (UMaterialGraphNode_Comment* MaterialCommentNode = Cast<UMaterialGraphNode_Comment>(InNode))
 	{
 		return nullptr;

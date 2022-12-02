@@ -14,7 +14,7 @@
 #include "K2Node_MakeStruct.h"
 #include "K2Node_VariableGet.h"
 #include "K2Node_VariableSet.h"
-#include "SDefault_CommentBubble.h"
+#include "Default/Nodes/Common/SDefault_CommentBubble.h"
 
 #include "Styling/SlateIconFinder.h"
 #include "TutorialMetaData.h"

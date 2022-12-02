@@ -389,8 +389,8 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 	                   .OnMouseButtonDown(this, &SDefault_GraphPin::OnPinNameMouseDown)
 		[
 			SNew(SLevelOfDetailBranchNode)
-		.UseLowDetailSlot(this, &SDefault_GraphPin::UseLowDetailPinNames)
-		.LowDetail()
+			.UseLowDetailSlot(this, &SDefault_GraphPin::UseLowDetailPinNames)
+			.LowDetail()
 			[
 				LowLodBox.ToSharedRef()
 			]
@@ -401,9 +401,8 @@ void SDefault_GraphPin::Construct(const FArguments& InArgs, UEdGraphPin* InGraph
 				.Padding(FMargin(-GraphSettings->PaddingTowardsNodeEdge, 0))
 				[
 					SNew(SBorder)
-				.BorderImage(this, &SDefault_GraphPin::GetPinBorder)
-				.BorderBackgroundColor(this, &SDefault_GraphPin::GetPinColor)
-
+					.BorderImage(this, &SDefault_GraphPin::GetPinBorder)
+					.BorderBackgroundColor(this, &SDefault_GraphPin::GetPinColor)
 				]
 				+ SOverlay::Slot()
 				.Padding(0)

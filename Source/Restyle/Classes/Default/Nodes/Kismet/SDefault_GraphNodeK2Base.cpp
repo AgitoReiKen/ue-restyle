@@ -11,7 +11,8 @@
 #include "Kismet2/Breakpoint.h"
 #include "Kismet2/KismetDebugUtilities.h"
 #include "IDocumentation.h"
-#include "SDefault_ErrorText.h"
+#include "Restyle.h"
+#include "Default/Nodes/Common/SDefault_ErrorText.h"
 #include "SGraphPanel.h"
 #include "Slate/SObjectWidget.h"
 
@@ -122,8 +123,8 @@ TSharedRef<SWidget> SDefault_GraphNodeK2Base::AddPinButtonContent_New(FText PinT
                                                                       bool bRightSide, FString DocumentationExcerpt,
                                                                       TSharedPtr<SToolTip> CustomTooltip)
 {
-	//Restyle Pins aren't loaded then..
-	if (!FAppStyle::Get().HasWidgetStyle<FTextBlockStyle>(FPinRestyleStyles::Sequence_Button_Text))
+	bool bPinsLoaded = FRestyleModule::Get()->IsSubjectProviderRegistered("Default", ERestyleSubject::Pin);
+	if (!bPinsLoaded)
 	{
 		return AddPinButtonContent(PinText, PinTooltipText, bRightSide, DocumentationExcerpt, CustomTooltip);
 	}

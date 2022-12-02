@@ -1,6 +1,6 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
 
-#include "SDefault_ErrorText.h"
+#include "Default/Nodes/Common/SDefault_ErrorText.h"
 #include "Brushes/SlateRoundedBoxBrush.h"
 
 void SDefault_ErrorText::Construct(const FArguments& InArgs, EDTNodeReportType Type)

@@ -1,6 +1,6 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
 
-#include "SDefault_CommentBubble.h"
+#include "Default/Nodes/Common/SDefault_CommentBubble.h"
 #include "Widgets/SOverlay.h"
 #include "SCommentBubble.h"
 #include "Widgets/SBoxPanel.h"
