@@ -110,7 +110,8 @@ void UDefaultThemeSettings::SetDefaults()
 
 	BrushMap.Append(TMap<FName, FDTBrushData>{
 		{"Transparent", FDTBrushData("Default", "Zero", FDTColor("Light-4", .0f), FDTColor("Dark-2", .0f))},
-		{"Box", FDTBrushData("Zero", "Zero", FDTColor("Light-4", .0f), FDTColor("Dark-1"))}
+		{"Box", FDTBrushData("Zero", "Zero", FDTColor("Light-4", .0f), FDTColor("Dark-1"))},
+		{"BoxDefault", FDTBrushData("Default", "Zero", FDTColor("Light-4", .0f), FDTColor("Dark-1"))}
 	});
 
 	BrushMap.Append(TMap<FName, FDTBrushData>{
@@ -211,12 +212,30 @@ void UDefaultThemeSettings::SetDefaults()
 		{
 			"Default",
 			FDTCheckBoxData("ButtonNormal", "ButtonHovered", "ButtonPressed", "Light-3", "Light-2", "Light-2",
-			                "Light-3", "Light-2", "Light-2", "Light-3", "Light-2", "Light-2", "Medium")
+							"Light-3", "Light-2", "Light-2", "Light-3", "Light-2", "Light-2", "Medium", "Zero")
 		},
 		{
 			"Transparent",
 			FDTCheckBoxData("Transparent", "Transparent", "Transparent", "Light-4", "Light-3", "Light-3",
-			                "Light-4", "Light-3", "Light-3", "Light-4", "Light-3", "Light-3", "Medium")
+							"Light-4", "Light-3", "Light-3", "Light-4", "Light-3", "Light-3", "Medium", "Zero")
+		},
+		{
+			"TransparentLight",
+			FDTCheckBoxData(
+				"Transparent",
+				FDTBrushRef("BoxDefault").SetBackgroundColor(true, "Light-1").SetBackgroundOpacity(true, 0.15f),
+				FDTBrushRef("BoxDefault").SetBackgroundColor(true, "Light-1").SetBackgroundOpacity(true, 0.25f),
+				FDTColor("Light-1", 0.9f),
+				"Light-1", 
+				"Light-1",
+				FDTColor("Light-1", 0.9f),
+				"Light-1", 
+				"Light-1", 
+				FDTColor("Light-1", 0.9f),
+				"Light-1", 
+				"Light-1", 
+				"Small", 
+				"Small")
 		}
 	};
 
@@ -449,6 +468,7 @@ void UDefaultThemeSettings::ModifyCheckBox(FCheckBoxStyle* Style, const FDTCheck
                                            const FString& UndeterminedIconPath) const
 {
 	auto IconSize = FVector2D(GetIconSize(Config.IconSize));
+	auto Padding = GetMargin(Config.Padding);
 	auto UncheckedIcon = GetVectorImageBrush(UncheckedIconPath, IconSize);
 	auto CheckedIcon = GetVectorImageBrush(CheckedIconPath, IconSize);
 	auto UndeterminedIcon = GetVectorImageBrush(UndeterminedIconPath, IconSize);
@@ -490,6 +510,8 @@ void UDefaultThemeSettings::ModifyCheckBox(FCheckBoxStyle* Style, const FDTCheck
 	Style->CheckedPressedForeground = FLinearColor::White;
 
 	Style->UndeterminedForeground = FLinearColor::White;
+
+	Style->Padding = Padding;
 }
 
 void UDefaultThemeSettings::ModifyEditableTextBox(FEditableTextBoxStyle* Style,
@@ -820,9 +842,19 @@ FDTBrushData FDTBrushRef::Get() const
 	{
 		Result.BackgroundColor.Id = BackgroundColor;
 	}
+	if (bOverrideBackgroundOpacity)
+	{
+		Result.BackgroundColor.bOverrideOpacity = true;
+		Result.BackgroundColor.Opacity = BackgroundOpacity;
+	}
 	if (bOverrideOutlineColor)
 	{
 		Result.OutlineColor.Id = OutlineColor;
+	}
+	if (bOverrideOutlineOpacity)
+	{
+		Result.OutlineColor.bOverrideOpacity = true;
+		Result.OutlineColor.Opacity = OutlineOpacity;
 	}
 	return Result;
 }

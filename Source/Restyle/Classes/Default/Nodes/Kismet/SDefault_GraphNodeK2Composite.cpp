@@ -14,7 +14,7 @@
 #include "SGraphPreviewer.h"
 #include "IDocumentationPage.h"
 #include "IDocumentation.h"
-#include "SDefault_CommentBubble.h"
+#include "Default/Nodes/Common/SDefault_CommentBubble.h"
 
 #include "Widgets/Text/SInlineEditableTextBlock.h"
 

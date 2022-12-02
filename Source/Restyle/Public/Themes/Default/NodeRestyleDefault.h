@@ -240,7 +240,7 @@ struct FDTNode
 					FDTColor(Content),
 					FDTColor(TitleBg),
 				},
-				FDTBrushRef("NodeNormal", true, NormalOutline)
+				FDTBrushRef("NodeNormal").SetOutlineColor(true, NormalOutline)
 			};
 			Selected = {
 				{
@@ -249,7 +249,7 @@ struct FDTNode
 					FDTColor(Content),
 					FDTColor(TitleBg),
 				},
-				FDTBrushRef("NodeFocused", true, TitleBg)
+				FDTBrushRef("NodeFocused").SetOutlineColor(true, TitleBg)
 			};
 			Invalid = {
 					{
@@ -258,7 +258,7 @@ struct FDTNode
 					FDTColor(Content),
 					FDTColor(TitleBg),
 				},
-				FDTBrushRef("NodeNormal", true, "Red-3")
+				FDTBrushRef("NodeNormal").SetOutlineColor(true, "Red-3")
 
 			};
 			return {Normal, Selected, Invalid};
@@ -381,7 +381,7 @@ struct FDTNodeCompactStates
 		};
 		Invalid = {
 			FDTColor("Light-3", .5f),
-			FDTBrushRef("NodeNormal", true, "Red-3")
+			FDTBrushRef("NodeNormal").SetOutlineColor(true, "Red-3")
 		};
 	}
 
@@ -561,7 +561,9 @@ struct FDTVarNodeTypeData
 	{
 		Normal = {"Light-2", "Transparent", "NodeNormal"};
 		Selected = {"Light-2", "Transparent", "NodeFocused"};
-		Invalid = { "Light-2", "Transparent", {"NodeNormal", true, "Red-3"}};
+		Invalid = {
+			"Light-2", "Transparent", FDTBrushRef("NodeNormal").SetOutlineColor(true, "Red-3")
+		};
 	}
 
 	FDTVarNodeTypeData(const FDTVarNodeState& Normal, const FDTVarNodeState& Selected, const FDTVarNodeState& Invalid)
@@ -677,9 +679,9 @@ struct FDTVarNode
 	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ContentAreaPadding;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere)
-	bool bHideGetTitle;
+		bool bHideGetTitle;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0", ClampMax = "64"))
-	float TitleHeight;
+		float TitleHeight;
 };
 
 USTRUCT()
@@ -864,6 +866,22 @@ struct FDTNodeKnot
 	UPROPERTY(Category = "DTNodeData",EditAnywhere)
 		FDTColor BodyColor;
 };
+
+USTRUCT()
+struct FDTMaterialNode
+{
+	GENERATED_BODY()
+		FDTMaterialNode()
+	{
+		PreviewCheckboxSpacing = "Large";
+		PreviewCheckbox = "TransparentLight";
+	}
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	FName PreviewCheckboxSpacing;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	FDTCheckBoxRef PreviewCheckbox;
+};
+
 USTRUCT()
 struct FDTOtherNodes
 {
@@ -871,12 +889,16 @@ struct FDTOtherNodes
 	FDTOtherNodes()
 	{
 		CreateDelegate = FDTCreateDelegateNode();
+		Reroute = FDTNodeKnot();
+		Material = FDTMaterialNode();
 	}
 
 	UPROPERTY(Category = "DTNodeData",EditAnywhere)
 	FDTCreateDelegateNode CreateDelegate;
 	UPROPERTY(Category = "DTNodeData",EditAnywhere)
 	FDTNodeKnot Reroute;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	FDTMaterialNode Material;
 };
 #pragma endregion
 
@@ -1115,13 +1137,13 @@ struct FDTEnabledStateWidget
 		Types[(int)EDTEnabledStateType::Development] = FDTEnabledState(
 			"Development Only",
 			FDTTextRef("Medium", "Orange-1"),
-			FDTBrushRef("Box", false, "Light-1", true, "Orange-4"),
+			FDTBrushRef("Box").SetBackgroundColor(true, "Orange-4"),
 			"Small"
 		);
 		Types[(int)EDTEnabledStateType::Disabled] = FDTEnabledState(
 			"Disabled",
 			FDTTextRef("Medium", "Light-2"),
-			FDTBrushRef("Box", false, "Light-1", true, "Light-4"),
+			FDTBrushRef("Box").SetBackgroundColor(true, "Light-4"),
 			"Small"
 		);
 		Padding = "SmallY";
@@ -1323,6 +1345,7 @@ struct FNodeRestyleStyles
 	static inline const FName CreateDelegate_SearchComboBox_Button_Text = "Restyle.CreateDelegate.ComboBox.Button.Text";
 	static inline const FName CommentNode_Title_Text = "Restyle.Commentnode.Title.Text";
 	static inline const FName AdvancedDisplay = "Restyle.Graph.AdvancedDisplay";
+	static inline const FName MaterialNode_PreviewCheckbox = "Restyle.MaterialNode.PreviewCheckbox";
 
 
 	static FName VarNode_Body(EDTVarType Type, EDTGraphNodeState State)

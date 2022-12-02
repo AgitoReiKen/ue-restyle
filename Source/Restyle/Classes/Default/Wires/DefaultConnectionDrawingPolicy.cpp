@@ -20,8 +20,8 @@
 #include "Slate/DeferredCleanupSlateBrush.h"
 
 #include "UObject/ConstructorHelpers.h"
+#include "Utils/Privates.h"
 #include "K2Node_Knot.h"
-#include "Utils/Privates.h" 
 class FPathDrawerHolder
 {
 	class FRunnableCleaner : public FRunnable
@@ -35,25 +35,39 @@ class FPathDrawerHolder
 
 		virtual uint32 Run() override
 		{
+			 
 			while (bUpdate)
 			{
+				if (IsEngineExitRequested())
 				{
-					ENQUEUE_RENDER_COMMAND(FreeDestroyedWires)(
+					Exit();
+					break;
+				}
+				/*
+				Got breakpoint hit on check in 
+				RenderingThread.h
+				static ENamedThreads::Type GetDesiredThread()
+				{
+					check(!GIsThreadedRendering || ENamedThreads::GetRenderThread() != ENamedThreads::GameThread);
+					return ENamedThreads::GetRenderThread();
+				}
+				when trying to call enqueue directly. lets try create and dispath on game thread
+				 */
+				FFunctionGraphTask::CreateAndDispatchWhenReady(
+				[]()
+				{
+						ENQUEUE_RENDER_COMMAND(FreeDestroyedWires)(
 						[](FRHICommandListImmediate& RHICmdList)
 						{
 							FScopeLock ScopeLock(&Get().Mutex);
 							Get().Data.RemoveAll([](const TSharedPtr<FPathDrawingSlateElement>& p)-> bool
 							{
-								if (!p.IsValid()) return true;
-								if (p->bDestroyed)
-								{
-									return true;
-								}
-								return false;
+								return !p.IsValid() || p->bDestroyed;
 							});
 						});
-				}
-				FPlatformProcess::Sleep(3.0);
+
+				}, TStatId(), nullptr, ENamedThreads::GameThread);
+				FPlatformProcess::Sleep( 1.f / 8.f);
 			}
 			return 0;
 		}

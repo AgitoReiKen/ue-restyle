@@ -6,7 +6,7 @@
 #include "ISettingsSection.h"
 #include "RestyleProcessor.h"
 
-#include "Default/Nodes/SDefault_GraphNodeK2Default.h"
+#include "Default/Nodes/Kismet/SDefault_GraphNodeK2Default.h"
 
 #include "Interfaces/IPluginManager.h"
 
@@ -32,13 +32,13 @@ void UNodeRestyleSettings::SetDefaults()
 	NodeReports[(int)EDTNodeReportType::Error] = {
 		FString("ERROR"),
 		FDTTextRef("MediumBold", "Red-1"),
-		FDTBrushRef("NodeReport", true, "Red-2", true, "Red-3"),
+		FDTBrushRef("NodeReport").SetOutlineColor(true, "Red-2").SetBackgroundColor(true, "Red-3"),
 		"Medium"
 	};
 	NodeReports[(int)EDTNodeReportType::Warning] = {
 		FString("WARNING"),
 		FDTTextRef("MediumBold", "Orange-1"),
-		FDTBrushRef("NodeReport", true, "Orange-2", true, "Orange-3"),
+		FDTBrushRef("NodeReport").SetOutlineColor(true, "Orange-2").SetBackgroundColor(true, "Orange-3"),
 		"Medium"
 
 	};
@@ -46,7 +46,7 @@ void UNodeRestyleSettings::SetDefaults()
 
 		FString("NOTE"),
 		FDTTextRef("MediumBold", "LBlue-1"),
-		FDTBrushRef("NodeReport", true, "LBlue-2", true, "LBlue-3"),
+		FDTBrushRef("NodeReport").SetOutlineColor(true, "LBlue-2").SetBackgroundColor(true, "LBlue-3"),
 		"Medium"
 
 	};
@@ -54,7 +54,7 @@ void UNodeRestyleSettings::SetDefaults()
 
 		FString("UPGRADE"),
 		FDTTextRef("MediumBold", "Violet-1"),
-		FDTBrushRef("NodeReport", true, "Violet-2", true, "Violet-3"),
+		FDTBrushRef("NodeReport").SetOutlineColor(true, "Violet-2").SetBackgroundColor(true, "Violet-3"),
 		"Medium"
 	};
 	AdvancedDisplay = FDTAdvancedDisplay();
@@ -415,7 +415,7 @@ void FNodeRestyleDefault::Update()
 	{
 		/* CreateDelegate */
 		{
-			const auto& CD = UNodeRestyleSettings::Get()->OtherNodes.CreateDelegate;
+			const auto& CD = Style->OtherNodes.CreateDelegate;
 			FComboBoxStyle ComboBoxStyle;
 			UDefaultThemeSettings::Get()->ModifyComboBox(&ComboBoxStyle, CD.SearchComboBox.Get(), ChevronDownSvg);
 			StyleSet->Set(FNodeRestyleStyles::CreateDelegate_SearchComboBox, ComboBoxStyle);
@@ -433,6 +433,14 @@ void FNodeRestyleDefault::Update()
 			FTextBlockStyle SignatureTextStyle;
 			UDefaultThemeSettings::Get()->ModifyTextBlockStyle(&SignatureTextStyle, SignatureTextConfig);
 			StyleSet->Set(FNodeRestyleStyles::CreateDelegate_SignatureTitle, SignatureTextStyle);
+		}
+		/* Material */
+		{
+			const auto& Material = Style->OtherNodes.Material;
+			const auto& CheckBoxData = Material.PreviewCheckbox.Get();
+			FCheckBoxStyle CheckBoxStyle;
+			UDefaultThemeSettings::Get()->ModifyCheckBox(&CheckBoxStyle, CheckBoxData, RoundChevronDownSvg, RoundChevronUpSvg, MinusSvg);
+			StyleSet->Set(FNodeRestyleStyles::MaterialNode_PreviewCheckbox, CheckBoxStyle);
 		}
 	}
 

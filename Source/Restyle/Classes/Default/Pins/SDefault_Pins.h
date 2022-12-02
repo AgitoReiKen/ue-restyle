@@ -1302,3 +1302,4 @@ private:
 //
 //		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 //};
+ 
