@@ -646,6 +646,7 @@ void FNodeRestyleDefault::Update()
 		if (!BrushResources.Find(Id))
 		{
 			auto* NoDrawBrush = new FSlateBrush();
+			NoDrawBrush->ImageSize = FVector2D(0);
 			NoDrawBrush->DrawAs = ESlateBrushDrawType::NoDrawType;
 			StyleSet->Set(Id, NoDrawBrush);
 		}

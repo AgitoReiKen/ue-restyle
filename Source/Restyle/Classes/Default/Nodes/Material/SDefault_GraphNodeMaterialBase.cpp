@@ -307,11 +307,11 @@ void SDefault_GraphNodeMaterialBase::CreatePinWidgets()
 			// Assign an custom icon to not connectible pins
 			if (CurPin->bNotConnectable)
 			{
-				if (!CacheImg_Pin_NotConnectable)
+				/*if (!CacheImg_Pin_NotConnectable)
 				{
 					CacheImg_Pin_NotConnectable = FAppStyle::Get().GetBrush(NAME_Pin_NotConnectable);
-				}
-				NewPin->SetCustomPinIcon(CacheImg_Pin_NotConnectable, CacheImg_Pin_NotConnectable);
+				}*/
+				NewPin->SetCustomPinIcon(CachedNoDrawBrush, CachedNoDrawBrush);
 			}
 			this->AddPin(NewPin.ToSharedRef());
 		}
