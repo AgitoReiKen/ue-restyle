@@ -309,7 +309,7 @@ void SDefault_GraphNodeMaterialBase::CreatePinWidgets()
 			{
 				/*if (!CacheImg_Pin_NotConnectable)
 				{
-					CacheImg_Pin_NotConnectable = FAppStyle::Get().GetBrush(NAME_Pin_NotConnectable);
+					CacheImg_Pin_NotConnectable = FAppStyle::GetBrush(NAME_Pin_NotConnectable);
 				}*/
 				NewPin->SetCustomPinIcon(CachedNoDrawBrush, CachedNoDrawBrush);
 			}

@@ -232,15 +232,6 @@
 //		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 //};
 //
-//class SDefault_GraphPinPose : public SDefault_GraphPinPose
-//{
-//public:
-//	SLATE_BEGIN_ARGS(SDefault_GraphPinPose) {}
-//	SLATE_END_ARGS()
-//
-//		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
-//};
-//
 //class SDefault_StateMachineOutputPin : public SStateMachineOutputPin
 //{
 //public:
@@ -275,6 +266,8 @@
 //	SLATE_END_ARGS()
 //
 //		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+#include "AnimGraphAttributes.h"
+
 #include "Default/Widgets/SDefault_Widgets.h"
 #include "Themes/Default/PinRestyleDefault.h"
 #include "Default/Widgets/SDefault_KeySelector.h"
@@ -282,7 +275,7 @@
 #include "SDefault_VectorTextBox.h"
 #include "SDefault_Vector4TextBox.h"
 //};
-	
+
 class SDefault_GraphPin : public SGraphPin
 {
 public:
@@ -293,12 +286,12 @@ public:
 	{
 	}
 
-		SLATE_ARGUMENT(FName, PinLabelStyle)
+	SLATE_ARGUMENT(FName, PinLabelStyle)
 		SLATE_ARGUMENT(bool, UsePinColorForText)
 		SLATE_ATTRIBUTE(FMargin, ButtonTextPadding)
-	SLATE_END_ARGS()
+		SLATE_END_ARGS()
 
-	SDefault_GraphPin();
+		SDefault_GraphPin();
 	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 protected:
 	virtual FSlateColor GetPinTextColor() const override;
@@ -331,12 +324,12 @@ class SDefault_GraphPinCollisionProfile : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinCollisionProfile)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	virtual TSharedRef<SWidget> GetDefaultValueWidget() override;
@@ -359,12 +352,12 @@ class SDefault_GraphPinNum : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinNum)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 	{
 		SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
 	}
@@ -376,15 +369,15 @@ protected:
 		return SNew(SBox)
 			.MinDesiredWidth(18)
 			.MaxDesiredWidth(400)
-		[
-			SNew(SNumericEntryBox<NumericType>)
+			[
+				SNew(SNumericEntryBox<NumericType>)
 				.EditableTextBoxStyle(FAppStyle::Get(), FPinRestyleStyles::Graph_EditableTextBox)
-				.BorderForegroundColor(FSlateColor::UseForeground())
-				.Visibility(this, &SDefault_GraphPinNum::GetDefaultValueVisibility)
-				.IsEnabled(this, &SDefault_GraphPinNum::GetDefaultValueIsEditable)
-				.Value(this, &SDefault_GraphPinNum::GetNumericValue)
-				.OnValueCommitted(this, &SDefault_GraphPinNum::SetNumericValue)
-		];
+			.BorderForegroundColor(FSlateColor::UseForeground())
+			.Visibility(this, &SDefault_GraphPinNum::GetDefaultValueVisibility)
+			.IsEnabled(this, &SDefault_GraphPinNum::GetDefaultValueIsEditable)
+			.Value(this, &SDefault_GraphPinNum::GetNumericValue)
+			.OnValueCommitted(this, &SDefault_GraphPinNum::SetNumericValue)
+			];
 	}
 
 	TOptional<NumericType> GetNumericValue() const
@@ -415,12 +408,12 @@ class SDefault_GraphPinInteger : public SDefault_GraphPinNum<int32>
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinInteger)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 protected:
 	//~ Begin SGraphPinString Interface
 	virtual TSharedRef<SWidget> GetDefaultValueWidget() override;
@@ -431,12 +424,12 @@ class SDefault_GraphPinObject : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinObject)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 	//~ Begin SGraphPin Interface
 	virtual TSharedRef<SWidget> GetDefaultValueWidget() override;
@@ -501,12 +494,12 @@ class SDefault_GraphPinClass : public SDefault_GraphPinObject
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinClass)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 	void SetAllowAbstractClasses(bool bAllow) { bAllowAbstractClasses = bAllow; }
 protected:
 	// Called when a new class was picked via the asset picker
@@ -532,12 +525,12 @@ class SDefault_GraphPinStruct : public SDefault_GraphPinObject
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinStruct)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	// Called when a new struct was picked via the asset picker
@@ -555,12 +548,12 @@ class SDefault_GraphPinEnum : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinEnum)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	/**
@@ -615,12 +608,12 @@ class SDefault_GraphPinIndex : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinIndex)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 	FEdGraphPinType OnGetPinType() const;
 	void OnTypeChanged(const FEdGraphPinType& PinType);
@@ -635,12 +628,12 @@ class SDefault_GraphPinKey : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinKey)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	/**
@@ -664,12 +657,12 @@ class SDefault_GraphPinText : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinText)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	virtual TSharedRef<SWidget> GetDefaultValueWidget() override;
@@ -679,12 +672,12 @@ class SDefault_GraphPinMaterialInput : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinMaterialInput)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	//~ Begin SGraphPin Interface
@@ -705,12 +698,12 @@ class SDefault_GraphPinBool : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinBool)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	//~ Begin SGraphPin Interface
@@ -728,12 +721,12 @@ class SDefault_GraphPinColor : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinColor)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 	/** Return the current color value stored in the pin */
 	FLinearColor GetColor() const;
@@ -760,12 +753,12 @@ class SDefault_GraphPinExec : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinExec)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	//~ Begin SGraphPin Interface
@@ -792,12 +785,12 @@ class SDefault_GraphPinString : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinString)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	//~ Begin SGraphPin Interface
@@ -815,14 +808,14 @@ class SDefault_GraphPinStructInstance : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinStructInstance)
-			: _StructEditWrapper(nullptr)
-		{
-		}
+		: _StructEditWrapper(nullptr)
+	{
+	}
 
-		SLATE_ARGUMENT(const UScriptStruct*, StructEditWrapper)
-	SLATE_END_ARGS()
+	SLATE_ARGUMENT(const UScriptStruct*, StructEditWrapper)
+		SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 
 protected:
 	//~ Begin SGraphPin Interface
@@ -873,7 +866,7 @@ public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinVector) {}
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 	{
 		SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
 	}
@@ -919,7 +912,7 @@ private:
 		// Text box 0: Rotator->Roll, Vector->X
 		return GetValue(bIsRotator ? TextBox_2 : TextBox_0);
 	}
-	 
+
 	FString GetCurrentValue_1() const
 	{
 		// Text box 1: Rotator->Pitch, Vector->Y
@@ -931,7 +924,7 @@ private:
 		// Text box 2: Rotator->Yaw, Vector->Z
 		return GetValue(bIsRotator ? TextBox_1 : TextBox_2);
 	}
- 
+
 	TArray<FString> GetComponentArray() const
 	{
 		TArray<FString> VecComponentStrings;
@@ -944,7 +937,7 @@ private:
 
 		return VecComponentStrings;
 	}
- 
+
 	FString GetValue(ETextBoxIndex Index) const
 	{
 		const TArray<FString> VecComponentStrings = GetComponentArray();
@@ -958,19 +951,19 @@ private:
 			return FString(TEXT("0"));
 		}
 	}
- 
+
 	void OnChangedValueTextBox_0(NumericType NewValue, ETextCommit::Type CommitInfo)
 	{
 		const EAxis::Type Axis = bIsRotator ? /* update roll */ EAxis::Z : EAxis::X;
 		SetNewValueHelper(Axis, NewValue);
 	}
-	 
+
 	void OnChangedValueTextBox_1(NumericType NewValue, ETextCommit::Type CommitInfo)
 	{
 		const EAxis::Type Axis = bIsRotator ? /* update pitch */ EAxis::X : EAxis::Y;
 		SetNewValueHelper(Axis, NewValue);
 	}
-	 
+
 	void OnChangedValueTextBox_2(NumericType NewValue, ETextCommit::Type CommitInfo)
 	{
 		const EAxis::Type Axis = bIsRotator ? /* update yaw */ EAxis::Y : EAxis::Z;
@@ -1003,7 +996,7 @@ private:
 		//Set new default value
 		GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, DefaultValue);
 	}
-	 
+
 	FVectorType ConvertDefaultValueStringToVector() const
 	{
 		const TArray<FString> VecComponentStrings = GetComponentArray();
@@ -1026,16 +1019,16 @@ private:
 private:
 	bool bIsRotator;
 };
- 
+
 
 template<typename NumericType>
 class SDefault_GraphPinVector2D : public SDefault_GraphPin
 {
 public:
-	SLATE_BEGIN_ARGS(SDefault_GraphPinVector2D){}
+	SLATE_BEGIN_ARGS(SDefault_GraphPinVector2D) {}
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 	{
 		SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
 	}
@@ -1065,7 +1058,7 @@ private:
 		TextBox_X,
 		TextBox_Y
 	};
- 
+
 	FString GetCurrentValue_X() const
 	{
 		return FString::Printf(TEXT("%f"), GetValue().X);
@@ -1116,19 +1109,19 @@ private:
 			const FString Vector2DString = MakeVector2DString(OldValue.X, NewValue);
 			GraphPinObj->GetSchema()->TrySetDefaultValue(*GraphPinObj, Vector2DString);
 		}
-	} 
+	}
 };
 template<typename NumericType>
 class SDefault_GraphPinVector4 : public SDefault_GraphPin
 {
 public:
 	SLATE_BEGIN_ARGS(SDefault_GraphPinVector4)
-		{
-		}
+	{
+	}
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
+		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj)
 	{
 		SDefault_GraphPin::Construct(SDefault_GraphPin::FArguments(), InGraphPinObj);
 	}
@@ -1302,4 +1295,54 @@ private:
 //
 //		void Construct(const FArguments& InArgs, UEdGraphPin* InGraphPinObj);
 //};
- 
+
+
+// it has to be derived from SGraphPinPose @see AnimGraphConnectionDrawingPolicy
+// Pose pins are assumed to be SGraphPinPose widgets here
+// check(PinWidgetPair.Value->GetType() == TEXT("SGraphPinPose"));
+class SDefault_GraphPinPose : public SDefault_GraphPin
+{
+public:
+	SLATE_BEGIN_ARGS(SDefault_GraphPinPose) {}
+	SLATE_END_ARGS()
+
+		void Construct(const FArguments& InArgs, UEdGraphPin* InPin);
+
+	// Struct used by connection drawing to draw attributes
+	struct FAttributeInfo
+	{
+		FAttributeInfo(FName InAttribute, const FLinearColor& InColor, EAnimGraphAttributeBlend InBlend, int32 InSortOrder)
+			: Attribute(InAttribute)
+			, Color(InColor)
+			, Blend(InBlend)
+			, SortOrder(InSortOrder)
+		{}
+
+		FName Attribute;
+		FLinearColor Color;
+		EAnimGraphAttributeBlend Blend;
+		int32 SortOrder;
+	};
+
+	// Get the attribute info used to draw connections. This varies based on LOD level.
+	TArrayView<const FAttributeInfo> GetAttributeInfo() const;
+
+	// Exposes the parent panel's zoom scalar for use when drawing links
+	float GetZoomAmount() const;
+
+private:
+	void ReconfigureWidgetForAttributes();
+
+	// Get tooltip text with attributes included
+	FText GetAttributeTooltipText() const;
+
+protected:
+	//~ Begin SGraphPin Interface
+	virtual const FSlateBrush* GetPinIcon() const override;
+	//~ End SGraphPin Interface
+
+	mutable const FSlateBrush* CachedImg_Pin_ConnectedHovered;
+	mutable const FSlateBrush* CachedImg_Pin_DisconnectedHovered;
+
+	TArray<FAttributeInfo> AttributeInfos;
+};

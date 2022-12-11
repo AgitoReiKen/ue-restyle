@@ -8,8 +8,9 @@ class FDefaultGraphPanelPinFactory : public FGraphPanelPinFactory
 {
 public:
 	virtual TSharedPtr<SGraphPin> CreatePin(UEdGraphPin* InPin) const override;
-	
+
 	TSharedPtr<SGraphPin> TryKismet(UEdGraphPin* InPin) const;
 	TSharedPtr<SGraphPin> TryMaterial(UEdGraphPin* InPin) const;
+	TSharedPtr<SGraphPin> TryAnimation(UEdGraphPin* InPin) const;
 
-}; 
+};

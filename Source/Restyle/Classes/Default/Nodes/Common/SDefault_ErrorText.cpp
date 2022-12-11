@@ -13,7 +13,7 @@ void SDefault_ErrorText::Construct(const FArguments& InArgs, EDTNodeReportType T
 	SetVisibility(MakeAttributeSP(this, &SDefault_ErrorText::MyVisibility_New));
 
 	SBorder::Construct(SBorder::FArguments()
-		.BorderImage(FAppStyle::Get().GetBrush(FNodeRestyleStyles::NodeReport_Body(Type)))
+		.BorderImage(FAppStyle::GetBrush(FNodeRestyleStyles::NodeReport_Body(Type)))
 		.ContentScale(this, &SDefault_ErrorText::GetDesiredSizeScale_New)
 		.HAlign(HAlign_Center)
 		.VAlign(VAlign_Center)

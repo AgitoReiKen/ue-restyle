@@ -110,44 +110,44 @@ void UDefaultThemeSettings::SetDefaults()
 
 	BrushMap.Append(TMap<FName, FDTBrushData>{
 		{"Transparent", FDTBrushData("Default", "Zero", FDTColor("Light-4", .0f), FDTColor("Dark-2", .0f))},
-		{"Box", FDTBrushData("Zero", "Zero", FDTColor("Light-4", .0f), FDTColor("Dark-1"))},
-		{"BoxDefault", FDTBrushData("Default", "Zero", FDTColor("Light-4", .0f), FDTColor("Dark-1"))}
+		{ "Box", FDTBrushData("Zero", "Zero", FDTColor("Light-4", .0f), FDTColor("Dark-1")) },
+		{ "BoxDefault", FDTBrushData("Default", "Zero", FDTColor("Light-4", .0f), FDTColor("Dark-1")) }
 	});
 
 	BrushMap.Append(TMap<FName, FDTBrushData>{
 		{"NodeNormal", FDTBrushData("Default", "Medium", FDTColor("Light-4", .5f), FDTColor("Dark-2", .9f))},
-		{"NodeFocused", FDTBrushData("Default", "Large", FDTColor("Light-4"), FDTColor("Dark-2", .9f))},
+		{ "NodeFocused", FDTBrushData("Default", "Large", FDTColor("Light-4"), FDTColor("Dark-2", .9f)) },
 	});
 	BrushMap.Append(TMap<FName, FDTBrushData>{
 		{"NodeNormalTop", FDTBrushData("DefaultTop", "Medium", FDTColor("Light-4"), FDTColor("Dark-2", .9f))},
-		{"NodeNormalBottom", FDTBrushData("DefaultBottom", "Medium", FDTColor("Light-4"), FDTColor("Dark-2", .9f))},
-		{"NodeReport", FDTBrushData("DefaultBottom", "Zero", FDTColor("Light-4"), FDTColor("Dark-2", .9f))},
+		{ "NodeNormalBottom", FDTBrushData("DefaultBottom", "Medium", FDTColor("Light-4"), FDTColor("Dark-2", .9f)) },
+		{ "NodeReport", FDTBrushData("DefaultBottom", "Zero", FDTColor("Light-4"), FDTColor("Dark-2", .9f)) },
 	});
 	BrushMap.Append(TMap<FName, FDTBrushData>{
 		{"InputNormal", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Dark-1", .75f))},
-		{"InputHovered", FDTBrushData("Default", "Medium", FDTColor("Light-4", .5f), FDTColor("Dark-1", .75f))},
-		{"InputFocused", FDTBrushData("Default", "Medium", FDTColor("Light-4"), FDTColor("Dark-1", .75f))},
-		{"InputReadOnly", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Dark-1", .75f))}
+		{ "InputHovered", FDTBrushData("Default", "Medium", FDTColor("Light-4", .5f), FDTColor("Dark-1", .75f)) },
+		{ "InputFocused", FDTBrushData("Default", "Medium", FDTColor("Light-4"), FDTColor("Dark-1", .75f)) },
+		{ "InputReadOnly", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Dark-1", .75f)) }
 	});
 
 	BrushMap.Append(TMap<FName, FDTBrushData>{
 		{"ButtonNormal", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Dark-1", .75f))},
-		{"ButtonHovered", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Light-4", .5f))},
-		{"ButtonPressed", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Light-4", .75f))},
-		{"ButtonDisabled", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Dark-1", .75f))}
+		{ "ButtonHovered", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Light-4", .5f)) },
+		{ "ButtonPressed", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Light-4", .75f)) },
+		{ "ButtonDisabled", FDTBrushData("Default", "Zero", FDTColor("Light-4"), FDTColor("Dark-1", .75f)) }
 	});
 	BrushMap.Append(TMap<FName, FDTBrushData>{
 		{"MenuRow", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Dark-2"))},
-		{"MenuRowHighlighted", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Dark-1"))},
-		{"MenuRowHovered", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Dark-1"))},
-		{"MenuRowActive", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-4", .5f))},
-		{"MenuRowHighlightedActive", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-4"))},
-		{"MenuRowHoveredActive", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-4"))},
+		{ "MenuRowHighlighted", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Dark-1")) },
+		{ "MenuRowHovered", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Dark-1")) },
+		{ "MenuRowActive", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-4", .5f)) },
+		{ "MenuRowHighlightedActive", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-4")) },
+		{ "MenuRowHoveredActive", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-4")) },
 	});
 	BrushMap.Append(TMap<FName, FDTBrushData>{
 		{"ScrollBarNormal", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-4", .5f))},
-		{"ScrollBarHovered", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-4"))},
-		{"ScrollBarDragged", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-3"))},
+		{ "ScrollBarHovered", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-4")) },
+		{ "ScrollBarDragged", FDTBrushData("Zero", "Zero", FDTColor("Light-4"), FDTColor("Light-3")) },
 	});
 
 	TextMap = {
@@ -164,22 +164,22 @@ void UDefaultThemeSettings::SetDefaults()
 		{
 			"Default",
 			FDTEditableTextBoxData("InputNormal", "InputHovered", "InputFocused", "InputReadOnly", "Light-2", "Light-2",
-			                       "Light-3", "MediumRegular", "Medium", "Input")
+								   "Light-3", "MediumRegular", "Medium", "Input")
 		},
 		{
 			"Transparent",
 			FDTEditableTextBoxData("Transparent", "Transparent", "Transparent", "InputReadOnly", "Light-2", "Light-2",
-			                       "Light-3", "MediumRegular", "Medium", "Input")
+								   "Light-3", "MediumRegular", "Medium", "Input")
 		},
 		{
 			"TransparentNoPadding",
 			FDTEditableTextBoxData("Transparent", "Transparent", "Transparent", "InputReadOnly", "Light-2", "Light-2",
-			                       "Light-3", "MediumRegular", "Zero", "Input")
+								   "Light-3", "MediumRegular", "Zero", "Input")
 		},
 		{
 			"Transparent-2",
 			FDTEditableTextBoxData("Transparent", "Transparent", "Transparent", "InputReadOnly", "Light-3", "Light-3",
-			                       "Light-4", "MediumRegular", "Medium", "Input")
+								   "Light-4", "MediumRegular", "Medium", "Input")
 		},
 	};
 
@@ -187,24 +187,24 @@ void UDefaultThemeSettings::SetDefaults()
 		{
 			"Default",
 			FDTButtonData("ButtonNormal", "ButtonHovered", "ButtonPressed", "ButtonDisabled", "MediumRegular",
-			              "Light-2",
-			              "Light-2", "Light-2", "Light-4", "Medium", "Small")
+						  "Light-2",
+						  "Light-2", "Light-2", "Light-4", "Medium", "Small")
 		},
 		{
 			"DefaultMedium",
 			FDTButtonData("ButtonNormal", "ButtonHovered", "ButtonPressed", "ButtonDisabled", "MediumRegular",
-			              "Light-2",
-			              "Light-2", "Light-2", "Light-4", "LargeXMediumY", "Medium")
+						  "Light-2",
+						  "Light-2", "Light-2", "Light-4", "LargeXMediumY", "Medium")
 		},
 		{
 			"Transparent",
 			FDTButtonData("Transparent", "Transparent", "Transparent", "Transparent", "MediumRegular", "Light-4",
-			              "Light-3", "Light-3", FDTColor("Light-4", .5f), "Medium", "Small")
+						  "Light-3", "Light-3", FDTColor("Light-4", .5f), "Medium", "Small")
 		},
 		{
 			"TextNoPadding",
 			FDTButtonData("Transparent", "Transparent", "Transparent", "Transparent", "Small", "Light-3",
-			              "Light-2", "Light-2", FDTColor("Light-3", .5f), "Zero", "Small")
+						  "Light-2", "Light-2", FDTColor("Light-3", .5f), "Zero", "Small")
 		}
 	};
 
@@ -226,55 +226,60 @@ void UDefaultThemeSettings::SetDefaults()
 				FDTBrushRef("BoxDefault").SetBackgroundColor(true, "Light-1").SetBackgroundOpacity(true, 0.15f),
 				FDTBrushRef("BoxDefault").SetBackgroundColor(true, "Light-1").SetBackgroundOpacity(true, 0.25f),
 				FDTColor("Light-1", 0.9f),
-				"Light-1", 
+				"Light-1",
 				"Light-1",
 				FDTColor("Light-1", 0.9f),
-				"Light-1", 
-				"Light-1", 
+				"Light-1",
+				"Light-1",
 				FDTColor("Light-1", 0.9f),
-				"Light-1", 
-				"Light-1", 
-				"Small", 
+				"Light-1",
+				"Light-1",
+				"Small",
 				"Small")
 		}
 	};
 
 	ComboButtonMap
 		=
-		{
-			{"Default", FDTComboButtonData("Default", "Transparent", "Zero", true, "Large", "Small", .75f)},
-			{"DefaultNoArrow", FDTComboButtonData("Default", "Transparent", "Zero", false, "Large", "Small", .75f)},
-			{"Transparent", FDTComboButtonData("Transparent", "Transparent", "Zero", false, "Large", "Small", .75f)},
-		};
+	{
+		{"Default", FDTComboButtonData("Default", "Transparent", "Zero", true, "Large", "Small", .75f)},
+		{"DefaultNoArrow", FDTComboButtonData("Default", "Transparent", "Zero", false, "Large", "Small", .75f)},
+		{"Transparent", FDTComboButtonData("Transparent", "Transparent", "Zero", false, "Large", "Small", .75f)},
+	};
 
 	ComboBoxRowMap
 		=
+	{
 		{
-			{
-				"Default",
-				FDTComboBoxRowData("MediumRegular", "MenuRowActive", "MenuRowHighlightedActive", "MenuRowHoveredActive",
-				                   "MenuRow",
-				                   "MenuRowHighlighted", "MenuRowHovered", "MenuRow", "MenuRowHovered", "MenuRow",
-				                   "MenurowHovered", "Light-2", "Light-2")
-			}
-		};
+			"Default",
+			FDTComboBoxRowData("MediumRegular", "MenuRowActive", "MenuRowHighlightedActive", "MenuRowHoveredActive",
+							   "MenuRow",
+							   "MenuRowHighlighted", "MenuRowHovered", "MenuRow", "MenuRowHovered", "MenuRow",
+							   "MenurowHovered", "Light-2", "Light-2")
+		}
+	};
 
 	ComboBoxMap
 		=
+	{
 		{
-			{
-				"Default", FDTComboBoxData("Default", "Default", "Medium")
-			}
-		};
+			"Default", FDTComboBoxData("Default", "Default", "Medium")
+		}
+	};
 
 	ScrollBarMap
 		=
+	{
 		{
-			{
-				"Input",
-				FDTScrollBarData("ScrollBarNormal", "ScrollBarHovered", "ScrollBarDragged", 4, FMargin(0), FMargin(0))
-			}
-		};
+			"Input",
+			FDTScrollBarData("ScrollBarNormal", "ScrollBarHovered", "ScrollBarDragged", 4, FMargin(0), FMargin(0))
+		}
+	};
+
+	FDTBrushRef SliderBoxDefault = FDTBrushRef("Box").SetBackgroundColor(true, "Light-4");
+	SliderMap = {
+		{"Default", FDTSliderData(SliderBoxDefault, SliderBoxDefault, SliderBoxDefault, "Light-3", "Light-2", "Light-4", "Small", 4.f)}
+	};
 }
 
 TArray<FString> UDefaultThemeSettings::GetColorOptions()
@@ -397,6 +402,16 @@ TArray<FString> UDefaultThemeSettings::GetScrollBarOptions()
 	return x;
 }
 
+TArray<FString> UDefaultThemeSettings::GetSliderOptions()
+{
+	TArray<FString> x;
+	for (const auto& it : Get()->SliderMap)
+	{
+		x.Add(it.Key.ToString());
+	}
+	return x;
+}
+
 TArray<FString> UDefaultThemeSettings::GetOutlineWidthOptions()
 {
 	TArray<FString> x;
@@ -464,8 +479,8 @@ TArray<FString> UDefaultThemeSettings::GetFontOptions()
 
 
 void UDefaultThemeSettings::ModifyCheckBox(FCheckBoxStyle* Style, const FDTCheckBoxData& Config,
-                                           const FString& UncheckedIconPath, const FString& CheckedIconPath,
-                                           const FString& UndeterminedIconPath) const
+	const FString& UncheckedIconPath, const FString& CheckedIconPath,
+	const FString& UndeterminedIconPath) const
 {
 	auto IconSize = FVector2D(GetIconSize(Config.IconSize));
 	auto Padding = GetMargin(Config.Padding);
@@ -515,7 +530,7 @@ void UDefaultThemeSettings::ModifyCheckBox(FCheckBoxStyle* Style, const FDTCheck
 }
 
 void UDefaultThemeSettings::ModifyEditableTextBox(FEditableTextBoxStyle* Style,
-                                                  const FDTEditableTextBoxData& Config) const
+	const FDTEditableTextBoxData& Config) const
 {
 	ModifyBrush(&Style->BackgroundImageNormal, Config.BackgroundNormal.Get());
 	ModifyBrush(&Style->BackgroundImageHovered, Config.BackgroundHovered.Get());
@@ -541,7 +556,7 @@ void UDefaultThemeSettings::ModifyInlineEditableTextBox(FInlineEditableTextBlock
 {
 	ModifyEditableTextBox(&Style->EditableTextBoxStyle, Config);
 	ModifyTextBlockStyle(&Style->TextStyle, Config.Text.Get());
-} 
+}
 
 void UDefaultThemeSettings::ModifyButtonStyle(FButtonStyle* Style, const FDTButtonData& Config) const
 {
@@ -558,7 +573,7 @@ void UDefaultThemeSettings::ModifyButtonStyle(FButtonStyle* Style, const FDTButt
 }
 
 void UDefaultThemeSettings::ModifyComboButtonStyle(FComboButtonStyle* Style, const FDTComboButtonData& Config,
-                                                   const FString& IconPath) const
+	const FString& IconPath) const
 {
 	ModifyButtonStyle(&Style->ButtonStyle, Config.Button.Get());
 	ModifyBrush(&Style->MenuBorderBrush, Config.MenuBorder.Get());
@@ -595,7 +610,7 @@ void UDefaultThemeSettings::ModifyComboBox(FComboBoxStyle* Style, const FDTCombo
 }
 
 void UDefaultThemeSettings::ModifyBrush(FSlateBrush* Brush, const FDTBrushData& Config,
-                                        bool WhiteTint) const
+	bool WhiteTint) const
 {
 	Brush->DrawAs = ESlateBrushDrawType::RoundedBox;
 	Brush->OutlineSettings.Width = GetOutlineWidth(Config.OutlineWidth);
@@ -614,7 +629,7 @@ void UDefaultThemeSettings::ModifyBrush(FSlateBrush* Brush, const FDTBrushData& 
 }
 
 void UDefaultThemeSettings::ModifyTextBlockStyle(FTextBlockStyle* Style, const FDTTextData& Config,
-                                                 bool WhiteTint) const
+	bool WhiteTint) const
 {
 	Style->Font = FStyleDefaults::GetFontInfo();;
 	Style->SetTypefaceFontName(Config.Typeface);
@@ -630,6 +645,22 @@ void UDefaultThemeSettings::ModifyFontInfo(FSlateFontInfo* Info, const FDTTextDa
 	*Info = FStyleDefaults::GetFontInfo();
 	Info->Size = GetFontSize(Config.Size);
 	Info->TypefaceFontName = Config.Typeface;
+}
+
+
+void UDefaultThemeSettings::ModifySlider(FSliderStyle* Style, const FDTSliderData& Config, const FString& IconPath) const
+{
+	ModifyBrush(&Style->NormalBarImage, Config.Normal.Get());
+	ModifyBrush(&Style->HoveredBarImage, Config.Hovered.Get());
+	ModifyBrush(&Style->DisabledBarImage, Config.Disabled.Get());
+	auto Icon = GetVectorImageBrush(IconPath, FVector2D(GetIconSize(Config.ThumbSize)));
+	Icon.TintColor = Config.NormalThumbColor.Get();
+	Style->NormalThumbImage = static_cast<FSlateBrush>(Icon);
+	Icon.TintColor = Config.HoveredThumbColor.Get();
+	Style->HoveredThumbImage = static_cast<FSlateBrush>(Icon);
+	Icon.TintColor = Config.DisabledThumbColor.Get();
+	Style->DisabledThumbImage = static_cast<FSlateBrush>(Icon);
+	Style->BarThickness = Config.BarThickness;
 }
 
 void UDefaultThemeSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -658,7 +689,7 @@ FLinearColor UDefaultThemeSettings::GetColor(const FName& Id)
 
 FVector4 UDefaultThemeSettings::GetCorner(const FName& Id)
 {
-	FVector4 Result = FVector4{0, 0, 0, 0};
+	FVector4 Result = FVector4{ 0, 0, 0, 0 };
 	if (auto Found = Get()->CornerRadiusMap.Find(Id)) Result = *Found;
 	return Result;
 }
@@ -672,7 +703,7 @@ float UDefaultThemeSettings::GetOutlineWidth(const FName& Id)
 
 FMargin UDefaultThemeSettings::GetMargin(const FName& Id)
 {
-	FMargin Result = FMargin{0, 0, 0, 0};
+	FMargin Result = FMargin{ 0, 0, 0, 0 };
 	if (auto Found = Get()->MarginMap.Find(Id)) Result = *Found;
 	return Result;
 }
@@ -798,6 +829,16 @@ const FDTScrollBarData& UDefaultThemeSettings::GetScrollBar(const FName& Id)
 	return Default;
 }
 
+const FDTSliderData& UDefaultThemeSettings::GetSlider(const FName& Id)
+{
+	if (auto Found = Get()->SliderMap.Find(Id))
+	{
+		return *Found;
+	}
+	static FDTSliderData Default;
+	return Default;
+}
+
 FSlateVectorImageBrush UDefaultThemeSettings::GetVectorImageBrush(const FString& Path, const FVector2D& Size) const
 {
 	if (Path.IsEmpty())
@@ -892,4 +933,9 @@ const FDTComboBoxData& FDTComboBoxRef::Get() const
 const FDTScrollBarData& FDTScrollBarRef::Get() const
 {
 	return UDefaultThemeSettings::GetScrollBar(Id);
+}
+
+const FDTSliderData& FDTSliderRef::Get() const
+{
+	return UDefaultThemeSettings::GetSlider(Id);
 }

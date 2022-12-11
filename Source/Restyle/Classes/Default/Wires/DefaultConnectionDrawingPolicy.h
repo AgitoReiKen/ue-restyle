@@ -68,20 +68,28 @@ public:
 
 	FDefaultConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor,
 		const FSlateRect& InClippingRect, FSlateWindowElementList& InDrawElements, UEdGraph* InGraphObj);
- 
-	virtual void DrawConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams);
+
+	virtual void DrawRestyleConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams);
 	virtual void DrawPreviewConnector(const FGeometry& PinGeometry, const FVector2D& StartPoint,
 		const FVector2D& EndPoint, UEdGraphPin* Pin) override;
 	virtual void ApplyHoverDeemphasis(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, float& Thickness,
 		FLinearColor& WireColor) override;
+
 protected:
 
 	virtual void DrawPinGeometries(TMap<TSharedRef<SWidget>, FArrangedWidget>& InPinGeometries,
 		FArrangedChildren& ArrangedNodes) override;
 	void UpdateSplineHover(const TArray<FVector2f>& Points, const FConnectionParams& Params, float ZoomValue);
 	FGeometry GetNodeGeometryByPinWidget(SGraphPin& PinWidget, const FArrangedChildren& ArrangedNodes);
-public: 
 
-	TSharedPtr<class FPathDrawingSlateElement> LineDrawer;
+
+	TArray<FVector2f> MakePathPoints(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams);
+	void DrawPath(TArray<FVector2f>& Points, const FConnectionParams& WireParams);
+	void DrawBubbles(const TArray<FVector2f>& Points, float TotalLength, const FConnectionParams& WireParams);
+	void DrawMidpointImage(const TArray<FVector2f>& Points, float TotalLength, const FConnectionParams& WireParams);
+	float Zoomed(float Value)
+	{
+		return Value * ZoomFactor;
+	}
 };
 #pragma warning(pop)

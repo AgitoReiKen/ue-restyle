@@ -207,7 +207,7 @@ void SDefault_GraphNodeKnot::UpdateGraphNode()
 		[
 			//// Grab handle to be able to move the node
 			SNew( SImage)
-			.Image(FAppStyle::Get().GetBrush("WhiteBrush"))
+			.Image(FAppStyle::GetBrush("WhiteBrush"))
 			.ColorAndOpacity(Reroute.BodyColor.Get())
 			.DesiredSizeOverride(Reroute.BodySize)
 			.Visibility(this, &SDefault_GraphNodeKnot::GetDragVisibility)

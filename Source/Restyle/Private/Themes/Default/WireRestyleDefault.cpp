@@ -4,6 +4,7 @@
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
 #include "PackageTools.h"
+#include "RestyleProcessor.h"
 
 #include "AssetRegistry/AssetRegistryModule.h"
 
@@ -14,6 +15,9 @@
 #include "Materials/MaterialExpressionConstant.h"
 #include "Materials/MaterialExpressionConstant4Vector.h"
 #include "Materials/MaterialInstanceDynamic.h"
+
+#include "Styling/SlateStyle.h"
+#include "Styling/SlateStyleMacros.h"
 
 #include "UObject/ObjectSaveContext.h"
 #include "UObject/SavePackage.h"
@@ -40,7 +44,7 @@ void FWireRestyleDefault::Register()
 		if (SettingsSection.IsValid())
 		{
 			SettingsSection->OnModified().BindRaw(this,
-			                                      &FWireRestyleDefault::OnSettingsChanged);
+				&FWireRestyleDefault::OnSettingsChanged);
 		}
 	}
 	Update();
@@ -53,7 +57,7 @@ void FWireRestyleDefault::Unregister()
 	{
 		SettingsModule->UnregisterSettings("Editor", "Plugins", "RestyleDefaultWire");
 	}
-	 
+
 	bRegistered = false;
 }
 
@@ -64,6 +68,29 @@ TSharedPtr<FGraphPanelPinConnectionFactory> FWireRestyleDefault::GetFactory()
 
 void FWireRestyleDefault::Update()
 {
+#define RootToContentDir StyleSet->RootToContentDir
+#define ChevronDownSvg RootToContentDir("Common/ChevronDown", TEXT(".svg"))
+
+	FSlateStyleSet* StyleSet = FRestyleProcessor::Get().GetStyle();
+	auto Style = UWireRestyleSettings::Get();
+	FVector2d Icon16 = FVector2d(16);
+	switch (Style->BubbleIcon)
+	{
+
+	case EWireRestyleBubbleIcon::Circle:
+		StyleSet->Set("Graph.ExecutionBubble", new IMAGE_BRUSH_SVG(TEXT("Common/Circle"), Icon16));
+		break;
+	case EWireRestyleBubbleIcon::Heat:
+		StyleSet->Set("Graph.ExecutionBubble", new IMAGE_BRUSH_SVG(TEXT("Wire/ExecBubble_Heat"), Icon16));
+		break;
+	case EWireRestyleBubbleIcon::Square:
+		StyleSet->Set("Graph.ExecutionBubble", new IMAGE_BRUSH_SVG(TEXT("Wire/ExecBubble_Square"), Icon16));
+		break;
+	case EWireRestyleBubbleIcon::Diamond:
+		StyleSet->Set("Graph.ExecutionBubble", new IMAGE_BRUSH_SVG(TEXT("Wire/ExecBubble_Diamond"), Icon16));
+		break;
+	default: break;
+	}
 }
 
 bool FWireRestyleDefault::IsRegistered()
@@ -104,15 +131,15 @@ void UWireRestyleSettings::SetDefaults()
 
 	HoverThicknessMultiplier = 2.f;
 	HoverFadeInBias = 0.75f;
-	HoverFadeInPeriod =  0.6f;
+	HoverFadeInPeriod = 0.6f;
 	HoverLightFraction = 0.25f;
 	HoverDarkenedColor = FLinearColor(0.f, 0.f, 0.f, 0.5f);
 	HoverLigthenedColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-
+	BubbleIcon = EWireRestyleBubbleIcon::Diamond;
 
 	bDebug = false;
-	bDrawWireframe = false; 
+	bDrawWireframe = false;
 	bDrawBubbles = false;
 	DebugInteger = 2;
 }

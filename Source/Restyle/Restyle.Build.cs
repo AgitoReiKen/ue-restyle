@@ -52,7 +52,8 @@ public class Restyle : ModuleRules
                 "MaterialEditor", 
                 "AnimGraph",
                 "KismetCompiler",
-                "RestyleShaders"
+                "RestyleShaders",
+                "AnimationBlueprintEditor"
                 // ... add private dependencies that you statically link with here ...	
             }
         );

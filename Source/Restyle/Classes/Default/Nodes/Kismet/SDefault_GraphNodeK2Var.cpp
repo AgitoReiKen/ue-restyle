@@ -25,7 +25,7 @@ void SDefault_GraphNodeK2Var::Construct(const FArguments& InArgs, UK2Node* InNod
 	auto Style = UNodeRestyleSettings::Get();
 	CachedState = IsInvalid() ? EDTGraphNodeState::Invalid : EDTGraphNodeState::Normal;
 	CachedOutlineWidth = UDefaultThemeSettings::GetOutlineWidth(
-		Style->VarNode.GetTypeData(GetNodeType()).GetState(CachedState).Body.Get().OutlineWidth
+		Style->VarNode.GetTypeData(GetVarNodeType()).GetState(CachedState).Body.Get().OutlineWidth
 	);
 	EnabledStateWidgetAdditionalPadding = UDefaultThemeSettings::GetMargin(Style->StateWidget.Padding);
 	CachedVariableColor = GraphNode->GetNodeTitleColor();
@@ -34,6 +34,22 @@ void SDefault_GraphNodeK2Var::Construct(const FArguments& InArgs, UK2Node* InNod
 	UpdateGraphNode();
 }
 
+void SDefault_GraphNodeK2Var::OnStateUpdated(EDTGraphNodeState NewState)
+{
+	auto NodeType = GetVarNodeType();
+	const FDTVarNodeState& State = UNodeRestyleSettings::Get()->VarNode.GetTypeData(NodeType).GetState(CachedState);
+	auto Body = State.Body.Get();
+	CachedOutlineWidth = UDefaultThemeSettings::GetOutlineWidth(Body.OutlineWidth);
+
+	if (TitleTextBlock.IsValid() && TitleTextBlock.ToSharedRef() != SNullWidget::NullWidget)
+	{
+		StaticCastSharedPtr<STextBlock>(TitleTextBlock)->SetColorAndOpacity(State.TitleColor.Get());
+	}
+	if (VarNodeBody.IsValid())
+	{
+		VarNodeBody->SetImage(FAppStyle::Get().GetBrush(FNodeRestyleStyles::VarNode_Body(NodeType, CachedState)));
+	}
+}
 FSlateColor SDefault_GraphNodeK2Var::GetVariableColor() const
 {
 	return CachedVariableColor;
@@ -84,7 +100,7 @@ void SDefault_GraphNodeK2Var::UpdateGraphNode()
 	 
 	EHorizontalAlignment TitleHAlign = HAlign_Center;
 	TSharedPtr<SWidget> TitleWidget;
-	EDTVarType VarType = GetNodeType();
+	EDTVarType VarType = GetVarNodeType();
 	const auto& VarNode = UNodeRestyleSettings::Get()->VarNode;
 	FDTVarNodeState State = VarNode.GetTypeData(VarType).GetState(CachedState);
 	float ContentSpacing = UDefaultThemeSettings::GetSpacing(VarNode.ContentSpacing);
@@ -394,29 +410,9 @@ bool SDefault_GraphNodeK2Var::IsInvalid() const
 	SDefault_GraphNodeK2Base::IsInvalid();
 }
 
-const FSlateBrush* SDefault_GraphNodeK2Var::GetShadowBrush(bool bSelected) const
-{
-	if (UpdateState(bSelected))
-	{
-		auto NodeType = GetNodeType();
-		const FDTVarNodeState& State = UNodeRestyleSettings::Get()->VarNode.GetTypeData(NodeType).GetState(CachedState);
-		auto Body = State.Body.Get();
-		CachedOutlineWidth = UDefaultThemeSettings::GetOutlineWidth(Body.OutlineWidth);
-
-		if (TitleTextBlock.IsValid() && TitleTextBlock.ToSharedRef() != SNullWidget::NullWidget)
-		{
-			StaticCastSharedPtr<STextBlock>(TitleTextBlock)->SetColorAndOpacity(State.TitleColor.Get());
-		}
-		if (VarNodeBody.IsValid())
-		{
-			VarNodeBody->SetImage(FAppStyle::Get().GetBrush(FNodeRestyleStyles::VarNode_Body(NodeType, CachedState)));
-		}
-	}
-	return CachedNoDrawBrush;
-}
-
-EDTVarType SDefault_GraphNodeK2Var::GetNodeType() const
+EDTVarType SDefault_GraphNodeK2Var::GetVarNodeType() const
 {
 	FLinearColor Color = GetVariableColor().GetSpecifiedColor();
 	return EDTVarType::Default;
 }
+

@@ -142,7 +142,7 @@ void FNodeRestyleDefault::Register()
 		if (SettingsSection.IsValid())
 		{
 			SettingsSection->OnModified().BindRaw(this,
-			                                      &FNodeRestyleDefault::OnSettingsChanged);
+				&FNodeRestyleDefault::OnSettingsChanged);
 		}
 	}
 	Update();
@@ -230,7 +230,7 @@ void FNodeRestyleDefault::Update()
 			{
 				FName Id = FNodeRestyleStyles::GraphNode_Body((EDTGraphNodeTitleType)x, (EDTGraphNodeState)y);
 				const auto& State = Style->Node.GetTypeData((EDTGraphNodeTitleType)x)
-				                         .GetState((EDTGraphNodeState)y);
+					.GetState((EDTGraphNodeState)y);
 
 				if (auto Found = BrushResources.Find(Id))
 				{
@@ -392,7 +392,7 @@ void FNodeRestyleDefault::Update()
 
 			FInlineEditableTextBlockStyle MainText = FInlineEditableTextBlockStyle();
 			UDefaultThemeSettings::Get()->ModifyTextBlockStyle(&MainText.TextStyle, CollapsedNode.Title.MainText.Get(),
-			                                                   true);
+				true);
 			MainText.EditableTextBoxStyle.TextStyle.Font = MainText.TextStyle.Font;
 			MainText.EditableTextBoxStyle.ForegroundColor = MainText.TextStyle.ColorAndOpacity;
 			MainText.EditableTextBoxStyle.FocusedForegroundColor = MainText.TextStyle.ColorAndOpacity;
@@ -441,6 +441,14 @@ void FNodeRestyleDefault::Update()
 			FCheckBoxStyle CheckBoxStyle;
 			UDefaultThemeSettings::Get()->ModifyCheckBox(&CheckBoxStyle, CheckBoxData, RoundChevronDownSvg, RoundChevronUpSvg, MinusSvg);
 			StyleSet->Set(FNodeRestyleStyles::MaterialNode_PreviewCheckbox, CheckBoxStyle);
+		}
+		/* Animation */
+		{
+			const auto& Animation = Style->OtherNodes.Animation;
+			const auto& Button = Animation.FunctionBinding.GotoButton.Get();
+			FButtonStyle ButtonStyle;
+			UDefaultThemeSettings::Get()->ModifyButtonStyle(&ButtonStyle, Button);
+			StyleSet->Set(FNodeRestyleStyles::AnimationNode_FunctionBinding_GotoButton, ButtonStyle);
 		}
 	}
 
@@ -663,10 +671,10 @@ bool FNodeRestyleDefault::IsRegistered()
 /* @todo for more hooks, make util class*/
 using FuncType = decltype(&UK2Node_CreateWidget::CreateVisualWidget);
 FuncType OriginalFunc = nullptr;
-TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* __fastcall UK2Node_CreateWidget_CreateVisualWidget_Hook(UK2Node_CreateWidget* This, 
+TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* __fastcall UK2Node_CreateWidget_CreateVisualWidget_Hook(UK2Node_CreateWidget* This,
 	TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* Result)
 {
-	
+
 	//TSharedPtr<SGraphNode> Original = (This->*OriginalFunc)();
 	if (!Result)
 	{

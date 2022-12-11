@@ -14,7 +14,7 @@
 #include "Restyle/Classes/Default/Nodes/Common/SDefault_ErrorText.h"
 SDefault_GraphNodeRestyleBase::SDefault_GraphNodeRestyleBase()
 {
-	CachedNoDrawBrush = FAppStyle::Get().GetBrush(FNodeRestyleStyles::NoDrawBrush);
+	CachedNoDrawBrush = FAppStyle::GetBrush(FNodeRestyleStyles::NoDrawBrush);
 	CachedOutlineWidth = .0f;
 	CachedState = EDTGraphNodeState::Num;
 	ErrorInfoType = EDTNodeReportType::Num;
@@ -59,7 +59,7 @@ const FSlateBrush* SDefault_GraphNodeRestyleBase::GetShadowBrush(bool bSelected)
 		const auto& State = Style->Node.GetTypeData(TitleType).GetState(CachedState);
 		if (MainBackground.IsValid())
 		{
-			auto Body = FAppStyle::Get().GetBrush(FNodeRestyleStyles::GraphNode_Body(TitleType, CachedState));
+			auto Body = FAppStyle::GetBrush(FNodeRestyleStyles::GraphNode_Body(TitleType, CachedState));
 			CachedOutlineWidth = Body->OutlineSettings.Width;
 			MainBackground->SetImage(Body);
 		}
@@ -143,7 +143,7 @@ void SDefault_GraphNodeRestyleBase::UpdateGraphNode()
 		                                                      State.Title.ExtraText.Get(),
 		                                                      FNodeRestyleStyles::GraphNode_Title_ExtraText);
 		auto RightWidget = CreateTitleRightWidget();
-		auto Body = FAppStyle::Get().GetBrush(FNodeRestyleStyles::GraphNode_Title_Body(TitleType, CurrentState));
+		auto Body = FAppStyle::GetBrush(FNodeRestyleStyles::GraphNode_Title_Body(TitleType, CurrentState));
 		if (Node.Title.bAlternativeStyle && TitleType != EDTGraphNodeTitleType::Event)
 		{
 			float Spacing = UDefaultThemeSettings::GetSpacing(Node.Title.AltItemSpacing);
@@ -313,7 +313,7 @@ void SDefault_GraphNodeRestyleBase::UpdateGraphNode()
 	auto AddVerticalBox = [this, &MainVerticalBox, &TagMeta, &InnerVerticalBox, &Style, &State, &TitleType,
 			&CurrentState]
 	{
-		auto Body = FAppStyle::Get().GetBrush(FNodeRestyleStyles::GraphNode_Body(TitleType, CurrentState));
+		auto Body = FAppStyle::GetBrush(FNodeRestyleStyles::GraphNode_Body(TitleType, CurrentState));
 		
 		GetOrAddSlot(ENodeZone::Center)
 			.HAlign(HAlign_Center)
@@ -418,7 +418,7 @@ TSharedPtr<SWidget> SDefault_GraphNodeRestyleBase::CreateEnabledStateWidget()
 		const auto& Style = UNodeRestyleSettings::Get()->StateWidget.Types[(int)Type];
 		return
 			SNew(SBorder)
-			.BorderImage(FAppStyle::Get().GetBrush(FNodeRestyleStyles::EnabledState_Body(Type)))
+			.BorderImage(FAppStyle::GetBrush(FNodeRestyleStyles::EnabledState_Body(Type)))
 			.HAlign(HAlign_Fill)
 			.VAlign(VAlign_Fill)
 			[

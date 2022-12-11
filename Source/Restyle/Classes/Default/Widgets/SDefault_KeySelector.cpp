@@ -181,7 +181,7 @@ const FSlateBrush* SDefault_KeySelector::GetKeyIconImage_New() const
 {
 	if (bListenForNextInput)
 	{
-		return FAppStyle::Get().GetBrush("Icons.Restyle.Edit");
+		return FAppStyle::GetBrush("Icons.Restyle.Edit");
 	}
 
 	TOptional<FKey> CurrentKeyValue = CurrentKey.Get();

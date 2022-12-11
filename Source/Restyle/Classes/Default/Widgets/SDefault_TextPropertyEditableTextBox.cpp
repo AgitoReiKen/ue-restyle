@@ -36,11 +36,11 @@ public:
 			ChildSlot
 			[
 				SNew(SBorder)
-					.BorderImage(FAppStyle::Get().GetBrush("DetailsView.GridLine"))
+					.BorderImage(FAppStyle::GetBrush("DetailsView.GridLine"))
 					.Padding(FMargin(0, 0, 0, 1))
 				[
 					SNew(SBorder)
-						.BorderImage(FAppStyle::Get().GetBrush("DetailsView.CategoryTop"))
+						.BorderImage(FAppStyle::GetBrush("DetailsView.CategoryTop"))
 						.BorderBackgroundColor(FSlateColor(FLinearColor::White))
 						.Padding(FMargin(12, 8, 0, 8))
 						.VAlign(VAlign_Center)
@@ -66,11 +66,11 @@ public:
 					SNew(SLinkedBox, InManager)
 					[
 						SNew(SBorder)
-						.BorderImage(FAppStyle::Get().GetBrush("DetailsView.GridLine"))
+						.BorderImage(FAppStyle::GetBrush("DetailsView.GridLine"))
 						.Padding(FMargin(0, 0, 0, 1))
 						[
 							SNew(SBorder)
-							.BorderImage(FAppStyle::Get().GetBrush("DetailsView.CategoryMiddle"))
+							.BorderImage(FAppStyle::GetBrush("DetailsView.CategoryMiddle"))
 							.BorderBackgroundColor(this, &STextPropertyEditableOptionRow::GetBackgroundColor)
 							.Padding(FMargin(20, 3.5, 0, 3.5))
 							.HAlign(HAlign_Left)
@@ -87,11 +87,11 @@ public:
 				+ SHorizontalBox::Slot()
 				[
 					SNew(SBorder)
-					.BorderImage(FAppStyle::Get().GetBrush("DetailsView.GridLine"))
+					.BorderImage(FAppStyle::GetBrush("DetailsView.GridLine"))
 					.Padding(FMargin(0, 0, 0, 1))
 					[
 						SNew(SBorder)
-						.BorderImage(FAppStyle::Get().GetBrush("DetailsView.CategoryMiddle"))
+						.BorderImage(FAppStyle::GetBrush("DetailsView.CategoryMiddle"))
 						.BorderBackgroundColor(this, &STextPropertyEditableOptionRow::GetBackgroundColor)
 						.Padding(FMargin(14, 3.5, 4, 3.5))
 						.HAlign(InArgs._ContentHAlign)
@@ -951,7 +951,7 @@ const FSlateBrush* SDefault_TextPropertyEditableTextBox::GetAdvancedTextSettings
 {
 	if (IsTextLocalizable())
 	{
-		return FAppStyle::Get().GetBrush("Icons.Restyle.LocalizationDashboard.MenuIcon");
+		return FAppStyle::GetBrush("Icons.Restyle.LocalizationDashboard.MenuIcon");
 	}
 	else
 	{

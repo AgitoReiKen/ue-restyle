@@ -1,6 +1,12 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
 #include "DefaultGraphPanelPinFactory.h"
 
+#include "AnimationGraphSchema.h"
+#include "AnimationStateMachineSchema.h"
+#include "Restyle.h"
+
+#include "Animation/AnimNodeBase.h"
+
 #include "MaterialGraph/MaterialGraphSchema.h"
 #include "MaterialPins/SGraphPinMaterialInput.h"
 #include "Pins/SDefault_Pins.h"
@@ -14,10 +20,30 @@ TSharedPtr<SGraphPin> FDefaultGraphPanelPinFactory::CreatePin(UEdGraphPin* InPin
 	// ReSharper disable once CppJoinDeclarationAndAssignment
 	TSharedPtr<SGraphPin> Result;
 
-	Result = TryKismet(InPin);
+	Result = TryAnimation(InPin);
 	if (Result) return Result;
 
 	Result = TryMaterial(InPin);
+	if (Result) return Result;
+
+	auto& PinFactories = access_private_static::FEdGraphUtilities::VisualPinFactories();
+
+	for (int i = 0; i < PinFactories.Num(); i++)
+	{
+		TSharedPtr<FGraphPanelPinFactory> FactoryPtr = PinFactories[i];
+		if (FactoryPtr.IsValid() && FactoryPtr.Get() != this)
+		{
+			TSharedPtr<SGraphPin> ResultVisualPin = FactoryPtr->CreatePin(InPin);
+			if (ResultVisualPin.IsValid())
+			{
+				return ResultVisualPin;
+			}
+		}
+	}
+
+	// TryKismet contain default widget style for UEdGraphSchema_K2 pins,
+	// UEdGraphSchema_K2 also base class not only for blueprints
+	Result = TryKismet(InPin);
 	if (Result) return Result;
 
 	return nullptr;
@@ -217,6 +243,24 @@ TSharedPtr<SGraphPin> FDefaultGraphPanelPinFactory::TryMaterial(UEdGraphPin* InP
 			}
 			return SNew(SDefault_GraphPin, InPin);
 		}
+	}
+	return nullptr;
+}
+TSharedPtr<SGraphPin> FDefaultGraphPanelPinFactory::TryAnimation(UEdGraphPin* InPin) const
+{
+	/* @TODO SGraphPinPose must be Widget->GetType() == "SGraphPinPose" in Animation Connection shit*/
+	if (InPin->GetSchema()->IsA<UAnimationGraphSchema>() && InPin->PinType.PinCategory == UEdGraphSchema_K2::PC_Struct)
+	{
+		if ((InPin->PinType.PinSubCategoryObject == FPoseLink::StaticStruct()) || (InPin->PinType.PinSubCategoryObject == FComponentSpacePoseLink::StaticStruct()))
+		{
+			auto Restyle = FModuleManager::GetModuleChecked<FRestyleModule>(TEXT("Restyle"));
+			if (Restyle.IsSubjectProviderRegistered("Default", ERestyleSubject::PinConnection))
+				return SNew(SDefault_GraphPinPose, InPin);
+		}
+	}
+	if (InPin->GetSchema()->IsA<UAnimationStateMachineSchema>() && InPin->PinType.PinCategory == UAnimationStateMachineSchema::PC_Exec)
+	{
+		return SNew(SDefault_GraphPinExec, InPin);
 	}
 	return nullptr;
 }

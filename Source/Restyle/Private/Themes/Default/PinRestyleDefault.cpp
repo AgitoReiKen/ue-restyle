@@ -35,7 +35,7 @@ void FPinRestyleDefault::Register()
 		if (SettingsSection.IsValid())
 		{
 			SettingsSection->OnModified().BindRaw(this,
-			                                      &FPinRestyleDefault::OnSettingsChanged);
+				&FPinRestyleDefault::OnSettingsChanged);
 		}
 	}
 	Update();
@@ -87,7 +87,7 @@ void FPinRestyleDefault::Update()
 
 #define RootToContentDir StyleSet->RootToContentDir
 #define ChevronDownSvg RootToContentDir("Common/ChevronDown", TEXT(".svg"))
-#define TransparentTextureSvg RootToContentDir
+
 	FSlateStyleSet* StyleSet = FRestyleProcessor::Get().GetStyle();
 	auto Style = UPinRestyleSettings::Get();
 	StyleSet->SetContentRoot(IPluginManager::Get().FindPlugin("Restyle")->GetBaseDir() / TEXT("Resources"));
@@ -165,9 +165,9 @@ void FPinRestyleDefault::Update()
 			auto PinIconSize = FVector2D(UDefaultThemeSettings::GetIconSize(Style->Base.IconSize));
 			//FVector2d(18,12)
 			StyleSet->Set("Graph.WatchedPinIcon_Pinned",
-			              new IMAGE_BRUSH_SVG("Common/Starship_Visibility",
-			                                  FVector2d(PinIconSize.X * 1.5, PinIconSize.Y),
-			                                  Style->IconColors.Watch.Get()));
+				new IMAGE_BRUSH_SVG("Common/Starship_Visibility",
+					FVector2d(PinIconSize.X * 1.5, PinIconSize.Y),
+					Style->IconColors.Watch.Get()));
 		}
 		StyleSet->Set("Icons.Restyle.LocalizationDashboard.MenuIcon", new IMAGE_BRUSH_SVG("Common/LocalizationDashboard", I16));
 
@@ -176,8 +176,8 @@ void FPinRestyleDefault::Update()
 	/* Base */
 	{
 		StyleSet->Set("Graph.Pin.BackgroundHovered",
-		              new FSlateImageBrush(NAME_None, FVector2d(32, 8),
-		                                   FLinearColor(1, 1, 1, Style->Base.HoverOpacity)));
+			new FSlateImageBrush(NAME_None, FVector2d(32, 8),
+				FLinearColor(1, 1, 1, Style->Base.HoverOpacity)));
 
 		FTextBlockStyle PinNameStyle = FTextBlockStyle();
 		UDefaultThemeSettings::Get()->ModifyTextBlockStyle(&PinNameStyle, Style->Base.Text.Get());
@@ -192,10 +192,10 @@ void FPinRestyleDefault::Update()
 		StyleSet->Set("Graph.Pin.Disconnected", new IMAGE_BRUSH_SVG("/Pin/Pin_disconnected", PinIconSize));
 		StyleSet->Set("Graph.Pin.Connected_VarA", new IMAGE_BRUSH_SVG("/Pin/Pin_connected", PinIconSize));
 		StyleSet->Set("Graph.Pin.Disconnected_VarA", new IMAGE_BRUSH_SVG("/Pin/Pin_disconnected", PinIconSize));
-	/*	StyleSet->Set("Kismet.VariableList.PromotableTypeOuterIcon",
-			new IMAGE_BRUSH_SVG("Pin/MapType_Key", PinIconSize));
-		StyleSet->Set("Kismet.VariableList.PromotableTypeInnerIcon",
-			new IMAGE_BRUSH_SVG("Pin/MapType_Key", PinIconSize));*/
+		/*	StyleSet->Set("Kismet.VariableList.PromotableTypeOuterIcon",
+				new IMAGE_BRUSH_SVG("Pin/MapType_Key", PinIconSize));
+			StyleSet->Set("Kismet.VariableList.PromotableTypeInnerIcon",
+				new IMAGE_BRUSH_SVG("Pin/MapType_Key", PinIconSize));*/
 
 		StyleSet->Set("Graph.ArrayPin.Connected", new IMAGE_BRUSH_SVG("/Pin/ArrayPin_connected", PinIconSize));
 		StyleSet->Set("Graph.ArrayPin.Disconnected", new IMAGE_BRUSH_SVG("/Pin/ArrayPin_disconnected", PinIconSize));
@@ -213,7 +213,7 @@ void FPinRestyleDefault::Update()
 
 		StyleSet->Set("Graph.DelegatePin.Connected", new IMAGE_BRUSH_SVG("/Pin/DelegatePin_Connected", PinIconSize));
 		StyleSet->Set("Graph.DelegatePin.Disconnected",
-		              new IMAGE_BRUSH_SVG("/Pin/DelegatePin_Disconnected", PinIconSize));
+			new IMAGE_BRUSH_SVG("/Pin/DelegatePin_Disconnected", PinIconSize));
 
 		//StyleSet->Set("Graph.Replication.AuthorityOnly", new IMAGE_BRUSH("/Graph/AuthorityOnly", FVector2D(32, 32)));
 		//StyleSet->Set("Graph.Replication.ClientEvent", new IMAGE_BRUSH("/Graph/ClientEvent", FVector2D(32, 32)));
@@ -230,15 +230,15 @@ void FPinRestyleDefault::Update()
 		StyleSet->Set("Graph.ExecPin.Disconnected", new IMAGE_BRUSH_SVG("Pin/ExecPin_Disconnected", PinIconSize));
 		StyleSet->Set("Graph.ExecPin.ConnectedHovered", new IMAGE_BRUSH_SVG("Pin/ExecPin_Connected", PinIconSize));
 		StyleSet->Set("Graph.ExecPin.DisconnectedHovered",
-		              new IMAGE_BRUSH_SVG("Pin/ExecPin_Disconnected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/ExecPin_Disconnected", PinIconSize));
 
 		// Events Exec Pins
 		StyleSet->Set("Graph.ExecEventPin.Connected", new IMAGE_BRUSH_SVG("Pin/EventPin_Connected", PinIconSize));
 		StyleSet->Set("Graph.ExecEventPin.Disconnected", new IMAGE_BRUSH_SVG("Pin/EventPin_Disconnected", PinIconSize));
 		StyleSet->Set("Graph.ExecEventPin.ConnectedHovered",
-		              new IMAGE_BRUSH_SVG("Pin/EventPin_Connected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/EventPin_Connected", PinIconSize));
 		StyleSet->Set("Graph.ExecEventPin.DisconnectedHovered",
-		              new IMAGE_BRUSH_SVG("Pin/EventPin_Disconnected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/EventPin_Disconnected", PinIconSize));
 
 
 		// StyleSet->Set("Graph.Pin.Background", new FSlateNoResource());
@@ -254,34 +254,38 @@ void FPinRestyleDefault::Update()
 		StyleSet->Set("Kismet.VariableList.TypeIcon", new IMAGE_BRUSH_SVG("Pin/BaseType", I16));
 
 		StyleSet->Set(FPinRestyleStyles::Kismet_VariableList_ArrayTypeIcon_Disconnected,
-		              new IMAGE_BRUSH_SVG("Pin/ArrayPin_Disconnected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/ArrayPin_Disconnected", PinIconSize));
 
 		StyleSet->Set(FPinRestyleStyles::Kismet_VariableList_ArrayTypeIcon_Connected,
-		              new IMAGE_BRUSH_SVG("Pin/ArrayPin_Connected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/ArrayPin_Connected", PinIconSize));
 
 		StyleSet->Set("Kismet.VariableList.ArrayTypeIcon", new IMAGE_BRUSH_SVG("Pin/ArrayPin_Connected", PinIconSize));
 
 		StyleSet->Set(FPinRestyleStyles::Kismet_VariableList_SetTypeIcon_Disconnected,
-		              new IMAGE_BRUSH_SVG("Pin/SetType_Disconnected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/SetType_Disconnected", PinIconSize));
 
 		StyleSet->Set(FPinRestyleStyles::Kismet_VariableList_SetTypeIcon_Connected,
-		              new IMAGE_BRUSH_SVG("Pin/SetType_Connected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/SetType_Connected", PinIconSize));
 
 		StyleSet->Set("Kismet.VariableList.SetTypeIcon", new IMAGE_BRUSH_SVG("Pin/SetType_Connected", PinIconSize));
 
 
 		StyleSet->Set(FPinRestyleStyles::Kismet_VariableList_MapValueTypeIcon_Disconnected,
-		              new IMAGE_BRUSH_SVG("Pin/MapType_Value_Disconnected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/MapType_Value_Disconnected", PinIconSize));
 
 		StyleSet->Set(FPinRestyleStyles::Kismet_VariableList_MapValueTypeIcon_Connected,
-		              new IMAGE_BRUSH_SVG("Pin/MapType_Value_Connected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/MapType_Value_Connected", PinIconSize));
 
 		StyleSet->Set("Kismet.VariableList.MapValueTypeIcon",
-		              new IMAGE_BRUSH_SVG("Pin/MapType_Value_Connected", PinIconSize));
+			new IMAGE_BRUSH_SVG("Pin/MapType_Value_Connected", PinIconSize));
 
 		StyleSet->Set("Kismet.VariableList.MapKeyTypeIcon",
-		              new IMAGE_BRUSH_SVG("Pin/MapType_Key", PinIconSize));
-		 
+			new IMAGE_BRUSH_SVG("Pin/MapType_Key", PinIconSize));
+
+		StyleSet->Set("Graph.PosePin.ConnectedHovered", new IMAGE_BRUSH_SVG("Pin/Pose_Connected", PinIconSize));
+		StyleSet->Set("Graph.PosePin.Connected", new IMAGE_BRUSH_SVG("Pin/Pose_Connected", PinIconSize));
+		StyleSet->Set("Graph.PosePin.DisconnectedHovered", new IMAGE_BRUSH_SVG("Pin/Pose_Disconnected", PinIconSize));
+		StyleSet->Set("Graph.PosePin.Disconnected", new IMAGE_BRUSH_SVG("Pin/Pose_Disconnected", PinIconSize));
 	}
 
 	{
@@ -291,7 +295,7 @@ void FPinRestyleDefault::Update()
 			UDefaultThemeSettings::Get()->ModifyEditableTextBox(&TextBoxStyle, String.Body.Get());
 			StyleSet->Set(FPinRestyleStyles::Graph_EditableTextBox, TextBoxStyle);
 		}
-		 
+
 		// VectorEditableTextBox
 		{
 			const auto& Vector = Style->Inputs.Vector;
@@ -317,12 +321,12 @@ void FPinRestyleDefault::Update()
 			auto ButtonTextData = Select.ComboButton.Get().Button.Get().Text.Get();
 
 			FComboButtonStyle ComboButtonStyle;
-			FComboBoxStyle BoxStyle; 
+			FComboBoxStyle BoxStyle;
 			FTextBlockStyle TextBlockStyle;
 			FSlateFontInfo FontInfo;
 
 			UDefaultThemeSettings::Get()->ModifyComboButtonStyle(&ComboButtonStyle, Select.ComboButton.Get(),
-			                                                     ChevronDownSvg);
+				ChevronDownSvg);
 			BoxStyle.ComboButtonStyle = ComboButtonStyle;
 			BoxStyle.MenuRowPadding = UDefaultThemeSettings::GetMargin(Select.MenuRowPadding);
 
@@ -349,12 +353,12 @@ void FPinRestyleDefault::Update()
 
 			FComboButtonStyle ComboButtonStyle;
 			UDefaultThemeSettings::Get()->ModifyComboButtonStyle(&ComboButtonStyle, AssetPicker.ComboButton.Get(),
-			                                                     ChevronDownSvg);
+				ChevronDownSvg);
 			StyleSet->Set(FPinRestyleStyles::AssetPicker_ComboButton, ComboButtonStyle);
 
 			FTextBlockStyle TextBlockStyle;
 			UDefaultThemeSettings::Get()->ModifyTextBlockStyle(&TextBlockStyle,
-			                                                   AssetPicker.ComboButton.Get().Button.Get().Text.Get());
+				AssetPicker.ComboButton.Get().Button.Get().Text.Get());
 			StyleSet->Set(FPinRestyleStyles::AssetPicker_ComboButton_Text, TextBlockStyle);
 
 			FButtonStyle UseButton;
@@ -371,14 +375,14 @@ void FPinRestyleDefault::Update()
 		{
 			FComboButtonStyle ComboButtonStyle;
 			UDefaultThemeSettings::Get()->ModifyComboButtonStyle(&ComboButtonStyle,
-			                                                     Style->Inputs.Text.AdvancedTextButton.Get(),
-			                                                     ChevronDownSvg);
+				Style->Inputs.Text.AdvancedTextButton.Get(),
+				ChevronDownSvg);
 			StyleSet->Set(FPinRestyleStyles::Graph_TextInput_AdvancedText_ComboButton, ComboButtonStyle);
 		}
 		{
 			FComboButtonStyle ComboButtonStyle;
 			UDefaultThemeSettings::Get()->ModifyComboButtonStyle(&ComboButtonStyle,
-			                                                     Style->Inputs.Key.ComboButton.Get(), ChevronDownSvg);
+				Style->Inputs.Key.ComboButton.Get(), ChevronDownSvg);
 			StyleSet->Set(FPinRestyleStyles::KeyInput_ComboButton, ComboButtonStyle);
 
 			FButtonStyle ButtonStyle;

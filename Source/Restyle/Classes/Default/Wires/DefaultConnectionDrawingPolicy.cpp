@@ -225,32 +225,203 @@ FGeometry FDefaultConnectionDrawingPolicy::GetNodeGeometryByPinWidget(SGraphPin&
 	return NodeWidgetId < 0 ? FGeometry() : ArrangedNodes[NodeWidgetId].Geometry;
 }
 
-void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams)
+void FDefaultConnectionDrawingPolicy::DrawRestyleConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams)
 {
 	/*
 	 * @note FVector2f used instead of FVector2D due to FScreenVertex accepts float version
 	 */
 	if (WireParams.WireThickness < 0 || !WireParams.AssociatedPin1 || !WireParams.AssociatedPin2) return;
-	auto Zoomed = [this](float Value) -> float
+	auto WireSettings = UWireRestyleSettings::Get();
+	TArray<FVector2f> Points = MakePathPoints(Params, WireParams);
+
+	if (WireSettings->bDebug)
 	{
-		return Value * ZoomFactor;
+		const_cast<FConnectionParams*>(&WireParams)->bDrawBubbles = WireSettings->bDrawBubbles;
+		/*if (SplineOverlapResult.GetCloseToSpline())
+		{
+			WireColor = FLinearColor::Green;
+		}*/
+	}
+
+	if (WireSettings->MinHorizontalLength > WireParams.WireThickness)
+	{
+		DrawPath(Points, WireParams);
+		/* Points changed in DrawPath */
+		UpdateSplineHover(Points, WireParams, ZoomFactor);
+		/*TArray<FVector2D> PointsD;
+		for (auto& it : PointsF)
+		{
+			PointsD.Add({it.X, it.Y});
+		}
+		FSlateDrawElement::MakeLines(DrawElementsList, WireLayerID, FPaintGeometry(),
+			PointsD, ESlateDrawEffect::None, PathSettings.Color, true, PathSettings.Thickness);*/
+	}
+	else
+	{
+		static int Thrown = 0;
+		if (!Thrown++)
+		{
+			UE_LOG(LogTemp, Error, TEXT("[Restyle] Wire->MinHorizontalLength must be greater than wire thickness. otherwise line's geometry will be messed up"));
+		}
+	}
+
+	if (WireParams.bDrawBubbles || (MidpointImage != nullptr))
+	{
+		float TotalLength = 0.f;
+		for (int i = 1; i < Points.Num(); i++)
+		{
+			const auto& A = Points[i - 1];
+			const auto& B = Points[i];
+			double Length = FVector2f::Distance(A, B);
+			TotalLength += Length;
+		}
+		if (WireParams.bDrawBubbles) {
+
+			DrawBubbles(Points, TotalLength, WireParams);
+		}
+		if (MidpointImage)
+		{
+			DrawMidpointImage(Points, TotalLength, WireParams);
+		}
+	}
+}
+
+void FDefaultConnectionDrawingPolicy::DrawPath(TArray<FVector2f>& Points, const FConnectionParams& WireParams)
+{
+	auto WireSettings = UWireRestyleSettings::Get();
+	FLinearColor WireColor = WireParams.WireColor;
+	FColor CorrectedWireColor = WireParams.WireColor.ToFColorSRGB();
+	WireColor = {
+		CorrectedWireColor.R / 255.f,
+		CorrectedWireColor.G / 255.f,
+		CorrectedWireColor.B / 255.f,
+		WireColor.A
 	};
+	float WireThickness = FMath::Max(Zoomed(WireParams.WireThickness), 1.0f);
+
+	FRestylePathSettings PathSettings;
+	PathSettings.Thickness = WireThickness;
+	PathSettings.Color = WireColor;
+	PathSettings.bDrawWireframe = WireSettings->bDrawWireframe;
+	PathSettings.Join = WireSettings->bRoundCorners ? ERestylePathJoinType::Round : ERestylePathJoinType::Miter;
+	PathSettings.CornerRadius = WireSettings->CornerRadius;
+
+	auto LineDrawer = FPathDrawerHolder::Get().Add();
+	LineDrawer->ClippingRect = ClippingRect;
+	LineDrawer->Path.Init(Points, PathSettings);
+	Points = LineDrawer->Path.Points;
+
+	FSlateDrawElement::MakeCustom(DrawElementsList, WireLayerID, LineDrawer);
+}
+
+void FDefaultConnectionDrawingPolicy::DrawBubbles(const TArray<FVector2f>& Points, float TotalLength, const FConnectionParams& WireParams)
+{
+	auto WireSettings = UWireRestyleSettings::Get();
+	float NumBubbles = WireSettings->NumBubbles;
+	float Interval = TotalLength / NumBubbles;
+	int Instances = TotalLength / Interval;
+	float Step = TotalLength / Instances;
+
+	const float BubbleSpeed = Step * WireSettings->BubbleSpeed;
+	FVector2f fBubbleImageSize(BubbleImage->ImageSize.X, BubbleImage->ImageSize.Y);
+	const FVector2f BubbleSize = fBubbleImageSize * ZoomFactor * 0.2f * WireParams.WireThickness;
+	const FVector2f BubbleHalfSize = BubbleSize * 0.5;
+	float Time = (FPlatformTime::Seconds() - GStartTime);
+	float Offset = 0.0f;
+	int Drawn = 0;
+
+	while (Drawn != Instances)
+	{
+		float SpeedOffset = FMath::Fmod(Time * BubbleSpeed, Interval);
+		float DrawLength = 0.f + SpeedOffset + (Drawn * Step);
+		float CurrentLength = 0.f;
+		for (int i = 1; i < Points.Num(); i++)
+		{
+			const auto& A = Points[i - 1];
+			const auto& B = Points[i];
+			double Length = FVector2f::Distance(A, B);
+			auto Normal = (B - A).GetSafeNormal();
+			if (DrawLength < CurrentLength + Length)
+			{
+				Offset = DrawLength - CurrentLength;
+				Drawn++;
+				FVector2f BubblePos = A + (Normal * Offset) - BubbleHalfSize; // *BubbleOffset);
+				FSlateDrawElement::MakeBox(
+					DrawElementsList,
+					WireLayerID,
+					FPaintGeometry(FVector2D(BubblePos.X, BubblePos.Y), FVector2D(BubbleSize.X, BubbleSize.Y), ZoomFactor),
+					BubbleImage,
+					ESlateDrawEffect::None,
+					WireParams.WireColor
+				);
+				break;
+			}
+
+			CurrentLength += Length;
+			if (i + 1 == Points.Num())
+			{
+				DrawLength -= CurrentLength;
+				i = 1;
+			}
+		}
+	}
+}
+
+void FDefaultConnectionDrawingPolicy::DrawMidpointImage(const TArray<FVector2f>& Points, float TotalLength, const FConnectionParams& WireParams)
+{
+	float DrawOn = TotalLength * 0.5f;
+	float CurrentLength = 0.f;
+	for (int i = 1; i < Points.Num(); i++)
+	{
+		const auto& A = Points[i - 1];
+		const auto& B = Points[i];
+		double Length = FVector2f::Distance(A, B);
+		auto Normal = (B - A).GetSafeNormal();
+		FVector2f MidpointImageSize(MidpointImage->ImageSize.X, MidpointImage->ImageSize.Y);
+		FVector2f ImageSize = MidpointImageSize * ZoomFactor;
+		FVector2f ImageHalfSize = ImageSize * 0.5;
+		if (DrawOn < CurrentLength + Length)
+		{
+			float Offset = DrawOn - CurrentLength;
+			FVector2f DrawPos = A + (Normal * Offset) - ImageHalfSize; // *BubbleOffset);
+			const float AngleInRadians = FMath::Atan2(B.Y - A.Y, B.X - A.X);
+			FSlateDrawElement::MakeRotatedBox(
+				DrawElementsList,
+				ArrowLayerID,
+				FPaintGeometry(FVector2D(DrawPos.X, DrawPos.Y), MidpointImage->ImageSize * ZoomFactor, ZoomFactor),
+				MidpointImage,
+				ESlateDrawEffect::None,
+				AngleInRadians,
+				TOptional<FVector2D>(),
+				FSlateDrawElement::RelativeToElement,
+				WireParams.WireColor
+			);
+			break;
+		}
+
+		CurrentLength += Length;
+	}
+}
+
+TArray<FVector2f> FDefaultConnectionDrawingPolicy::MakePathPoints(
+	const FRestyleConnectionParams& Params, const FConnectionParams& WireParams)
+{
+	TArray<FVector2f> PointF;
 	auto WireSettings = UWireRestyleSettings::Get();
 	const float StartFudgeX = Zoomed(WireSettings->StartFudgeX);
 	const float EndFudgeX = Zoomed(WireSettings->EndFudgeX);
-	//FVector2D _Start = FGeometryHelper::VerticalMiddleRightOf(Params.Start) - FVector2D(StartFudgeX, 0.0f);;
-	//FVector2D _End = FGeometryHelper::VerticalMiddleLeftOf(Params.End) - FVector2D(ArrowRadius.X - EndFudgeX, 0);
+
 	FVector2D _Start = FGeometryHelper::VerticalMiddleRightOf(Params.Start) - FVector2D(StartFudgeX, 0.0f);;
 	FVector2D _End = FGeometryHelper::VerticalMiddleLeftOf(Params.End) + FVector2D(EndFudgeX, 0);
 
 	FVector2f Start(_Start.X, _Start.Y);
 	FVector2f End(_End.X, _End.Y);
+
 	auto& StartNode = Params.StartNodeGeometry;
 	auto& EndNode = Params.EndNodeGeometry;
 
-	FLinearColor WireColor = WireParams.WireColor;
 
-	 
+
 	// Zoomed(WireParams.WireThickness) prevents big lines have bad geometry on corners (due to fixation to intersection point), but also cause on-hover disturbance
 	// Thickness > MinHorizontalLength is bad. Adding Thickness to MinHorizontalLength will result in line moving around while hover zooms it, and so hover will break
 	// As a solution, user must provide MinHorizontalLength greater than WireThickness
@@ -272,7 +443,7 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 	bool bIsPin2Knot = WireParams.AssociatedPin2->GetOwningNode()->IsA<UK2Node_Knot>();
 	bool bIsPin1Exec = !bIsPin1Knot && WireParams.AssociatedPin1->PinType.PinCategory == UEdGraphSchema_K2::PC_Exec;
 	bool bIsPin2Exec = !bIsPin2Knot && WireParams.AssociatedPin2->PinType.PinCategory == UEdGraphSchema_K2::PC_Exec;
-	 
+
 	bool bExecToExec = bIsPin1Exec && bIsPin2Exec;
 	bool bExecToKnot = bIsPin1Exec && bIsPin2Knot;
 	bool bKnotToExec = bIsPin1Knot && bIsPin2Exec;
@@ -322,7 +493,7 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 				SnapPointY = EndNode.AbsolutePosition.Y - Offset;
 			}
 			else
-			{ 
+			{
 				SnapPointY = EndNode.AbsolutePosition.Y + Zoomed(EndNode.Size.Y) + Offset;
 
 			}
@@ -367,7 +538,7 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 			End
 		};
 	}
-	/*	
+	/*
 	 * [a]--\
 	 *		 \__[b]
 	 */
@@ -433,7 +604,7 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 		{
 			if (TransitionPriority == EWireRestylePriority::Output)
 			{
-				 
+
 				StartX = {
 					End.X - XL,
 					Start.Y
@@ -465,168 +636,18 @@ void FDefaultConnectionDrawingPolicy::DrawConnection(const FRestyleConnectionPar
 					End.X - XDif * 0.5f,
 					End.Y
 				};
-			} 
+			}
 		}
-		 
+
 		PointsF = {
 			Start,
 			StartX,
 			EndX,
 			End
 		};
-		 
+
 	}
-
-	if (WireSettings->bDebug)
-	{
-		const_cast<FConnectionParams*>(&WireParams)->bDrawBubbles = WireSettings->bDrawBubbles;
-		/*if (SplineOverlapResult.GetCloseToSpline())
-		{
-			WireColor = FLinearColor::Green;
-		}*/
-
-		 
-	}
-	if (WireSettings->MinHorizontalLength > WireParams.WireThickness)
-	{
-		FColor CorrectedWireColor = WireParams.WireColor.ToFColorSRGB();
-		WireColor = {
-			CorrectedWireColor.R / 255.f,
-			CorrectedWireColor.G / 255.f,
-			CorrectedWireColor.B / 255.f,
-			WireColor.A
-		};
-		float WireThickness = FMath::Max(Zoomed(WireParams.WireThickness), 1.0f);
-
-		FRestylePathSettings PathSettings;
-		PathSettings.Thickness = WireThickness;
-		PathSettings.Color = WireColor;
-		PathSettings.bDrawWireframe = WireSettings->bDrawWireframe;
-		PathSettings.Join = WireSettings->bRoundCorners ? ERestylePathJoinType::Round : ERestylePathJoinType::Miter;
-		PathSettings.CornerRadius = WireSettings->CornerRadius;
-
-		LineDrawer = FPathDrawerHolder::Get().Add();
-		LineDrawer->ClippingRect = ClippingRect;
-		LineDrawer->Path.Init(PointsF, PathSettings);
-		PointsF = LineDrawer->Path.Points;
-
-		UpdateSplineHover(PointsF, WireParams, ZoomFactor);
-
-		FSlateDrawElement::MakeCustom(DrawElementsList, WireLayerID, LineDrawer);
-		/*TArray<FVector2D> PointsD;
-		for (auto& it : PointsF)
-		{
-			PointsD.Add({it.X, it.Y});
-		}
-		FSlateDrawElement::MakeLines(DrawElementsList, WireLayerID, FPaintGeometry(),
-			PointsD, ESlateDrawEffect::None, PathSettings.Color, true, PathSettings.Thickness);*/
-	}
-	else
-	{
-		static int Thrown = 0;
-		if (!Thrown++)
-		{
-			UE_LOG(LogTemp, Error, TEXT("[Restyle] Wire->MinHorizontalLength must be greater than wire thickness. otherwise line's geometry will be messed up"));
-		}
-	}
-
-	if (WireParams.bDrawBubbles || (MidpointImage != nullptr))
-	{
-		float TotalLength = 0.f;
-		for (int i = 1; i < PointsF.Num(); i++)
-		{
-			const auto& A = PointsF[i - 1];
-			const auto& B = PointsF[i];
-			double Length = FVector2f::Distance(A, B);
-			TotalLength += Length;
-		}
-		if (WireParams.bDrawBubbles) {
-			 
-			float NumBubbles = WireSettings->NumBubbles;
-			float Interval = TotalLength / NumBubbles;
-			int Instances = TotalLength / Interval;
-			float Step = TotalLength / Instances;
-
-			const float BubbleSpeed = Step * Zoomed(WireSettings->BubbleSpeed);
-			FVector2f fBubbleImageSize(BubbleImage->ImageSize.X, BubbleImage->ImageSize.Y);
-			const FVector2f BubbleSize = fBubbleImageSize * ZoomFactor * 0.2f * WireParams.WireThickness;
-			const FVector2f BubbleHalfSize = BubbleSize * 0.5;
-			float Time = (FPlatformTime::Seconds() - GStartTime);
-			float Offset = 0.0f;
-			int Drawn = 0;
-
-			while (Drawn != Instances)
-			{
-				float SpeedOffset = FMath::Fmod(Time * BubbleSpeed, Interval);
-				float DrawLength = 0.f + SpeedOffset + (Drawn * Step);
-				float CurrentLength = 0.f;
-				for (int i = 1; i < PointsF.Num(); i++)
-				{
-					const auto& A = PointsF[i - 1];
-					const auto& B = PointsF[i];
-					double Length = FVector2f::Distance(A, B);
-					auto Normal = (B - A).GetSafeNormal();
-					if (DrawLength < CurrentLength + Length)
-					{
-						Offset = DrawLength - CurrentLength;
-						Drawn++;
-						FVector2f BubblePos = A + (Normal * Offset) - BubbleHalfSize; // *BubbleOffset);
-						FSlateDrawElement::MakeBox(
-							DrawElementsList,
-							ArrowLayerID,
-							FPaintGeometry(FVector2D(BubblePos.X, BubblePos.Y), FVector2D(BubbleSize.X, BubbleSize.Y), ZoomFactor),
-							BubbleImage,
-							ESlateDrawEffect::None,
-							WireParams.WireColor
-						);
-						break;
-					}
-
-					CurrentLength += Length;
-					if (i + 1 == PointsF.Num())
-					{
-						DrawLength -= CurrentLength;
-						i = 1;
-					}
-				}
-			}
-		}
-		if (MidpointImage)
-		{
-			float DrawOn = TotalLength * 0.5f;
-			float CurrentLength = 0.f;
-			for (int i = 1; i < PointsF.Num(); i++)
-			{
-				const auto& A = PointsF[i - 1];
-				const auto& B = PointsF[i];
-				double Length = FVector2f::Distance(A, B);
-				auto Normal = (B - A).GetSafeNormal();
-				FVector2f MidpointImageSize(MidpointImage->ImageSize.X, MidpointImage->ImageSize.Y);
-				FVector2f ImageSize = MidpointImageSize * ZoomFactor;
-				FVector2f ImageHalfSize = ImageSize * 0.5;
-				if (DrawOn < CurrentLength + Length)
-				{
-					float Offset = DrawOn - CurrentLength;
-					FVector2f DrawPos = A + (Normal * Offset) - ImageHalfSize; // *BubbleOffset);
-					const float AngleInRadians = FMath::Atan2(B.Y - A.Y, B.X - A.X);
-					FSlateDrawElement::MakeRotatedBox(
-						DrawElementsList,
-						ArrowLayerID,
-						FPaintGeometry(FVector2D(DrawPos.X, DrawPos.Y), MidpointImage->ImageSize * ZoomFactor, ZoomFactor),
-						MidpointImage,
-						ESlateDrawEffect::None,
-						AngleInRadians,
-						TOptional<FVector2D>(),
-						FSlateDrawElement::RelativeToElement,
-						WireParams.WireColor
-					); 
-					break;
-				}
-
-				CurrentLength += Length; 
-			}
-		} 
-	}
+	return PointsF;
 }
 
 void FDefaultConnectionDrawingPolicy::DrawPreviewConnector(const FGeometry& PinGeometry, const FVector2D& StartPoint,
@@ -699,7 +720,7 @@ void FDefaultConnectionDrawingPolicy::DrawPinGeometries(TMap<TSharedRef<SWidget>
 					FGeometry StartNodeGeometry = GetNodeGeometryByPinWidget(PinWidget, ArrangedNodes);
 					FGeometry EndNodeGeometry = GetNodeGeometryByPinWidget(**TargetPinWidget, ArrangedNodes);
 				 
-					DrawConnection(
+					DrawRestyleConnection(
 						{
 							LinkStartWidgetGeometry->Geometry,
 							LinkEndWidgetGeometry->Geometry,
