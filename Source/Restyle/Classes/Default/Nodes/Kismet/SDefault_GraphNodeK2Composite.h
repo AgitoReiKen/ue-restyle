@@ -18,14 +18,13 @@ public:
 		}
 
 	SLATE_END_ARGS()
-
-	SDefault_GraphNodeK2Composite() = default;
+		 
 	void Construct(const FArguments& InArgs, UK2Node_Composite* InNode);
 
-	virtual EDTCollapsedNodeType GetNodeType() const;
+	virtual EDTCollapsedNodeType GetCollapsedNodeType() const;
 	virtual void UpdateGraphNode() override;
 	virtual TSharedPtr<SToolTip> GetComplexTooltip() override;
-	virtual const FSlateBrush* GetShadowBrush(bool bSelected) const override;
+	virtual void OnStateUpdated(EDTGraphNodeState NewState) override;
 protected:
 	virtual UEdGraph* GetInnerGraph() const;
 

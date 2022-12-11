@@ -442,6 +442,14 @@ void FNodeRestyleDefault::Update()
 			UDefaultThemeSettings::Get()->ModifyCheckBox(&CheckBoxStyle, CheckBoxData, RoundChevronDownSvg, RoundChevronUpSvg, MinusSvg);
 			StyleSet->Set(FNodeRestyleStyles::MaterialNode_PreviewCheckbox, CheckBoxStyle);
 		}
+		/* Animation */
+		{
+			const auto& Animation = Style->OtherNodes.Animation;
+			const auto& Button = Animation.FunctionBinding.GotoButton.Get();
+			FButtonStyle ButtonStyle;
+			UDefaultThemeSettings::Get()->ModifyButtonStyle(&ButtonStyle, Button);
+			StyleSet->Set(FNodeRestyleStyles::AnimationNode_FunctionBinding_GotoButton, ButtonStyle);
+		}
 	}
 
 	/* CommentBubble */

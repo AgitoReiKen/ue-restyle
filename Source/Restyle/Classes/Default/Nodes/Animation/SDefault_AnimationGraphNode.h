@@ -1,0 +1,108 @@
+// Alexander (AgitoReiKen) Moskalenko (C) 2022
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Widgets/DeclarativeSyntaxSupport.h"
+#include "Input/Reply.h"
+#include "Styling/SlateColor.h"
+#include "SNodePanel.h"
+
+#include "Default/Nodes/Kismet/SDefault_GraphNodeK2Base.h"
+
+#include "KismetNodes/SGraphNodeK2Base.h"
+#include "Engine/PoseWatch.h"
+
+class UAnimGraphNode_Base;
+class IDetailTreeNode;
+class IPropertyRowGenerator;
+class UAnimBlueprint;
+class SPoseWatchOverlay;
+
+class SDefault_PoseWatchOverlay : public SCompoundWidget
+{
+public:
+	SLATE_BEGIN_ARGS(SDefault_PoseWatchOverlay) {}
+	SLATE_END_ARGS()
+
+	void Construct(const FArguments& InArgs, UEdGraphNode* InNode);
+	FVector2D GetOverlayOffset() const;
+	bool IsPoseWatchValid() const;
+
+private:
+	void HandlePoseWatchesChanged(UAnimBlueprint* InAnimBlueprint, UEdGraphNode* InNode);
+
+	FSlateColor GetPoseViewColor() const;
+	const FSlateBrush* GetPoseViewIcon() const;
+	FReply TogglePoseWatchVisibility();
+
+	TWeakObjectPtr<UEdGraphNode> GraphNode;
+	TWeakObjectPtr<class UPoseWatch> PoseWatch;
+
+	static const FSlateBrush* IconVisible;
+	static const FSlateBrush* IconNotVisible;
+};
+
+class SDefault_AnimationGraphNode : public SDefault_GraphNodeRestyleK2Base
+{
+public:
+	SLATE_BEGIN_ARGS(SDefault_AnimationGraphNode) {}
+	SLATE_END_ARGS()
+
+	// Reverse index of the error reporting bar slot
+	static const int32 ErrorReportingSlotReverseIndex = 0;
+
+	// Reverse index of the tag/functions slot
+	static const int32 TagAndFunctionsSlotReverseIndex = 1;
+
+	void Construct(const FArguments& InArgs, UAnimGraphNode_Base* InNode);
+
+	// Tweak any created pin widgets so they respond to bindings
+	static void ReconfigurePinWidgetsForPropertyBindings(UAnimGraphNode_Base* InAnimGraphNode, TSharedRef<SGraphNode> InGraphNodeWidget, TFunctionRef<TSharedPtr<SGraphPin>(UEdGraphPin*)> InFindWidgetForPin);
+
+	// Create below-widget controls for editing anim node functions
+	static TSharedRef<SWidget> CreateNodeFunctionsWidget(UAnimGraphNode_Base* InAnimNode, TAttribute<bool> InUseLowDetail);
+
+	// Create below-widget controls for editing anim node tags
+	static TSharedRef<SWidget> CreateNodeTagWidget(UAnimGraphNode_Base* InAnimNode, TAttribute<bool> InUseLowDetail);
+
+protected:
+	// SWidget interface
+	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
+	// End of SWidget interface
+
+	// SGraphNode interface
+	virtual TArray<FOverlayWidgetInfo> GetOverlayWidgets(bool bSelected, const FVector2D& WidgetSize) const override;
+	virtual TSharedRef<SWidget> CreateTitleWidget(TSharedPtr<SNodeTitle> InNodeTitle) override;
+	virtual void GetNodeInfoPopups(FNodeInfoContext* Context, TArray<FGraphInformationPopupInfo>& Popups) const override;
+	virtual void CreateBelowPinControls(TSharedPtr<SVerticalBox> MainBox) override;
+	virtual TSharedRef<SWidget> CreateNodeContentArea() override;
+	virtual bool IsHidingPinWidgets() const override { return UseLowDetailNodeContent(); }
+	// End of SGraphNode interface
+
+private:
+	// Handle the node informing us that the title has changed
+	void HandleNodeTitleChanged();
+
+	// LOD related functions for content area
+	bool UseLowDetailNodeContent() const;
+	FVector2D GetLowDetailDesiredSize() const;
+
+	// Handler for pose watches changing
+	//void HandlePoseWatchesChanged(UAnimBlueprint* InAnimBlueprint, UEdGraphNode* InNode);
+
+	/** Keep a reference to the indicator widget handing around */
+	TSharedPtr<SWidget> IndicatorWidget;
+
+	/** Keep a reference to the pose view indicator widget handing around */
+	TSharedPtr<SDefault_PoseWatchOverlay> PoseViewWidget;
+
+	///** Cache the node title so we can invalidate it */
+	//TSharedPtr<SNodeTitle> NodeTitle;
+
+	/** Cached size from when we last drew at high detail */
+	FVector2D LastHighDetailSize;
+
+	/** Cached content area widget (used to derive LastHighDetailSize) */
+	TSharedPtr<SWidget> CachedContentArea;
+};

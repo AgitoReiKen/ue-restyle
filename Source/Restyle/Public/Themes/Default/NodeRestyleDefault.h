@@ -60,6 +60,11 @@ enum class EDTGraphNodeTitleType
 	ExecSequence,
 	Result,
 	Preview,
+	/* Animation CachedPose*/
+	Black,
+	/* Animation PlaySequence*/
+	PlaySequence,
+	LinkedLayer,
 	Num UMETA(Hidden)
 };
 
@@ -274,6 +279,44 @@ struct FDTNode
 		ExecSequence = Default;
 		Result = Default;
 		Preview = Default;
+		Black = []() -> FDTNodeTypeData
+		{
+			FName Content = "Light-1";
+			FName TitleBg = "Light-4";
+			FName NormalOutline = "Light-4";
+			FDTNodeStateData Normal, Selected, Invalid;
+			Normal = {
+				{
+					FDTColor(Content),
+					FDTColor(Content, .75f),
+					FDTColor(Content),
+					FDTColor(TitleBg, .5f),
+				},
+				FDTBrushRef("NodeNormal").SetOutlineColor(true, NormalOutline)
+			};
+			Selected = {
+				{
+					FDTColor(Content),
+					FDTColor(Content, .75f),
+					FDTColor(Content),
+					FDTColor(TitleBg, .5f),
+				},
+				FDTBrushRef("NodeFocused").SetOutlineColor(true, TitleBg)
+			};
+			Invalid = {
+					{
+					FDTColor(Content),
+					FDTColor(Content, .75f),
+					FDTColor(Content),
+					FDTColor(TitleBg, .5f),
+				},
+				FDTBrushRef("NodeNormal").SetOutlineColor(true, "Red-3")
+
+			};
+			return { Normal, Selected, Invalid };
+		}();
+		LinkedLayer = FunctionTerminator;
+		PlaySequence = Event;
 		Edit = EDTGraphNodeTitleType::Default;
 		ContentSpacing = "Large+";
 	}
@@ -291,6 +334,9 @@ struct FDTNode
 		case EDTGraphNodeTitleType::ExecSequence: return ExecSequence;
 		case EDTGraphNodeTitleType::Result: return Result;
 		case EDTGraphNodeTitleType::Preview: return Preview;
+		case EDTGraphNodeTitleType::Black: return Black;
+		case EDTGraphNodeTitleType::PlaySequence: return PlaySequence;
+		case EDTGraphNodeTitleType::LinkedLayer: return LinkedLayer;
 		default: return Default;
 		}
 	}
@@ -333,6 +379,15 @@ struct FDTNode
 	UPROPERTY(Category = "DTNodeData",EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::Preview", EditConditionHides))
 	FDTNodeTypeData Preview;
+	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::Black", EditConditionHides))
+	FDTNodeTypeData Black;
+	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::PlaySequence", EditConditionHides))
+	FDTNodeTypeData PlaySequence;
+	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::LinkedLayer", EditConditionHides))
+	FDTNodeTypeData LinkedLayer;
 
 	UPROPERTY(Category = "DTNodeData",EditAnywhere)
 	FDTNodeTitle Title;
@@ -851,6 +906,7 @@ struct FDTCreateDelegateNode
 	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName SearchPadding;
 };
+
 USTRUCT()
 struct FDTNodeKnot
 {
@@ -883,6 +939,54 @@ struct FDTMaterialNode
 };
 
 USTRUCT()
+struct FDTFunctionBinding
+{
+	GENERATED_BODY()
+	FDTFunctionBinding()
+	{
+		Padding = "Small";
+		SpacingY = "Medium";
+		SpacingX = "Medium";
+		GotoButton = "Transparent";
+		NameWidth = 128;
+		ValueWidth = 128;
+	}
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	FName Padding;
+	/* Spacing between items*/
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	FName SpacingY;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	FDTButtonRef GotoButton;
+	/* Spacing between dropdowm and goto */
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	FName SpacingX;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0", ClampMax = "512"))
+	float NameWidth;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0", ClampMax = "512"))
+	float ValueWidth;
+};
+
+USTRUCT()
+struct FDTAnimationNode
+{
+	GENERATED_BODY()
+	FDTAnimationNode()
+	{
+		FunctionBinding = FDTFunctionBinding();
+		TimelineSlider = "Default";
+		TimelineSliderPadding = "Zero";
+	}
+
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	FDTFunctionBinding FunctionBinding;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	FDTSliderRef TimelineSlider;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	FName TimelineSliderPadding;
+};
+
+USTRUCT()
 struct FDTOtherNodes
 {
 	GENERATED_BODY()
@@ -891,6 +995,7 @@ struct FDTOtherNodes
 		CreateDelegate = FDTCreateDelegateNode();
 		Reroute = FDTNodeKnot();
 		Material = FDTMaterialNode();
+		Animation = FDTAnimationNode();
 	}
 
 	UPROPERTY(Category = "DTNodeData",EditAnywhere)
@@ -899,6 +1004,8 @@ struct FDTOtherNodes
 	FDTNodeKnot Reroute;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTMaterialNode Material;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	FDTAnimationNode Animation;
 };
 #pragma endregion
 
@@ -1322,6 +1429,7 @@ struct FDTAdvancedDisplay
 	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTButtonRef Button;
 };
+
 struct FNodeRestyleStyles
 {
 	static inline const FName CommentBubble_CommentArrow = "Restyle.CommentBubble.CommentArrow";
@@ -1346,6 +1454,7 @@ struct FNodeRestyleStyles
 	static inline const FName CommentNode_Title_Text = "Restyle.Commentnode.Title.Text";
 	static inline const FName AdvancedDisplay = "Restyle.Graph.AdvancedDisplay";
 	static inline const FName MaterialNode_PreviewCheckbox = "Restyle.MaterialNode.PreviewCheckbox";
+	static inline const FName AnimationNode_FunctionBinding_GotoButton = "Restyle.AnimationNode.FunctionBinding.GotoButton";
 
 
 	static FName VarNode_Body(EDTVarType Type, EDTGraphNodeState State)
@@ -1437,7 +1546,8 @@ public:
 		{
 			return EDTGraphNodeTitleType::Function;
 		}
-		if (x == Settings->PureFunctionCallNodeTitleColor)
+		// Hardcoded: Animation Nodes
+		if (x == Settings->PureFunctionCallNodeTitleColor || x == FLinearColor(0.2000, 0.8000, 0.2000))
 		{
 			return EDTGraphNodeTitleType::PureFunction;
 		}
@@ -1468,6 +1578,21 @@ public:
 		if (x == Settings->PreviewNodeTitleColor)
 		{
 			return EDTGraphNodeTitleType::Preview;
+		}
+		// Hardcoded: Animation Cached Pose
+		if (x == FLinearColor(0, 0, 0, 1))
+		{
+			return EDTGraphNodeTitleType::Black;
+		}
+		// Hardcoded: Animation Sequence Player
+		if (x == FLinearColor(0.577580452, 0.127437681, 0.127437681))
+		{
+			return EDTGraphNodeTitleType::PlaySequence;
+		}
+		// Hardcoded: Animation Linked Layer
+		if (x == FLinearColor(0.200000003, 0.200000003, 0.800000012))
+		{
+			return EDTGraphNodeTitleType::LinkedLayer;
 		}
 		return EDTGraphNodeTitleType::Default;
 	}

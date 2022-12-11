@@ -15,7 +15,18 @@ public:
 	virtual bool IsRegistered(ERestyleSubject Subject) override;
 private:  
 	bool OnSettingsChanged();
+	void Update();
 	TSharedPtr<INodeRestyleInterface> NodeFactoryProvider;
 	TSharedPtr<IPinRestyleInterface> PinFactoryProvider;
 	TSharedPtr<IWireRestyleInterface> WireFactoryProvider;
+};
+
+class FRestyleDefaultThemeStyles
+{
+public:
+	static inline const FName Slider = "Restyle.Slider";
+	static FName ToStyleId(FName Subject, FName Id)
+	{
+		return *FString::Printf(TEXT("Restyle.%s.%s"), *Subject.ToString(), *Id.ToString());
+	}
 };

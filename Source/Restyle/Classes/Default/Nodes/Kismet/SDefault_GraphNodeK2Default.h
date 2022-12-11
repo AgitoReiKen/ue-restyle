@@ -12,22 +12,12 @@ public:
 
 	SLATE_END_ARGS()
 
-	SDefault_GraphNodeK2Default() = default;
 	void Construct(const FArguments& InArgs, UK2Node* InNode);
-	void UpdateStandardNode_New();
 	void UpdateCompactNode_New();
 	virtual void UpdateGraphNode() override;
-	virtual const FSlateBrush* GetShadowBrush(bool bSelected) const override;
-	EDTGraphNodeTitleType GetNodeType() const;
-	 
-protected:
-	TSharedPtr<SImage> MainBackground;
-	TSharedPtr<SImage> TitleIcon;
-	TSharedPtr<SBorder> MainTitleBorder;
-	TSharedPtr<SDefault_NodeTitle> TitleExtraText;
-	TSharedPtr<SBorder> ContentBorder;
+	virtual void OnStateUpdated(EDTGraphNodeState NewState) override;
 
-	TSharedPtr<SHorizontalBox> TitleContent;
+protected:
 	TSharedPtr<STextBlock> CompactTitleTextBlock;
 	TSharedPtr<SImage> CompactBody;
 	TSharedPtr<SBox> EnabledStateWidgetBox;

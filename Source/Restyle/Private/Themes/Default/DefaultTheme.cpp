@@ -5,6 +5,8 @@
 #include "ISettingsSection.h"
 #include "RestyleProcessor.h"
 
+#include "Styling/SlateStyle.h"
+
 #include "Themes/Default/NodeRestyleDefault.h"
 #include "Themes/Default/PinRestyleDefault.h"
 #include "Themes/Default/WireRestyleDefault.h"
@@ -69,6 +71,7 @@ void FRestyleDefaultTheme::Register()
 			                                      &FRestyleDefaultTheme::OnSettingsChanged);
 		}
 	}
+	Update();
 }
 
 void FRestyleDefaultTheme::Unregister()
@@ -103,6 +106,7 @@ bool FRestyleDefaultTheme::IsRegistered(ERestyleSubject Subject)
 
 bool FRestyleDefaultTheme::OnSettingsChanged()
 {
+	Update();
 	if (NodeFactoryProvider->IsRegistered())
 	{
 		NodeFactoryProvider->Update();
@@ -114,4 +118,25 @@ bool FRestyleDefaultTheme::OnSettingsChanged()
 	auto Mutable = GetMutableDefault<UDefaultThemeSettings>();
 	Mutable->SaveConfig(CPF_Config, *Mutable->GetGlobalUserConfigFilename());
 	return true;
+}
+
+void FRestyleDefaultTheme::Update()
+{
+#define RootToContentDir StyleSet->RootToContentDir
+#define CircleIconSvg RootToContentDir("Common/Circle", TEXT(".svg"))
+	auto Settings = UDefaultThemeSettings::Get();
+	auto StyleSet = FRestyleProcessor::Get().GetStyle();
+	/* Slider */
+	{
+		auto& SliderData = Settings->SliderMap;
+
+		for (auto& it : SliderData)
+		{
+			auto& Data = it.Value;
+			FSliderStyle SliderStyle;
+			UDefaultThemeSettings::Get()->ModifySlider(&SliderStyle, Data, CircleIconSvg);
+			FName StyleId = FRestyleDefaultThemeStyles::ToStyleId(it.Value.Subject, it.Key);
+			StyleSet->Set(StyleId, SliderStyle);
+		}
+	}
 }

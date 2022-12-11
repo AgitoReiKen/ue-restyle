@@ -32,6 +32,14 @@ enum class EWireRestylePriority
 	Equal,
 	Input
 };
+UENUM()
+enum class EWireRestyleBubbleIcon
+{
+	Circle,
+	Heat,
+	Square,
+	Diamond,
+};
 UCLASS(Config = Restyle, GlobalUserConfig)
 class UWireRestyleSettings : public UObject
 {
@@ -169,7 +177,8 @@ public:
 		FLinearColor HoverDarkenedColor;
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Hover", DisplayName = "LightenedColor")
 		FLinearColor HoverLigthenedColor;
-
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Icons")
+		EWireRestyleBubbleIcon BubbleIcon;
 
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
 		bool bDebug;  

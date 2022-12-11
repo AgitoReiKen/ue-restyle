@@ -791,6 +791,80 @@ struct FDTComboBoxRef
 	FName Id;
 };
 
+USTRUCT()
+struct FDTSliderData
+{
+	GENERATED_BODY()
+
+	static inline const FName Subject = "Slider";
+	FDTSliderData()
+	{
+		Normal = "BoxDefault";
+		Hovered = "BoxDefault";
+		Disabled = "BoxDefault";
+
+		NormalThumbColor = "Light-3";
+		HoveredThumbColor = "Light-2";
+		DisabledThumbColor = "Light-4";
+
+		BarThickness = 4.f;
+		ThumbSize = "Small";
+	}
+
+	FDTSliderData(const FDTBrushRef& Normal, const FDTBrushRef& Hovered, const FDTBrushRef& Disabled,
+		const FDTColor& NormalThumbColor, const FDTColor& HoveredThumbColor, const FDTColor& DisabledThumbColor,
+		const FName& ThumbSize, float BarThickness)
+		: Normal(Normal),
+		  Hovered(Hovered),
+		  Disabled(Disabled),
+		  NormalThumbColor(NormalThumbColor),
+		  HoveredThumbColor(HoveredThumbColor),
+		  DisabledThumbColor(DisabledThumbColor),
+		  ThumbSize(ThumbSize),
+		  BarThickness(BarThickness)
+	{
+	}
+
+	UPROPERTY(EditAnywhere, Category = "DTSliderData")
+		FDTBrushRef Normal;
+	UPROPERTY(EditAnywhere, Category = "DTSliderData")
+		FDTBrushRef Hovered;
+	UPROPERTY(EditAnywhere, Category = "DTSliderData")
+		FDTBrushRef Disabled;
+	UPROPERTY(EditAnywhere, Category = "DTSliderData")
+		FDTColor NormalThumbColor;
+	UPROPERTY(EditAnywhere, Category = "DTSliderData")
+		FDTColor HoveredThumbColor;
+	UPROPERTY(EditAnywhere, Category = "DTSliderData")
+		FDTColor DisabledThumbColor;
+	UPROPERTY(EditAnywhere, Category = "DTSliderData", Meta = (GetOptions = "Restyle.DefaultThemeSettings.GetIconSizeOptions"))
+		FName ThumbSize;
+	UPROPERTY(EditAnywhere, Category = "DTSliderData", Meta = (ClampMin = "0.0", ClampMax = "16.0"))
+		float BarThickness; 
+};
+
+USTRUCT()
+struct FDTSliderRef
+{
+	GENERATED_BODY()
+
+	FDTSliderRef() { Id = NAME_None; }
+
+	FDTSliderRef(const char* Id) : Id(Id)
+	{
+	}
+
+	FDTSliderRef(const FName& Id) : Id(Id)
+	{
+	}
+
+	const FDTSliderData& Get() const;
+	static inline const FName Subject = "Slider";
+	UPROPERTY(EditAnywhere, meta = (DisplayName = "Slider", GetOptions = "Restyle.DefaultThemeSettings.GetSliderOptions"), Category = "DTSliderRef")
+	FName Id;
+
+
+};
 
 UCLASS(Config = Restyle, GlobalUserConfig)
 class UDefaultThemeSettings : public UObject
@@ -825,7 +899,7 @@ public:
 	UFUNCTION()
 	static TArray<FString> GetIconSizeOptions();
 	UFUNCTION()
-	static TArray<FString> GetSpacingOptions();
+	static TArray<FString> GetSpacingOptions(); 
 
 	UFUNCTION()
 	static TArray<FString> GetTextShadowOptions();
@@ -847,6 +921,8 @@ public:
 	static TArray<FString> GetBrushOptions();
 	UFUNCTION()
 	static TArray<FString> GetScrollBarOptions();
+	UFUNCTION()
+	static TArray<FString> GetSliderOptions();
 
 	static FLinearColor GetColor(const FName& Id);
 	static FVector4 GetCorner(const FName& Id);
@@ -866,6 +942,7 @@ public:
 	static const FDTEditableTextBoxData& GetEditableTextBox(const FName& Id);
 	static const FDTButtonData& GetButton(const FName& Id);
 	static const FDTScrollBarData& GetScrollBar(const FName& Id);
+	static const FDTSliderData& GetSlider(const FName& Id);
 #pragma endregion
 	struct FSlateVectorImageBrush GetVectorImageBrush(const FString& Path,  const FVector2D& Size) const;
 	void ModifyCheckBox(FCheckBoxStyle* Style, const FDTCheckBoxData& Config, const FString& UncheckedIconPath, const FString& CheckedIconPath, const FString& UndeterminedIconPath) const;
@@ -880,7 +957,7 @@ public:
 	                 bool WhiteTint = false) const;
 	void ModifyTextBlockStyle(FTextBlockStyle* Style, const FDTTextData& Config, bool WhiteTint = false) const;
 	void ModifyFontInfo(FSlateFontInfo* Info, const FDTTextData& Config) const;
-
+	void ModifySlider(FSliderStyle* Style, const FDTSliderData& Config, const FString& IconPath) const;
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
 	UPROPERTY(EditAnywhere, meta = (Category = "Commands"))
@@ -921,6 +998,8 @@ public:
 	TMap<FName, FDTComboBoxRowData> ComboBoxRowMap;
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Widgets"))
 	TMap<FName, FDTComboBoxData> ComboBoxMap;   
+	UPROPERTY(Config, EditAnywhere, meta = (Category = "Widgets"))
+	TMap<FName, FDTSliderData> SliderMap;   
 };
 //
 //class FDefaultThemeStyles

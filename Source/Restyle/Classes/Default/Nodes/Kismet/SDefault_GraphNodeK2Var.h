@@ -15,9 +15,8 @@ public:
 	 
 	SDefault_GraphNodeK2Var() = default;
 	void Construct(const FArguments& InArgs, UK2Node* InNode);
-
-	virtual const FSlateBrush* GetShadowBrush(bool bSelected) const override;
-	EDTVarType GetNodeType() const;
+	EDTVarType GetVarNodeType() const;
+	virtual void OnStateUpdated(EDTGraphNodeState NewState) override; 
 	// SGraphNode interface
 	virtual void UpdateGraphNode() override;
 	// End of SGraphNode interface

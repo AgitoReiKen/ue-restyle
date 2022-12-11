@@ -21,20 +21,22 @@
 /////////////////////////////////////////////////////
 // SDefault_GraphNodeK2Composite
 
+ 
+
 void SDefault_GraphNodeK2Composite::Construct(const FArguments& InArgs, UK2Node_Composite* InNode)
 {
 	GraphNode = InNode;
 	auto Style = UNodeRestyleSettings::Get();
 	CachedState = IsInvalid() ? EDTGraphNodeState::Invalid : EDTGraphNodeState::Normal;
 	CachedOutlineWidth = UDefaultThemeSettings::GetOutlineWidth(
-		Style->CollapsedNode.GetTypeData(GetNodeType()).GetState(CachedState).Body.Get().OutlineWidth
+		Style->CollapsedNode.GetTypeData(GetCollapsedNodeType()).GetState(CachedState).Body.Get().OutlineWidth
 	);
 	EnabledStateWidgetAdditionalPadding = UDefaultThemeSettings::GetMargin(Style->StateWidget.Padding);
 	SetCursor(EMouseCursor::CardinalCross);
 	UpdateGraphNode();
 }
 
-EDTCollapsedNodeType SDefault_GraphNodeK2Composite::GetNodeType() const
+EDTCollapsedNodeType SDefault_GraphNodeK2Composite::GetCollapsedNodeType() const
 {
 	return EDTCollapsedNodeType::Default;
 }
@@ -50,7 +52,7 @@ void SDefault_GraphNodeK2Composite::UpdateGraphNode()
 
 	SetupErrorReporting_New();
 	const auto& CollapsedNode = UNodeRestyleSettings::Get()->CollapsedNode;
-	EDTCollapsedNodeType NodeType = GetNodeType();
+	EDTCollapsedNodeType NodeType = GetCollapsedNodeType();
 	const auto& State = CollapsedNode.GetTypeData(NodeType).GetState(CachedState);
 	TSharedPtr<SDefault_NodeTitle> NodeTitle = SNew(SDefault_NodeTitle, GraphNode, State.Title.ExtraText.Get(),
 	                                                FNodeRestyleStyles::CollapsedNode_Title_ExtraText);
@@ -238,29 +240,26 @@ TSharedPtr<SToolTip> SDefault_GraphNodeK2Composite::GetComplexTooltip()
 	}
 }
 
-const FSlateBrush* SDefault_GraphNodeK2Composite::GetShadowBrush(bool bSelected) const
+void SDefault_GraphNodeK2Composite::OnStateUpdated(EDTGraphNodeState NewState)
 {
-	if (UpdateState(bSelected))
-	{
-		auto NodeType = GetNodeType();
-		const auto& State = UNodeRestyleSettings::Get()->CollapsedNode.GetTypeData(NodeType).GetState(CachedState);
+	auto NodeType = GetCollapsedNodeType();
+	const auto& State = UNodeRestyleSettings::Get()->CollapsedNode.GetTypeData(NodeType).GetState(CachedState);
 
-		if (Body.IsValid())
-		{
-			FName Id = FNodeRestyleStyles::CollapsedNode_Body(NodeType, CachedState); 
-			Body->SetImage(FAppStyle::Get().GetBrush(Id));
-		}
-		if (InlineEditableText.IsValid())
-		{
-			InlineEditableText->SetColorAndOpacity(State.Title.MainText.Get());
-		}
-		if (TitleExtraText.IsValid() && TitleExtraText->ExtraTextBlock.IsValid())
-		{
-			TitleExtraText->ExtraTextBlock->SetColorAndOpacity(State.Title.ExtraText.Get());
-		}
+	if (Body.IsValid())
+	{
+		FName Id = FNodeRestyleStyles::CollapsedNode_Body(NodeType, CachedState);
+		Body->SetImage(FAppStyle::Get().GetBrush(Id));
 	}
-	return CachedNoDrawBrush;
+	if (InlineEditableText.IsValid())
+	{
+		InlineEditableText->SetColorAndOpacity(State.Title.MainText.Get());
+	}
+	if (TitleExtraText.IsValid() && TitleExtraText->ExtraTextBlock.IsValid())
+	{
+		TitleExtraText->ExtraTextBlock->SetColorAndOpacity(State.Title.ExtraText.Get());
+	}
 }
+
 
 FText SDefault_GraphNodeK2Composite::GetPreviewCornerText() const
 {

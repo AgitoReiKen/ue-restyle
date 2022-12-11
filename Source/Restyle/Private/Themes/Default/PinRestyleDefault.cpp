@@ -85,9 +85,10 @@ void FPinRestyleDefault::Update()
 	static const FName NAME_PosePin_Connected("Graph.PosePin.Connected");
 	static const FName NAME_PosePin_Disconnected("Graph.PosePin.Disconnected");
 
+	 
 #define RootToContentDir StyleSet->RootToContentDir
 #define ChevronDownSvg RootToContentDir("Common/ChevronDown", TEXT(".svg"))
-#define TransparentTextureSvg RootToContentDir
+ 
 	FSlateStyleSet* StyleSet = FRestyleProcessor::Get().GetStyle();
 	auto Style = UPinRestyleSettings::Get();
 	StyleSet->SetContentRoot(IPluginManager::Get().FindPlugin("Restyle")->GetBaseDir() / TEXT("Resources"));
@@ -169,8 +170,7 @@ void FPinRestyleDefault::Update()
 			                                  FVector2d(PinIconSize.X * 1.5, PinIconSize.Y),
 			                                  Style->IconColors.Watch.Get()));
 		}
-		StyleSet->Set("Icons.Restyle.LocalizationDashboard.MenuIcon", new IMAGE_BRUSH_SVG("Common/LocalizationDashboard", I16));
-
+		StyleSet->Set("Icons.Restyle.LocalizationDashboard.MenuIcon", new IMAGE_BRUSH_SVG("Common/LocalizationDashboard", I16)); 
 	}
 
 	/* Base */
@@ -281,7 +281,11 @@ void FPinRestyleDefault::Update()
 
 		StyleSet->Set("Kismet.VariableList.MapKeyTypeIcon",
 		              new IMAGE_BRUSH_SVG("Pin/MapType_Key", PinIconSize));
-		 
+
+		StyleSet->Set("Graph.PosePin.ConnectedHovered", new IMAGE_BRUSH_SVG("Pin/Pose_Connected", PinIconSize));
+		StyleSet->Set("Graph.PosePin.Connected", new IMAGE_BRUSH_SVG("Pin/Pose_Connected", PinIconSize));
+		StyleSet->Set("Graph.PosePin.DisconnectedHovered", new IMAGE_BRUSH_SVG("Pin/Pose_Disconnected", PinIconSize));
+		StyleSet->Set("Graph.PosePin.Disconnected", new IMAGE_BRUSH_SVG("Pin/Pose_Disconnected", PinIconSize));
 	}
 
 	{

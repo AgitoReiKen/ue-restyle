@@ -7,6 +7,8 @@
 #include "Styling/SlateStyleMacros.h"
 
 
+ 
+
 void UDefaultThemeSettings::SetDefaults()
 {
 	auto GetHuePalette = [](FString Name, float Hue) -> TMap<FName, FColorOkLch>
@@ -275,6 +277,11 @@ void UDefaultThemeSettings::SetDefaults()
 				FDTScrollBarData("ScrollBarNormal", "ScrollBarHovered", "ScrollBarDragged", 4, FMargin(0), FMargin(0))
 			}
 		};
+
+	FDTBrushRef SliderBoxDefault = FDTBrushRef("Box").SetBackgroundColor(true, "Light-4");
+	SliderMap = {
+		{"Default", FDTSliderData(SliderBoxDefault, SliderBoxDefault, SliderBoxDefault, "Light-3", "Light-2", "Light-4", "Small", 4.f)}
+	};
 }
 
 TArray<FString> UDefaultThemeSettings::GetColorOptions()
@@ -397,6 +404,16 @@ TArray<FString> UDefaultThemeSettings::GetScrollBarOptions()
 	return x;
 }
 
+TArray<FString> UDefaultThemeSettings::GetSliderOptions()
+{
+	TArray<FString> x;
+	for (const auto& it : Get()->SliderMap)
+	{
+		x.Add(it.Key.ToString());
+	}
+	return x;
+}
+ 
 TArray<FString> UDefaultThemeSettings::GetOutlineWidthOptions()
 {
 	TArray<FString> x;
@@ -632,6 +649,21 @@ void UDefaultThemeSettings::ModifyFontInfo(FSlateFontInfo* Info, const FDTTextDa
 	Info->TypefaceFontName = Config.Typeface;
 }
 
+void UDefaultThemeSettings::ModifySlider(FSliderStyle* Style, const FDTSliderData& Config, const FString& IconPath) const
+{
+	ModifyBrush(&Style->NormalBarImage, Config.Normal.Get());
+	ModifyBrush(&Style->HoveredBarImage, Config.Hovered.Get());
+	ModifyBrush(&Style->DisabledBarImage, Config.Disabled.Get());
+	auto Icon = GetVectorImageBrush(IconPath, FVector2D(GetIconSize(Config.ThumbSize)));
+	Icon.TintColor = Config.NormalThumbColor.Get();
+	Style->NormalThumbImage = static_cast<FSlateBrush>(Icon);
+	Icon.TintColor = Config.HoveredThumbColor.Get();
+	Style->HoveredThumbImage = static_cast<FSlateBrush>(Icon);
+	Icon.TintColor = Config.DisabledThumbColor.Get();
+	Style->DisabledThumbImage = static_cast<FSlateBrush>(Icon);
+	Style->BarThickness = Config.BarThickness;
+}
+
 void UDefaultThemeSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
 	UObject::PostEditChangeProperty(PropertyChangedEvent);
@@ -798,6 +830,17 @@ const FDTScrollBarData& UDefaultThemeSettings::GetScrollBar(const FName& Id)
 	return Default;
 }
 
+const FDTSliderData& UDefaultThemeSettings::GetSlider(const FName& Id)
+{
+	if (auto Found = Get()->SliderMap.Find(Id))
+	{
+		return *Found;
+	}
+	static FDTSliderData Default;
+	return Default;
+}
+
+
 FSlateVectorImageBrush UDefaultThemeSettings::GetVectorImageBrush(const FString& Path, const FVector2D& Size) const
 {
 	if (Path.IsEmpty())
@@ -892,4 +935,9 @@ const FDTComboBoxData& FDTComboBoxRef::Get() const
 const FDTScrollBarData& FDTScrollBarRef::Get() const
 {
 	return UDefaultThemeSettings::GetScrollBar(Id);
+}
+
+const FDTSliderData& FDTSliderRef::Get() const
+{
+	return UDefaultThemeSettings::GetSlider(Id);
 }
