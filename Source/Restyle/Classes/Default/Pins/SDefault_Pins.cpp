@@ -1,4 +1,4 @@
-﻿// Alexander (AgitoReiKen) Moskalenko (C) 2022
+// Alexander (AgitoReiKen) Moskalenko (C) 2022
 
 #include "SDefault_Pins.h"
 
