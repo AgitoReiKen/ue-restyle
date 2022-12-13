@@ -1,8 +1,32 @@
-# ue-restyle
+# github.com/agitoreiken/ue-restyle
+**Restyle** is a plugin for **Unreal Engine** v5.0, v5.1 that brings new look for graph editors.
+
+What distinguish it from other similar solutions is that Restyle uses its own widgets to fix engine's default ones
+
+## Table of Contents: 
+- [Gallery](Gallery)
+- [Installation](Installation)
+- [Features](Features) 
+- [Motivation](Motivation)
+- [Difficulties](Difficulties)
+- [FAQ](FAQ)
+
+## Gallery
 <img src="https://images2.imgbox.com/42/c2/ykKTc81Y_o.png" alt="image host"/>
 <a href="https://imgbox.com/g/pXWcf0Yyfg">Image Gallery</a> - You can find here how plugin does look
 
-Switch to another branch, named as unreal version you use
+## Installation
+Goto your unreal engine's project directory (should contain .uproject file in there) 
+
+Then run **one** of the following commands:
+- For UE v5.0
+```
+git clone --single-branch --branch v5_0 https://github.com/agitoreiken/ue-restyle ./Plugins/Restyle
+```
+- For UE v5.1
+```
+git clone --single-branch --branch v5_1 ttps://github.com/agitoreiken/ue-restyle ./Plugins/Restyle
+```
 
 ## Motivation
 I did really want to see new design for blueprints in ue-5, but that didn't happen. 
@@ -15,7 +39,7 @@ So i've searched through the marketplace, found some projects:
 At the end of the day i decided to take the reponsibility and bring the thing i wanted to see
 <details>
   <summary>Spoiler</summary>
-  It took a half of a year lmao 
+  It took a 6 unprofittable months lmao
 </details> 
 
 ## Features
@@ -59,7 +83,9 @@ Plugin is made of 3 factory providers which represents factories inside of FEdGr
 - Squared, rounded corners
 - Radius (up to 0.5 of length, visually shortens the path)
 - Optimized for backward routing (has snap points)
-
+- Custom bubble settings
+- Nested wire for animation's attributes instead of spaghetti
+  
 ### Pins
 - Custom colors [Optional]
 - Custom pin-constructors (Vector4 is only available atm)
@@ -77,7 +103,7 @@ Windows OC, because MinHook library (i get used to) doesn't support other system
 You can run it anyway on any other system, just this widget will be with unreal style.
 
 
-## Restrictions or Why what was made was needed
+## Technical Difficulties
 
 ### Technical Side
 To apply on "design" behavior of SGraphNode/SGraphPin classes, the new ones needed to be created.
@@ -85,7 +111,7 @@ To apply on "design" behavior of SGraphNode/SGraphPin classes, the new ones need
 Because some of them are not exported for external use, it becomes impossible to mantain the inheritance;
 
 In simple words. All SGraphNodes are still SGraphNodes, but all SGraphNodeK2 are now S**Default**GraphNodeK2, 
-and all logic inside of SGraphNodeK2 was explicitly (manually by hand) copied to Restyle's classes.
+and all logic inside of SGraphNodeK2 was copy-pasted to Restyle's classes.
 
 **For each logical update on widgets made in newer versions of Unreal, the plugin must be updated in order to match them**
 
@@ -98,13 +124,11 @@ Having opened "Editor Settings" window with restyle loaded may cause editor to s
 
 ## FAQ
 ### **Could it break my data?** 
-It's technically possible, but it's not going to happen.
+If you are not trying to force old plugin version works on new unreal version then **no**. 
+  In the worst case of the plugin malfunction you will not see some widget element or it's style is still an old one :)
   
-The only way it could is when .uplugin "EngineVersion" gets modified for non-updated plugin and used for specific Unreal Engine version containing non-backward compatibility behavioral code.
-
-Data corruption scenario may happen not only due to external problems. I expect you to understand the volatility of engine itself and have a backup system.
-(From my experience, UE's backup system isn't a good solution for blueprints) 
-
+But if you really curious about your data safety, use external backup system (not git), because this engine is pretty volatile thing itself. 
+  
 ### **I have my own factories defined, will it work?**
 Plugin registers factories at Index 0 and they check if there is any other factory wants to spawn that UClass. 
 So yes it will work, but styles will mismatch (ways of fixing this part are not discussed nor done yet)
