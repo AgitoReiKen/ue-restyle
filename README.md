@@ -12,7 +12,7 @@ Restyle replaces graph editor's widgets with customizable versions while also le
 
 ## [=](#toc) Gallery <a name="gallery"></a>
 <img src="https://images2.imgbox.com/42/c2/ykKTc81Y_o.png" alt="image host"/>
-<a href="https://imgbox.com/g/pXWcf0Yyfg">Image Gallery</a> - You can find here how plugin does look
+Come to <a href="https://imgbox.com/g/pXWcf0Yyfg">Image Gallery</a> to see Restyle in work
 
 ## [=](#toc) Installation <a name="installation"></a>
 Goto your unreal engine's project directory (should contain .uproject file in there) 
