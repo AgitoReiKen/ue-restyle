@@ -1,4 +1,4 @@
-**Restyle** is a plugin for **Unreal Engine** v5.0, v5.1 that brings new look for graph editors.
+**Restyle** is a plugin for **Unreal Engine** v5.0, v5.1 that brings a brand new new look for graph editors.
 
 What distinguish it from other similar solutions is that Restyle uses its own widgets to fix engine's default ones
 
