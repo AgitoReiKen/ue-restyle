@@ -3,18 +3,18 @@
 What distinguish it from other similar solutions is that Restyle uses its own widgets to fix engine's default ones
 
 ## Table of Contents: 
-- [Gallery](Gallery)
-- [Installation](Installation)
-- [Features](Features) 
-- [Motivation](Motivation)
-- [Difficulties](Difficulties)
-- [FAQ](FAQ)
+- [Gallery](#gallery)
+- [Installation](#installation)
+- [Motivation](#motivation)
+- [Features](#features) 
+- [Difficulties](#difficulties)
+- [FAQ](#faq)
 
-## Gallery
+## Gallery <a name="gallery"></a>
 <img src="https://images2.imgbox.com/42/c2/ykKTc81Y_o.png" alt="image host"/>
 <a href="https://imgbox.com/g/pXWcf0Yyfg">Image Gallery</a> - You can find here how plugin does look
 
-## Installation
+## Installation <a name="installation"></a>
 Goto your unreal engine's project directory (should contain .uproject file in there) 
 
 Then run **one** of the following commands:
@@ -25,9 +25,9 @@ git clone --single-branch --branch v5_0 https://github.com/agitoreiken/ue-restyl
 - For UE v5.1
 ```
 git clone --single-branch --branch v5_1 ttps://github.com/agitoreiken/ue-restyle ./Plugins/Restyle
-```
+``` 
 
-## Motivation
+## Motivation <a name="motivation"></a>
 I did really want to see new design for blueprints in ue-5, but that didn't happen. 
 
 So i've searched through the marketplace, found some projects: 
@@ -41,7 +41,8 @@ At the end of the day i decided to take the reponsibility and bring the thing i 
   It took a 6 unprofittable months lmao
 </details> 
 
-## Features
+
+## Features <a name="features"></a>
 Plugin is made of 3 factory providers which represents factories inside of FEdGraphUtilities, which are used by engine to spawn Nodes, Pins, Connections.
 
 ### General
@@ -102,7 +103,7 @@ Windows OC, because MinHook library (i get used to) doesn't support other system
 You can run it anyway on any other system, just this widget will be with unreal style.
 
 
-## Technical Difficulties
+## Difficulties <a name="difficulties"></a>
 
 ### Technical Side
 To apply on "design" behavior of SGraphNode/SGraphPin classes, the new ones needed to be created.
@@ -121,7 +122,7 @@ Otherwise, editor will crash (due to style changes)
 Having opened "Editor Settings" window with restyle loaded may cause editor to slow down. (For some reason slate processess non-visible options) 
  
 
-## FAQ
+## FAQ <a name="faq"></a>
 ### **Could it break my data?** 
 If you are not trying to force old plugin version works on new unreal version then **no**. 
   In the worst case of the plugin malfunction you will not see some widget element or it's style is still an old one :)
