@@ -134,7 +134,9 @@ void UWireRestyleSettings::SetDefaults()
 	HoverLightFraction = 0.25f;
 	HoverDarkenedColor = FLinearColor(0.f, 0.f, 0.f, 0.5f);
 	HoverLigthenedColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
+	AttributeWireColor = "Orange-2";
+	AttributeWireThicknessMultiplier = 0.33;
+	AttributeDisableBubbles = true;
 	BubbleIcon = EWireRestyleBubbleIcon::Diamond;
 
 

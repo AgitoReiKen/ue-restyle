@@ -179,6 +179,14 @@ public:
 		FLinearColor HoverLigthenedColor;
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Icons")
 		EWireRestyleBubbleIcon BubbleIcon;
+	
+
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AnimationEditor")
+		FDTColor AttributeWireColor;
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AnimationEditor", meta = (ClampMin = "0.0", ClampMax = "2.0"))
+		float AttributeWireThicknessMultiplier;
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AnimationEditor")
+		bool AttributeDisableBubbles;
 
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
 		bool bDebug;  

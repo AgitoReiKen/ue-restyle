@@ -224,14 +224,17 @@ FGeometry FDefaultConnectionDrawingPolicy::GetNodeGeometryByPinWidget(SGraphPin&
 	return NodeWidgetId < 0 ? FGeometry() : ArrangedNodes[NodeWidgetId].Geometry;
 }
 
-void FDefaultConnectionDrawingPolicy::DrawRestyleConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams)
+void FDefaultConnectionDrawingPolicy::DrawRestyleConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams, TArray<FVector2f>* InPoints)
 {
 	/*
 	 * @note FVector2f used instead of FVector2D due to FScreenVertex accepts float version
 	 */
 	if (WireParams.WireThickness < 0 || !WireParams.AssociatedPin1 || !WireParams.AssociatedPin2) return;
 	auto WireSettings = UWireRestyleSettings::Get();
-	TArray<FVector2f> Points = MakePathPoints(Params, WireParams);
+	TArray<FVector2f> CreatedPoints;
+	if (!InPoints) CreatedPoints = MakePathPoints(Params, WireParams);
+	TArray<FVector2f>& Points = InPoints ? *InPoints : CreatedPoints;
+
 
 	if (WireSettings->bDebug)
 	{
@@ -316,9 +319,7 @@ void FDefaultConnectionDrawingPolicy::DrawPath(TArray<FVector2f>& Points, const 
 void FDefaultConnectionDrawingPolicy::DrawBubbles(const TArray<FVector2f>& Points, float TotalLength, const FConnectionParams& WireParams)
 {
 	auto WireSettings = UWireRestyleSettings::Get();
-	float NumBubbles = WireSettings->NumBubbles;
-	float Interval = TotalLength / NumBubbles;
-	int Instances = TotalLength / Interval;
+	int Instances = WireSettings->NumBubbles;
 	float Step = TotalLength / Instances;
 
 	const float BubbleSpeed = Step * WireSettings->BubbleSpeed;
@@ -331,7 +332,7 @@ void FDefaultConnectionDrawingPolicy::DrawBubbles(const TArray<FVector2f>& Point
 
 	while (Drawn != Instances)
 	{
-		float SpeedOffset = FMath::Fmod(Time * BubbleSpeed, Interval);
+		float SpeedOffset = FMath::Fmod(Time * BubbleSpeed, Step);
 		float DrawLength = 0.f + SpeedOffset + (Drawn * Step);
 		float CurrentLength = 0.f;
 		for (int i = 1; i < Points.Num(); i++)
