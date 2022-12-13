@@ -90,7 +90,7 @@ void FWireRestyleDefault::Update()
 		StyleSet->Set("Graph.ExecutionBubble", new IMAGE_BRUSH_SVG(TEXT("Wire/ExecBubble_Diamond"), Icon16));
 		break;
 	default: break;
-	}
+	} 
 }
 
 bool FWireRestyleDefault::IsRegistered()
@@ -135,7 +135,9 @@ void UWireRestyleSettings::SetDefaults()
 	HoverLightFraction = 0.25f;
 	HoverDarkenedColor = FLinearColor(0.f, 0.f, 0.f, 0.5f);
 	HoverLigthenedColor = FLinearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
+	AttributeWireColor = "Orange-2";
+	AttributeWireThicknessMultiplier = 0.33;
+	AttributeDisableBubbles = true;
 	BubbleIcon = EWireRestyleBubbleIcon::Diamond;
 
 	bDebug = false;

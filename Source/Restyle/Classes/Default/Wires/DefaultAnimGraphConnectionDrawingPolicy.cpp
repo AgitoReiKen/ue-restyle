@@ -6,6 +6,8 @@
 #include "Kismet2/BlueprintEditorUtils.h"
 #include "AnimGraphNode_Base.h"
 #include "AnimGraphAttributes.h"
+
+#include "Themes/Default/WireRestyleDefault.h"
 //////////////////////////////////////////////
 // FDefaultAnimGraphConnectionDrawingPolicy
 
@@ -77,7 +79,7 @@ void FDefaultAnimGraphConnectionDrawingPolicy::BuildExecutionRoadmap()
 }
 
 void FDefaultAnimGraphConnectionDrawingPolicy::DrawRestyleConnection(const FRestyleConnectionParams& Params,
-	const FConnectionParams& WireParams)
+	const FConnectionParams& WireParams, TArray<FVector2f>* InPoints)
 {
 	bool bCompositeWire = false;
 
@@ -109,113 +111,180 @@ void FDefaultAnimGraphConnectionDrawingPolicy::DrawRestyleConnection(const FRest
 
 					if (AdditionalAttributeInfo.Num() > 0)
 					{
+
+						if (WireParams.WireThickness < 0 || !WireParams.AssociatedPin1 || !WireParams.AssociatedPin2) return;
+
 						TArray<FVector2f> Points = MakePathPoints(Params, WireParams);
+						TArray<FVector2f> _Points = Points;
+						FConnectionParams _WireParams = WireParams;
+						_WireParams.WireThickness *= UWireRestyleSettings::Get()->AttributeWireThicknessMultiplier;
+						_WireParams.WireColor = UWireRestyleSettings::Get()->AttributeWireColor.Get();  FLinearColor(1.0, 0.5, 0.0, 1.0);
+						_WireParams.bDrawBubbles = _WireParams.bDrawBubbles ? !UWireRestyleSettings::Get()->AttributeDisableBubbles : false;
+						FDefaultConnectionDrawingPolicy::DrawRestyleConnection(Params, WireParams, &Points);
+						FDefaultConnectionDrawingPolicy::DrawRestyleConnection(Params, _WireParams, &_Points);
+						return;
+						//const FSlateBrush* AttributeWidget = FAppStyle::GetBrush(FWireRestyleStyles::Square);
+						//float TotalLength = 0.f;
+						//for (int i = 1; i < Points.Num(); i++)
+						//{
+						//	const auto& A = Points[i - 1];
+						//	const auto& B = Points[i];
+						//	double Length = FVector2f::Distance(A, B);
+						//	TotalLength += Length;
+						//}
+						//int Instances = AdditionalAttributeInfo.Num();
+						//float MaxStep = Zoomed(32.f);
+						//float Step = FMath::Min(TotalLength / Instances, MaxStep);
 
-						const float MaxAttributeWireThickness = 3.0f;
-						const float MinAttributeWireThickness = 1.0f;
-						const float MaxWireGap = 2.0f;
-						const float MinWireGap = 0.5f;
+						//const FVector2f WidgetSize = FVector2f(Zoomed(WireParams.WireThickness * 4));
+						//const FVector2f WidgetHalfSize = WidgetSize * 0.5;
+						//float fWidgetSize = WidgetSize.X;
+						//int Drawn = 0;
+						//float HalfLength = TotalLength * .5f;
+						//float EstimatedDrawLength = ((Step * Instances - 1) + (fWidgetSize * Instances));
+						//float LengthOffset = HalfLength - EstimatedDrawLength * .5f;
+						//while (Drawn != Instances)
+						//{
+						//	float DrawLength = LengthOffset + (Drawn * Step);
+						//	float CurrentLength = 0.f;
+						//	for (int i = 1; i < Points.Num(); i++)
+						//	{
+						//		const auto& A = Points[i - 1];
+						//		const auto& B = Points[i];
+						//		double Length = FVector2f::Distance(A, B);
+						//		auto Normal = (B - A).GetSafeNormal();
+						//		if (DrawLength < CurrentLength + Length)
+						//		{
+						//			float Offset = DrawLength - CurrentLength;
+						//			FVector2f WidgetPos = A + (Normal * Offset) - WidgetHalfSize; // *BubbleOffset);
+						//			FSlateDrawElement::MakeBox(
+						//				DrawElementsList,
+						//				ArrowLayerID,
+						//				FPaintGeometry(FVector2D(WidgetPos.X, WidgetPos.Y), 
+						//					FVector2D(WidgetSize.X, WidgetSize.Y), ZoomFactor),
+						//				AttributeWidget,
+						//				ESlateDrawEffect::None,
+						//				AdditionalAttributeInfo[Drawn].Color
+						//			);
+						//			Drawn++;
+						//			break;
+						//		}
 
-						// 0.375f is the zoom level before the 'low LOD' cutoff
-						const float ZoomLevelAlpha = FMath::GetMappedRangeValueClamped(TRange<float>(0.375f, 1.0f), TRange<float>(0.0f, 1.0f), PanelZoom);
-						const float AttributeWireThickness = FMath::Lerp(MinAttributeWireThickness, MaxAttributeWireThickness, ZoomLevelAlpha);
-						const float WireGap = FMath::Lerp(MinWireGap, MaxWireGap, ZoomLevelAlpha);
+						//		CurrentLength += Length;
+						//		if (i + 1 == Points.Num())
+						//		{
+						//			DrawLength -= CurrentLength;
+						//			i = 1;
+						//		}
+						//	}
+						//}
+						//const float MaxAttributeWireThickness = 3.0f;
+						//const float MinAttributeWireThickness = 1.0f;
+						//const float MaxWireGap = 2.0f;
+						//const float MinWireGap = 0.5f;
 
-						const FVector2D& P0 = FVector2D(Points[0].X, Points[0].Y);
-						const FVector2D& P1 = FVector2D(Points.Last().X, Points.Last().Y);
+						//// 0.375f is the zoom level before the 'low LOD' cutoff
+						//const float ZoomLevelAlpha = FMath::GetMappedRangeValueClamped(TRange<float>(0.375f, 1.0f), TRange<float>(0.0f, 1.0f), PanelZoom);
+						//const float AttributeWireThickness = FMath::Lerp(MinAttributeWireThickness, MaxAttributeWireThickness, ZoomLevelAlpha);
+						//const float WireGap = FMath::Lerp(MinWireGap, MaxWireGap, ZoomLevelAlpha);
 
-						const FVector2D SplineTangent = ComputeSplineTangent(P0, P1);
-						const FVector2D P0Tangent = (WireParams.StartDirection == EGPD_Output) ? SplineTangent : -SplineTangent;
-						const FVector2D P1Tangent = (WireParams.EndDirection == EGPD_Input) ? SplineTangent : -SplineTangent;
+						//const FVector2D& P0 = FVector2D(Points[0].X, Points[0].Y);
+						//const FVector2D& P1 = FVector2D(Points.Last().X, Points.Last().Y);
 
-						bCompositeWire = true;
+						//const FVector2D SplineTangent = ComputeSplineTangent(P0, P1);
+						//const FVector2D P0Tangent = (WireParams.StartDirection == EGPD_Output) ? SplineTangent : -SplineTangent;
+						//const FVector2D P1Tangent = (WireParams.EndDirection == EGPD_Input) ? SplineTangent : -SplineTangent;
 
-						float TotalThickness = WireParams.WireThickness;
+						//bCompositeWire = true;
 
-						static TArray<float> CachedWireThicknesses;
-						check(CachedWireThicknesses.Num() == 0);	// Cant be called recursively or on multiple threads
-						CachedWireThicknesses.SetNumZeroed(AdditionalAttributeInfo.Num());
+						//float TotalThickness = WireParams.WireThickness;
 
-						for (int32 AttributeInfoIndex = 0; AttributeInfoIndex < AdditionalAttributeInfo.Num(); ++AttributeInfoIndex)
-						{
-							const SDefault_GraphPinPose::FAttributeInfo& AttributeInfo = AdditionalAttributeInfo[AttributeInfoIndex];
+						//static TArray<float> CachedWireThicknesses;
+						//check(CachedWireThicknesses.Num() == 0);	// Cant be called recursively or on multiple threads
+						//CachedWireThicknesses.SetNumZeroed(AdditionalAttributeInfo.Num());
 
-							float WireThickness = 0.0f;
-							switch (AttributeInfo.Blend)
-							{
-							case EAnimGraphAttributeBlend::Blendable:
-							{
-								if (UAnimBlueprint* AnimBlueprint = Cast<UAnimBlueprint>(FBlueprintEditorUtils::FindBlueprintForGraph(GraphObj)))
-								{
-									UAnimBlueprintGeneratedClass* AnimBlueprintClass = (UAnimBlueprintGeneratedClass*)(*(AnimBlueprint->GeneratedClass));
-									int32 SourceNodeId = AnimBlueprintClass->GetNodeIndexFromGuid(Node1->NodeGuid);
-									int32 TargetNodeId = AnimBlueprintClass->GetNodeIndexFromGuid(Node2->NodeGuid);
-									if (SourceNodeId != INDEX_NONE && TargetNodeId != INDEX_NONE)
-									{
-										const TArray<FAnimBlueprintDebugData::FAttributeRecord>* LinkAttributes = AnimBlueprintClass->GetAnimBlueprintDebugData().NodeOutputAttributesThisFrame.Find(SourceNodeId);
-										const bool bAttributeUsedInLink = LinkAttributes && LinkAttributes->ContainsByPredicate(
-											[&AttributeInfo, TargetNodeId](const FAnimBlueprintDebugData::FAttributeRecord& InRecord)
-											{
-												return InRecord.Attribute == AttributeInfo.Attribute && InRecord.OtherNode == TargetNodeId;
-											});
+						//for (int32 AttributeInfoIndex = 0; AttributeInfoIndex < AdditionalAttributeInfo.Num(); ++AttributeInfoIndex)
+						//{
+						//	const SDefault_GraphPinPose::FAttributeInfo& AttributeInfo = AdditionalAttributeInfo[AttributeInfoIndex];
+
+						//	float WireThickness = 0.0f;
+						//	switch (AttributeInfo.Blend)
+						//	{
+						//	case EAnimGraphAttributeBlend::Blendable:
+						//	{
+						//		if (UAnimBlueprint* AnimBlueprint = Cast<UAnimBlueprint>(FBlueprintEditorUtils::FindBlueprintForGraph(GraphObj)))
+						//		{
+						//			UAnimBlueprintGeneratedClass* AnimBlueprintClass = (UAnimBlueprintGeneratedClass*)(*(AnimBlueprint->GeneratedClass));
+						//			int32 SourceNodeId = AnimBlueprintClass->GetNodeIndexFromGuid(Node1->NodeGuid);
+						//			int32 TargetNodeId = AnimBlueprintClass->GetNodeIndexFromGuid(Node2->NodeGuid);
+						//			if (SourceNodeId != INDEX_NONE && TargetNodeId != INDEX_NONE)
+						//			{
+						//				const TArray<FAnimBlueprintDebugData::FAttributeRecord>* LinkAttributes = AnimBlueprintClass->GetAnimBlueprintDebugData().NodeOutputAttributesThisFrame.Find(SourceNodeId);
+						//				const bool bAttributeUsedInLink = LinkAttributes && LinkAttributes->ContainsByPredicate(
+						//					[&AttributeInfo, TargetNodeId](const FAnimBlueprintDebugData::FAttributeRecord& InRecord)
+						//					{
+						//						return InRecord.Attribute == AttributeInfo.Attribute && InRecord.OtherNode == TargetNodeId;
+						//					});
 
 
-										WireThickness = bAttributeUsedInLink ? AttributeWireThickness : 0.0f;
-									}
-								}
-								break;
-							}
-							case EAnimGraphAttributeBlend::NonBlendable:
-								WireThickness = AttributeWireThickness;
-								break;
-							}
+						//				WireThickness = bAttributeUsedInLink ? AttributeWireThickness : 0.0f;
+						//			}
+						//		}
+						//		break;
+						//	}
+						//	case EAnimGraphAttributeBlend::NonBlendable:
+						//		WireThickness = AttributeWireThickness;
+						//		break;
+						//	}
 
-							CachedWireThicknesses[AttributeInfoIndex] = WireThickness;
-							TotalThickness += WireThickness != 0.0f ? (WireThickness + WireGap) : 0.0f;
-						}
+						//	CachedWireThicknesses[AttributeInfoIndex] = WireThickness;
+						//	TotalThickness += WireThickness != 0.0f ? (WireThickness + WireGap) : 0.0f;
+						//}
 
-						const float InitialOffset = TotalThickness * 0.5f;
-						FVector2D SubWireP0 = P0;
-						SubWireP0.Y += InitialOffset;
-						FVector2D SubWireP1 = P1;
-						SubWireP1.Y += InitialOffset;
-						// Draw in reverse order to get pose wires appearing on top
-						for (int32 AttributeInfoIndex = AdditionalAttributeInfo.Num() - 1; AttributeInfoIndex >= 0; --AttributeInfoIndex)
-						{
-							float Thickness = CachedWireThicknesses[AttributeInfoIndex];
-							if (Thickness > 0.0f)
-							{
-								const SDefault_GraphPinPose::FAttributeInfo& AttributeInfo = AdditionalAttributeInfo[AttributeInfoIndex];
-								FLinearColor Color = AttributeInfo.Color;
+						//const float InitialOffset = TotalThickness * 0.5f;
+						//FVector2D SubWireP0 = P0;
+						//SubWireP0.Y += InitialOffset;
+						//FVector2D SubWireP1 = P1;
+						//SubWireP1.Y += InitialOffset;
+						//// Draw in reverse order to get pose wires appearing on top
+						//for (int32 AttributeInfoIndex = AdditionalAttributeInfo.Num() - 1; AttributeInfoIndex >= 0; --AttributeInfoIndex)
+						//{
+						//	float Thickness = CachedWireThicknesses[AttributeInfoIndex];
+						//	if (Thickness > 0.0f)
+						//	{
+						//		const SDefault_GraphPinPose::FAttributeInfo& AttributeInfo = AdditionalAttributeInfo[AttributeInfoIndex];
+						//		FLinearColor Color = AttributeInfo.Color;
 
-								if (HoveredPins.Num() > 0)
-								{
-									ApplyHoverDeemphasis(WireParams.AssociatedPin1, WireParams.AssociatedPin2, Thickness, Color);
-								}
+						//		if (HoveredPins.Num() > 0)
+						//		{
+						//			ApplyHoverDeemphasis(WireParams.AssociatedPin1, WireParams.AssociatedPin2, Thickness, Color);
+						//		}
 
-								SubWireP0.Y -= Thickness + WireGap;
-								SubWireP1.Y -= Thickness + WireGap;
+						//		SubWireP0.Y -= Thickness + WireGap;
+						//		SubWireP1.Y -= Thickness + WireGap;
 
-								// Draw the spline itself
-								FSlateDrawElement::MakeDrawSpaceSpline(
-									DrawElementsList,
-									WireLayerID,
-									SubWireP0, P0Tangent,
-									SubWireP1, P1Tangent,
-									Thickness,
-									ESlateDrawEffect::None,
-									Color
-								);
-							}
-						}
+						//		// Draw the spline itself
+						//		FSlateDrawElement::MakeDrawSpaceSpline(
+						//			DrawElementsList,
+						//			WireLayerID,
+						//			SubWireP0, P0Tangent,
+						//			SubWireP1, P1Tangent,
+						//			Thickness,
+						//			ESlateDrawEffect::None,
+						//			Color
+						//		);
+						//	}
+						//}
 
-						SubWireP0.Y -= WireParams.WireThickness + WireGap;
-						SubWireP1.Y -= WireParams.WireThickness + WireGap;
+						//SubWireP0.Y -= WireParams.WireThickness + WireGap;
+						//SubWireP1.Y -= WireParams.WireThickness + WireGap;
+
+						 
+
 
 						//FDefaultConnectionDrawingPolicy::DrawConnection(LayerId, SubWireP0, SubWireP1, Params);
-						FDefaultConnectionDrawingPolicy::DrawRestyleConnection(Params, WireParams);
 
-						CachedWireThicknesses.Reset();
+						//CachedWireThicknesses.Reset();
 					}
 				}
 			}
@@ -275,7 +344,10 @@ void FDefaultAnimGraphConnectionDrawingPolicy::DetermineStyleOfExecWire(float& T
 void FDefaultAnimGraphConnectionDrawingPolicy::ApplyHoverDeemphasis(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, float& Thickness, FLinearColor& WireColor)
 {
 	// Remove the thickness increase on hover
-	float OriginalThickness = Thickness;
-	FDefaultConnectionDrawingPolicy::ApplyHoverDeemphasis(OutputPin, InputPin, Thickness, WireColor);
-	Thickness = OriginalThickness;
+	// Why?
+	/* ReleaseWireThickness used as Default */
+	bool bDebugging = Thickness > ReleaseWireThickness;
+	if (!bDebugging) {
+		FDefaultConnectionDrawingPolicy::ApplyHoverDeemphasis(OutputPin, InputPin, Thickness, WireColor);
+	}
 }

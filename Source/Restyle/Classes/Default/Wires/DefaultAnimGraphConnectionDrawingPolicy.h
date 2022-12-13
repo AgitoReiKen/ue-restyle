@@ -6,7 +6,7 @@
 #include "DefaultConnectionDrawingPolicy.h"
 class FSlateWindowElementList;
 class UEdGraph;
-class FDefaultAnimGraphConnectionDrawingPolicy : public FDefaultConnectionDrawingPolicy
+class FDefaultAnimGraphConnectionDrawingPolicy final : public FDefaultConnectionDrawingPolicy
 {
 public:
 	// Constructor
@@ -16,7 +16,7 @@ public:
 	virtual bool TreatWireAsExecutionPin(UEdGraphPin* InputPin, UEdGraphPin* OutputPin) const override;
 	virtual void BuildExecutionRoadmap() override;
 	virtual void
-	DrawRestyleConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams) override;
+	DrawRestyleConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams, TArray<FVector2f>* InPoints = nullptr) override;
 	virtual void DetermineStyleOfExecWire(float& Thickness, FLinearColor& WireColor, bool& bDrawBubbles, const FTimePair& Times) override;
 	virtual void BuildPinToPinWidgetMap(TMap<TSharedRef<SWidget>, FArrangedWidget>& InPinGeometries) override;
 	virtual void ApplyHoverDeemphasis(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, /*inout*/ float& Thickness, /*inout*/ FLinearColor& WireColor) override;

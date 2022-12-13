@@ -2,6 +2,7 @@
 #pragma once
 #include "CoreMinimal.h"
 #include "ConnectionDrawingPolicy.h"
+#include "DefaultThemeSettings.h"
 #include "PackageTools.h"
 #include "SlateMaterialBrush.h"
 
@@ -180,6 +181,14 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Icons")
 		EWireRestyleBubbleIcon BubbleIcon;
 
+
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AnimationEditor")
+		FDTColor AttributeWireColor;
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AnimationEditor", meta = (ClampMin = "0.0", ClampMax = "2.0"))
+		float AttributeWireThicknessMultiplier;
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AnimationEditor")
+		bool AttributeDisableBubbles;
+
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
 		bool bDebug;  
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
@@ -187,8 +196,8 @@ public:
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
 		bool bDrawBubbles; 
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
-		int DebugInteger; 
+		int DebugInteger;
 
 
 #pragma endregion
-};
+}; 
