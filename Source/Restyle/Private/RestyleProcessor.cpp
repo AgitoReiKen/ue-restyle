@@ -1,7 +1,7 @@
 // Alexander (AgitoReiKen) Moskalenko (C) 2022
 #include "RestyleProcessor.h"
 #include "Misc/FileHelper.h"
-
+#include "SlateCore/Public/Styling/SlateStyle.h"
 #pragma region Wrapper
 namespace FSlateStyleSetWrapper_Data
 {
