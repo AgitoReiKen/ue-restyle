@@ -29,7 +29,8 @@ public class RestyleShaders : ModuleRules
                 "Slate",
                 "SlateCore",
                 "RenderCore",
-                "RHI"
+                "RHI",
+                "Projects"
                 // ... add private dependencies that you statically link with here ...	
             }
         );
