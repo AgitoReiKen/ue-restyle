@@ -26,7 +26,7 @@ git clone --single-branch --branch v5_0 https://github.com/agitoreiken/ue-restyl
 ```
 - For UE v5.1
 ```
-git clone --single-branch --branch v5_1 ttps://github.com/agitoreiken/ue-restyle ./Plugins/Restyle
+git clone --single-branch --branch v5_1 https://github.com/agitoreiken/ue-restyle ./Plugins/Restyle
 ``` 
 It will install the plugin into project's Plugin directory.
 
