@@ -15,9 +15,9 @@ Restyle replaces graph editor's widgets with customizable versions while also le
 Come to <a href="https://imgbox.com/g/pXWcf0Yyfg">Image Gallery</a> to see Restyle in work
 
 ## [=](#toc) Installation <a name="installation"></a>
-Goto your unreal engine's project directory (should contain .uproject file in there) 
+1. Goto your unreal engine's project directory (should contain .uproject file in there) 
 
-Then run **one** of the following commands:
+2. Run **one** of the following commands:
 - For UE v5.0
 ```
 git clone --single-branch --branch v5_0 https://github.com/agitoreiken/ue-restyle ./Plugins/Restyle
@@ -26,6 +26,9 @@ git clone --single-branch --branch v5_0 https://github.com/agitoreiken/ue-restyl
 ```
 git clone --single-branch --branch v5_1 ttps://github.com/agitoreiken/ue-restyle ./Plugins/Restyle
 ``` 
+It will install the plugin into project's Plugin directory.
+
+3. Regenerate & Recompile project and you've got it
 
 ## [=](#toc) Motivation <a name="motivation"></a>
 I did really want to see new design for blueprints in ue-5, but that didn't happen. 
