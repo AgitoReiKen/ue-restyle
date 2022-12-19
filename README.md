@@ -30,7 +30,10 @@ git clone --single-branch --branch v5_1 https://github.com/agitoreiken/ue-restyl
 ``` 
 It will install the plugin into project's Plugin directory.
 
-3. Regenerate & Recompile project and you've got it
+3. Regenerate & Recompile project and you've got it installed
+4. In editor, open `Edit -> Editor Preferences`
+5. Scroll down to `Plugins` section
+6. Find and open `Restyle`, set factories to **Default**
 
 ## [=](#toc) Motivation <a name="motivation"></a>
 I did really want to see new design for blueprints in ue-5, but that didn't happen. 
