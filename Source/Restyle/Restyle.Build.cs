@@ -56,6 +56,9 @@ public class Restyle : ModuleRules
                 // ... add private dependencies that you statically link with here ...	
             }
         );
-        PublicAdditionalLibraries.Add($"{PluginDirectory}/Binaries/ThirdParty/MinHook/Win64/minhook.x64.lib");
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            PublicAdditionalLibraries.Add($"{PluginDirectory}/Binaries/ThirdParty/MinHook/Win64/minhook.x64.lib");
+        }
     }
 }
