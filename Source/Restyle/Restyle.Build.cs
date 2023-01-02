@@ -24,7 +24,7 @@ public class Restyle : ModuleRules
                 Path.Combine(EngineDir, @"Source/Editor/GraphEditor/Private"),
                 Path.Combine(EngineDir, @"Source/Editor/UMGEditor/Private"),
             }
-        ); 
+        );
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
@@ -34,22 +34,22 @@ public class Restyle : ModuleRules
                 "Slate",
                 "SlateCore",
                 "RenderCore",
-                "Projects", 
+                "Projects",
                 "EngineSettings",
                 "Kismet",
                 "UnrealEd",
                 "BlueprintGraph",
                 "KismetWidgets",
                 "EditorWidgets",
-                "GraphEditor", 
+                "GraphEditor",
                 "UMG",
-                "InputCore", 
+                "InputCore",
                 "AppFramework",
                 "EditorWidgets",
                 "ToolWidgets",
                 "RHI",
                 "UMGEditor",
-                "MaterialEditor", 
+                "MaterialEditor",
                 "AnimGraph",
                 "KismetCompiler",
                 "RestyleShaders",
@@ -57,6 +57,9 @@ public class Restyle : ModuleRules
                 // ... add private dependencies that you statically link with here ...	
             }
         );
-        PublicAdditionalLibraries.Add($"{PluginDirectory}/Binaries/ThirdParty/MinHook/Win64/minhook.x64.lib");
+        if (Target.Platform == UnrealTargetPlatform.Win64)
+        {
+            PublicAdditionalLibraries.Add($"{PluginDirectory}/Binaries/ThirdParty/MinHook/Win64/minhook.x64.lib");
+        }
     }
 }
