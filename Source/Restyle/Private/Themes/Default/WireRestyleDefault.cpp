@@ -144,6 +144,18 @@ void UWireRestyleSettings::SetDefaults()
 	bDrawWireframe = false;
 	bDrawBubbles = false;
 	DebugInteger = 2;
+
+	bAntiCollision = true;
+	AntiCollisionPinPriority = EWireRestylePriority::Input;
+	EdgeOffsetPeriod = 4;
+	AbsoluteMinHorizontalLength = 10;
+	UpdateAntiCollisionLevels();
+}
+
+void UWireRestyleSettings::UpdateAntiCollisionLevels()
+{
+	bool bIsPeriodOdd = EdgeOffsetPeriod % 2 == 1;
+	AntiCollisionLevels = EdgeOffsetPeriod - (bIsPeriodOdd ? 2 : 1);
 }
 
 void UWireRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -157,5 +169,10 @@ void UWireRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& Propert
 			SetDefaults();
 			bRestoreDefaults = false;
 		}
+	}
+	else if (PropertyChangedEvent.GetPropertyName() ==
+		GET_MEMBER_NAME_CHECKED(UWireRestyleSettings, EdgeOffsetPeriod))
+	{
+		UpdateAntiCollisionLevels();
 	}
 }
