@@ -69,6 +69,8 @@
 #include "Nodes/Material/SDefault_GraphNodeMaterialResult.h"
 #include "UMGEditor/Private/Nodes/K2Node_CreateWidget.h"
 #include "Utils/Privates.h"
+ 
+
 TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::CreateNode(UEdGraphNode* InNode) const
 {
 	if (!InNode) return nullptr;
@@ -110,47 +112,59 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::CreateNode(UEdGraphNode* I
 
 TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryKismet(UEdGraphNode* InNode) const
 {
+	const auto* Settings = UNodeRestyleSettings::Get();
+	const auto& Disabled = Settings->DisabledWidgets.Kismet;
 	if (InNode->GetSchema()->IsA<UEdGraphSchema_K2>()) {
-		if (UK2Node* K2Node = Cast<UK2Node>(InNode))
+		 if (UK2Node* K2Node = Cast<UK2Node>(InNode))
 		{
 			if (UK2Node_CreateWidget* CreateWidgetNode = Cast<UK2Node_CreateWidget>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::CreateWidget]) return nullptr;
 				return SNew(SDefault_GraphNodeCreateWidget, CreateWidgetNode);
 			}
 			if (UK2Node_Composite* CompositeNode = Cast<UK2Node_Composite>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::Composite]) return nullptr;
 				return SNew(SDefault_GraphNodeK2Composite, CompositeNode);
 			}
 			if (K2Node->DrawNodeAsVariable())
 			{
+				if (Disabled[EKismetNodeClass::Variable]) return nullptr;
 				return SNew(SDefault_GraphNodeK2Var, K2Node);
 			}
 			if (UK2Node_Switch* SwitchNode = Cast<UK2Node_Switch>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::Switch]) return nullptr;
 				return SNew(SDefault_GraphNodeSwitchStatement, SwitchNode);
 			}
-			if (UK2Node_PromotableOperator* PromotableOperator = Cast<UK2Node_PromotableOperator>(InNode))
+		 	if (UK2Node_PromotableOperator* PromotableOperator = Cast<UK2Node_PromotableOperator>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::PromotableOperator]) return nullptr;
 				return SNew(SDefault_GraphNodePromotableOperator, PromotableOperator);
 			}
 			if (InNode->GetClass()->ImplementsInterface(UK2Node_AddPinInterface::StaticClass()))
 			{
+				if (Disabled[EKismetNodeClass::AddPin]) return nullptr;
 				return SNew(SDefault_GraphNodeK2Sequence, CastChecked<UK2Node>(InNode));
 			}
 			if (UK2Node_Timeline* TimelineNode = Cast<UK2Node_Timeline>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::Timeline]) return nullptr;
 				return SNew(SDefault_GraphNodeK2Timeline, TimelineNode);
 			}
 			if (UK2Node_SpawnActor* SpawnActorNode = Cast<UK2Node_SpawnActor>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::SpawnActor]) return nullptr;
 				return SNew(SDefault_GraphNodeSpawnActor, SpawnActorNode);
 			}
 			if (UK2Node_SpawnActorFromClass* SpawnActorNodeFromClass = Cast<UK2Node_SpawnActorFromClass>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::SpawnActorFromClass]) return nullptr;
 				return SNew(SDefault_GraphNodeSpawnActorFromClass, SpawnActorNodeFromClass);
 			}
 			if (UK2Node_CreateDelegate* CreateDelegateNode = Cast<UK2Node_CreateDelegate>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::CreateDelegate]) return nullptr;
 				return SNew(SDefault_GraphNodeK2CreateDelegate, CreateDelegateNode);
 			}
 			if (UK2Node_CallMaterialParameterCollectionFunction* CallFunctionNode = Cast<UK2Node_CallMaterialParameterCollectionFunction>(InNode))
@@ -160,18 +174,22 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryKismet(UEdGraphNode* In
 			}
 			if (UK2Node_Event* EventNode = Cast<UK2Node_Event>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::Event]) return nullptr;
 				return SNew(SDefault_GraphNodeK2Event, EventNode);
 			}
 			if (UK2Node_FormatText* FormatTextNode = Cast<UK2Node_FormatText>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::FormatText]) return nullptr;
 				return SNew(SDefault_GraphNodeFormatText, FormatTextNode);
 			}
 			if (UK2Node_Knot* Knot = Cast<UK2Node_Knot>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::Knot]) return nullptr;
 				return SNew(SDefault_GraphNodeKnot, Knot);
 			}
 			if (UK2Node_MakeStruct* MakeStruct = Cast<UK2Node_MakeStruct>(InNode))
 			{
+				if (Disabled[EKismetNodeClass::MakeStruct]) return nullptr;
 				return SNew(SDefault_GraphNodeMakeStruct, MakeStruct);
 			}
 			if (UK2Node_Copy* CopyNode = Cast<UK2Node_Copy>(InNode))
@@ -179,6 +197,7 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryKismet(UEdGraphNode* In
 				return nullptr;
 				//return SNew(SGraphNodeK2Copy, CopyNode);
 			}
+			if (Disabled[EKismetNodeClass::Base]) return nullptr;
 			return SNew(SDefault_GraphNodeK2Default, K2Node);
 		}
 	}
@@ -187,41 +206,48 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryKismet(UEdGraphNode* In
 
 TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryAnimation(UEdGraphNode* InNode) const
 {
+	const auto* Settings = UNodeRestyleSettings::Get();
+	const auto& Disabled = Settings->DisabledWidgets.Animation;
 	if (InNode->GetSchema()->IsA<UAnimationGraphSchema>()) {
 		if (UAnimGraphNode_Base* BaseAnimNode = Cast<UAnimGraphNode_Base>(InNode))
 		{
 			if (UAnimGraphNode_Root* RootAnimNode = Cast<UAnimGraphNode_Root>(InNode))
 			{
+				if (Disabled[EAnimationNodeClass::Root]) return nullptr;
 				return SNew(SDefault_GraphNodeAnimationResult, RootAnimNode);
 			}
-			else if (UAnimGraphNode_StateMachineBase* StateMachineInstance = Cast<UAnimGraphNode_StateMachineBase>(InNode))
+			if (UAnimGraphNode_StateMachineBase* StateMachineInstance = Cast<UAnimGraphNode_StateMachineBase>(InNode))
 			{
+				if (Disabled[EAnimationNodeClass::StateMachine]) return nullptr;
 				return SNew(SDefault_GraphNodeStateMachineInstance, StateMachineInstance);
 			}
-			else if (UAnimGraphNode_SequencePlayer* SequencePlayer = Cast<UAnimGraphNode_SequencePlayer>(InNode))
+			if (UAnimGraphNode_SequencePlayer* SequencePlayer = Cast<UAnimGraphNode_SequencePlayer>(InNode))
 			{
+				if (Disabled[EAnimationNodeClass::SequencePlayer]) return nullptr;
 				return SNew(SDefault_GraphNodeSequencePlayer, SequencePlayer);
 			}
-			else if (UAnimGraphNode_LayeredBoneBlend* LayeredBlend = Cast<UAnimGraphNode_LayeredBoneBlend>(InNode))
+			if (UAnimGraphNode_LayeredBoneBlend* LayeredBlend = Cast<UAnimGraphNode_LayeredBoneBlend>(InNode))
 			{
+				if (Disabled[EAnimationNodeClass::LayeredBoneBlend]) return nullptr;
 				return SNew(SDefault_GraphNodeLayeredBoneBlend, LayeredBlend);
 			}
-			else if (UAnimGraphNode_BlendSpaceBase* BlendSpacePlayer = Cast<UAnimGraphNode_BlendSpaceBase>(InNode))
+			if (UAnimGraphNode_BlendSpaceBase* BlendSpacePlayer = Cast<UAnimGraphNode_BlendSpaceBase>(InNode))
 			{
+				if (Disabled[EAnimationNodeClass::BlendSpacePlayer]) return nullptr;
 				return SNew(SDefault_GraphNodeBlendSpacePlayer, BlendSpacePlayer);
 			}
-			else if (UAnimGraphNode_BlendSpaceGraphBase* BlendSpaceGraph = Cast<UAnimGraphNode_BlendSpaceGraphBase>(InNode))
+			if (UAnimGraphNode_BlendSpaceGraphBase* BlendSpaceGraph = Cast<UAnimGraphNode_BlendSpaceGraphBase>(InNode))
 			{
+				if (Disabled[EAnimationNodeClass::BlendSpaceGraph]) return nullptr;
 				return SNew(SDefault_GraphNodeBlendSpaceGraph, BlendSpaceGraph);
 			}
-			else if (UAnimGraphNode_LinkedAnimGraph* LinkedAnimLayer = Cast<UAnimGraphNode_LinkedAnimGraph>(InNode))
+			if (UAnimGraphNode_LinkedAnimGraph* LinkedAnimLayer = Cast<UAnimGraphNode_LinkedAnimGraph>(InNode))
 			{
+				if (Disabled[EAnimationNodeClass::LinkedLayer]) return nullptr;
 				return SNew(SDefault_GraphNodeLinkedLayer, LinkedAnimLayer);
 			}
-			else
-			{
-				return SNew(SDefault_AnimationGraphNode, BaseAnimNode);
-			}
+			if (Disabled[EAnimationNodeClass::Base]) return nullptr;
+			return SNew(SDefault_AnimationGraphNode, BaseAnimNode);
 		}
 
 
@@ -256,17 +282,21 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryAnimation(UEdGraphNode*
 
 TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryMaterial(UEdGraphNode* InNode) const
 {
-	if (UMaterialGraphNode_Base* BaseMaterialNode = Cast<UMaterialGraphNode_Base>(InNode))
+	const auto* Settings = UNodeRestyleSettings::Get();
+	const auto& Disabled = Settings->DisabledWidgets.Material;
+	 if (UMaterialGraphNode_Base* BaseMaterialNode = Cast<UMaterialGraphNode_Base>(InNode))
 	{
 		if (UMaterialGraphNode_Root* RootMaterialNode = Cast<UMaterialGraphNode_Root>(InNode))
 		{
+			if (Disabled[EMaterialNodeClass::Root]) return nullptr;
 			return SNew(SDefault_GraphNodeMaterialResult, RootMaterialNode);
 		}
-		else if (UMaterialGraphNode_Knot* MaterialKnot = Cast<UMaterialGraphNode_Knot>(InNode))
+	 	if (UMaterialGraphNode_Knot* MaterialKnot = Cast<UMaterialGraphNode_Knot>(InNode))
 		{
+			if (Disabled[EMaterialNodeClass::Knot]) return nullptr;
 			return SNew(SDefault_GraphNodeKnot, MaterialKnot);
 		}
-		else if (UMaterialGraphNode* MaterialNode = Cast<UMaterialGraphNode>(InNode))
+		if (UMaterialGraphNode* MaterialNode = Cast<UMaterialGraphNode>(InNode))
 		{
 			if (UMaterialGraphNode_Composite* MaterialComposite = Cast<UMaterialGraphNode_Composite>(InNode))
 			{
@@ -275,6 +305,7 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryMaterial(UEdGraphNode* 
 			}
 			else
 			{
+				if (Disabled[EMaterialNodeClass::Base]) return nullptr;
 				return SNew(SDefault_GraphNodeMaterialBase, MaterialNode);
 			}
 		}
@@ -289,8 +320,11 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryMaterial(UEdGraphNode* 
 
 TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryOther(UEdGraphNode* InNode) const
 {
+	const auto* Settings = UNodeRestyleSettings::Get();
+	const auto& Disabled = Settings->DisabledWidgets.Other;
 	if (UEdGraphNode_Comment* CommentNode = Cast<UEdGraphNode_Comment>(InNode))
 	{
+		if (Disabled[EOtherNodeClass::Comment]) return nullptr;
 		return SNew(SDefault_GraphNodeComment, CommentNode);
 	}
 	return nullptr;

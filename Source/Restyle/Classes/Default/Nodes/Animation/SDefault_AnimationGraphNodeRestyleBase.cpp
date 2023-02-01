@@ -1,4 +1,4 @@
-// Alexander (AgitoReiKen) Moskalenko (C) 2022
+﻿// Alexander (AgitoReiKen) Moskalenko (C) 2022
 
 #include "SDefault_AnimationGraphNodeRestyleBase.h"
 #include "Internationalization/Culture.h"
@@ -144,7 +144,14 @@ void SDefault_AnimationGraphNodeRestyleBase::UpdateGraphNode()
 		};
 		const FSlateBrush* IconBrush = GetIcon();
 
-		FString ExtraTextIgnore = Node.Title.bRemoveTargetIsTitle ? "Target Is" : "";
+		TArray<FString> ExtraTextIgnore = Node.Title.bRemoveTargetIsTitle ?
+			TArray{
+				FString(TEXT("Target Is")),
+				FString(TEXT("目标是")),
+				FString(TEXT("ターゲットは")),
+				FString(TEXT("타깃은"))
+		}
+		: TArray<FString>{};
 		TSharedPtr<SDefault_NodeTitle> NodeTitle = SAssignNew(TitleExtraText, SDefault_NodeTitle, GraphNode,
 			State.Title.ExtraText.Get(),
 			FNodeRestyleStyles::GraphNode_Title_ExtraText,

@@ -16,14 +16,14 @@ public:
 
 	SLATE_END_ARGS()
 
-	void Construct(const FArguments& InArgs, UEdGraphNode* Node, const FLinearColor& TextColor, 
-		const FName& InTextBlockStyle, const FString& InIgnoreLineStartsWith = FString(""));
+	void Construct(const FArguments& InArgs, UEdGraphNode* Node, const FLinearColor& TextColor,
+		const FName& InTextBlockStyle, const TArray<FString>& InIgnoreLineStartsWith = {});
 	void RebuildWidget_New();
 	virtual void Tick(const FGeometry& AllottedGeometry, const double InCurrentTime, const float InDeltaTime) override;
 	FText GetNodeTitle_New() const;
 	TSharedPtr<STextBlock> ExtraTextBlock;
 private:
-	FString IgnoreLineStartsWith;
+	TArray<FString> IgnoreLineStartsWith;
 	FLinearColor Color;
 	FName TextBlockStyle;
 };
