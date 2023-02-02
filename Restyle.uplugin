@@ -32,9 +32,7 @@
 			"Type": "DeveloperTool",
 			"LoadingPhase": "PostConfigInit",
 			"WhitelistPlatforms": [
-				"Win64",
-				"Mac",
-				"Linux"
+				"Win64"
 			]
 		}
 	]
