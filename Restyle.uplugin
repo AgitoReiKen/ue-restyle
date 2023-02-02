@@ -30,9 +30,7 @@
 			"Type": "Editor",
 			"LoadingPhase": "PostEngineInit",
 			"WhitelistPlatforms": [
-				"Win64",
-				"Mac",
-				"Linux"
+				"Win64" 
 			],
 			"AdditionalDependencies": [
 				"RestyleShaders"
