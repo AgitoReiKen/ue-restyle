@@ -10,7 +10,7 @@
 	"DocsURL": "",
 	"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/cac2768eef8947ffab3aee7f5ddd039d",
 	"SupportURL": "https://github.com/AgitoReiKen/ue-restyle",
-	"CanContainContent": true,
+	"CanContainContent": false,
 	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
 	"Installed": false,
@@ -33,6 +33,9 @@
 			"LoadingPhase": "PostConfigInit",
 			"WhitelistPlatforms": [
 				"Win64"
+			],
+			"TargetAllowList": [
+				"Editor"
 			]
 		}
 	]
