@@ -759,7 +759,7 @@ struct FDTVarNode
 		TitlePadding = "HugeXMediumY";
 		ContentAreaPadding = "Zero";
 		bHideGetTitle = false;
-		TitleHeight = 20;
+		TitleHeight = 24;
 	}
 
 	const FDTVarNodeTypeData& GetTypeData(EDTVarType Type) const
