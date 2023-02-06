@@ -1,4 +1,4 @@
-// Alexander (AgitoReiKen) Moskalenko (C) 2022
+﻿// Alexander (AgitoReiKen) Moskalenko (C) 2022
 
 #include "SDefault_GraphNodeRestyleK2Base.h"
 #include "KismetNodes/SGraphNodeK2Base.h"
@@ -146,7 +146,14 @@ void SDefault_GraphNodeRestyleK2Base::UpdateGraphNode()
 		};
 		const FSlateBrush* IconBrush = GetIcon();
 
-		FString ExtraTextIgnore = Node.Title.bRemoveTargetIsTitle ? "Target Is" : "";
+		TArray<FString> ExtraTextIgnore = Node.Title.bRemoveTargetIsTitle ?
+			TArray{
+				FString(TEXT("Target Is")),
+				FString(TEXT("目标是")),
+				FString(TEXT("ターゲットは")),
+				FString(TEXT("타깃은"))
+		}
+		: TArray<FString>{};
 		TSharedPtr<SDefault_NodeTitle> NodeTitle = SAssignNew(TitleExtraText, SDefault_NodeTitle, GraphNode,
 		                                                      State.Title.ExtraText.Get(),
 		                                                      FNodeRestyleStyles::GraphNode_Title_ExtraText,

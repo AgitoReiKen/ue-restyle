@@ -22,7 +22,7 @@ FText SDefault_NodeTitle::GetNodeTitle_New() const
 
  
 void SDefault_NodeTitle::Construct(const FArguments& InArgs, UEdGraphNode* Node, const FLinearColor& TextColor,
-	const FName& InTextBlockStyle, const FString& InIgnoreLineStartsWith)
+	const FName& InTextBlockStyle, const TArray<FString>& InIgnoreLineStartsWith)
 {
 	GraphNode = Node;
 	TitleText = InArgs._Text.IsSet() ? InArgs._Text : TAttribute<FText>(this, &SDefault_NodeTitle::GetNodeTitle_New);
@@ -52,7 +52,11 @@ void SDefault_NodeTitle::RebuildWidget_New()
 		if ((CachedTitleString.Len() - 1) > NewlineCharIndex)
 		{
 			FString ExtraTextStr = CachedTitleString.Mid(NewlineCharIndex + 1);
-			if (!IgnoreLineStartsWith.IsEmpty() && ExtraTextStr.StartsWith(IgnoreLineStartsWith))
+			bool bIsIgnored = IgnoreLineStartsWith.ContainsByPredicate([&ExtraTextStr](const FString& str)->bool
+				{
+					return ExtraTextStr.StartsWith(str);
+				});
+			if (bIsIgnored)
 			{
 				if (int32 Id = 0; ExtraTextStr.FindChar('\n', Id)) {
 
