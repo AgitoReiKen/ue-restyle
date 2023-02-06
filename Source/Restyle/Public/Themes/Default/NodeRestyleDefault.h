@@ -13,7 +13,7 @@
 #include "NodeRestyleDefault.generated.h"
 
 class FNodeRestyleDefault
-: public INodeRestyleInterface
+	: public INodeRestyleInterface
 {
 public:
 	explicit FNodeRestyleDefault();
@@ -32,6 +32,58 @@ private:
 };
 
 class UNodeRestyleSettings;
+
+UENUM()
+enum class EKismetNodeClass : uint8
+{
+	Base,
+	CreateWidget,
+	Composite,
+	Variable,
+	Switch,
+	PromotableOperator,
+	AddPin,
+	Timeline,
+	SpawnActor,
+	SpawnActorFromClass,
+	CreateDelegate,
+	Event,
+	FormatText,
+	Knot,
+	MakeStruct,
+	MAX UMETA(Hidden)
+};
+
+UENUM()
+enum class EOtherNodeClass : uint8
+{
+	Comment,
+	MAX UMETA(Hidden)
+};
+
+UENUM()
+enum class EMaterialNodeClass : uint8
+{
+	Base,
+	Root,
+	Knot,
+	MAX UMETA(Hidden)
+};
+
+UENUM()
+enum class EAnimationNodeClass : uint8
+{
+	Base,
+	Root,
+	StateMachine,
+	SequencePlayer,
+	LayeredBoneBlend,
+	BlendSpacePlayer,
+	BlendSpaceGraph,
+	LinkedLayer,
+	MAX UMETA(Hidden)
+};
+
 
 #pragma region Common
 
@@ -95,16 +147,20 @@ struct FDTNodeTitleDynamic
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor MainText;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor ExtraText;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor Icon;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor Background;
 };
 
@@ -137,34 +193,39 @@ struct FDTNodeTitle
 		  AltItemSpacing(AltItemSpacing),
 		  DelegatePinSpacing(DelegatePinSpacing),
 		  bAlternativeStyle(bAlternativeStyle),
-			bRemoveTargetIsTitle(bRemoveTargetIsTitle)
+		  bRemoveTargetIsTitle(bRemoveTargetIsTitle)
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef MainText;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef ExtraText;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetCornerOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetCornerOptions"))
 	FName CornerRadius;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName Padding;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ItemSpacing;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName AltItemSpacing;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName DelegatePinSpacing;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	bool bAlternativeStyle;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	bool bRemoveTargetIsTitle;
 };
 #pragma endregion
@@ -186,10 +247,10 @@ struct FDTNodeStateData
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTNodeTitleDynamic Title;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTBrushRef Body;
 };
 
@@ -219,11 +280,11 @@ struct FDTNodeTypeData
 		}
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTNodeStateData Normal;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTNodeStateData Selected;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTNodeStateData Invalid;
 };
 
@@ -257,7 +318,7 @@ struct FDTNode
 				FDTBrushRef("NodeFocused").SetOutlineColor(true, TitleBg)
 			};
 			Invalid = {
-					{
+				{
 					FDTColor(Content),
 					FDTColor(Content, .75f),
 					FDTColor(Content),
@@ -304,7 +365,7 @@ struct FDTNode
 				FDTBrushRef("NodeFocused").SetOutlineColor(true, TitleBg)
 			};
 			Invalid = {
-					{
+				{
 					FDTColor(Content),
 					FDTColor(Content, .75f),
 					FDTColor(Content),
@@ -313,7 +374,7 @@ struct FDTNode
 				FDTBrushRef("NodeNormal").SetOutlineColor(true, "Red-3")
 
 			};
-			return { Normal, Selected, Invalid };
+			return {Normal, Selected, Invalid};
 		}();
 		LinkedLayer = FunctionTerminator;
 		PlaySequence = Event;
@@ -345,55 +406,56 @@ struct FDTNode
 	//UPROPERTY(Category = "DTNodeData",/*EditAnywhere, */meta = (ArraySizeEnum = "EDTGraphNodeTitleType"))
 	//FDTNodeTypeData Types[(int32)EDTGraphNodeTitleType::Num];
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	EDTGraphNodeTitleType Edit;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::Default", EditConditionHides))
 	FDTNodeTypeData Default;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::Event", EditConditionHides))
 	FDTNodeTypeData Event;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::Function", EditConditionHides))
 	FDTNodeTypeData Function;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::PureFunction", EditConditionHides))
 	FDTNodeTypeData PureFunction;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::ParentFunction", EditConditionHides))
 	FDTNodeTypeData ParentFunction;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::FunctionTerminator",
 			EditConditionHides))
 	FDTNodeTypeData FunctionTerminator;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::ExecBranch", EditConditionHides))
 	FDTNodeTypeData ExecBranch;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::ExecSequence", EditConditionHides))
 	FDTNodeTypeData ExecSequence;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::Result", EditConditionHides))
 	FDTNodeTypeData Result;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::Preview", EditConditionHides))
 	FDTNodeTypeData Preview;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::Black", EditConditionHides))
 	FDTNodeTypeData Black;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::PlaySequence", EditConditionHides))
 	FDTNodeTypeData PlaySequence;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (EditCondition = "Edit==EDTGraphNodeTitleType::LinkedLayer", EditConditionHides))
 	FDTNodeTypeData LinkedLayer;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTNodeTitle Title;
 
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ContentSpacing;
 };
 
@@ -412,10 +474,10 @@ struct FDTCompactNodeStateData
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTColor TitleColor;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTBrushRef Body;
 };
 
@@ -458,11 +520,11 @@ struct FDTNodeCompactStates
 		}
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCompactNodeStateData Normal;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCompactNodeStateData Selected;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCompactNodeStateData Invalid;
 };
 
@@ -480,25 +542,28 @@ struct FDTNodeCompactTitleDefault
 		MacroIconColor = FDTColor("Light-2", .25f);
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef Text;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef OneSymbolText;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName Padding;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (ClampMin = "64.0", ClampMax = "512.0"))
 	float WrapAt;
 
 	/*Array/Set/Map Icons have static 25% opacity of its type color */
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor FunctionIconColor;
 
 	/*Array/Set/Map Icons have static 25% opacity of its type color */
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor MacroIconColor;
 };
 
@@ -516,25 +581,29 @@ struct FDTNodeCompactTitleAlternative
 		MacroIconColor = "Light-4";
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef Text;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName Padding;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (ClampMin = "64.0", ClampMax = "512.0"))
 	float WrapAt;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ItemSpacing;
 
 	/*Array/Set/Map Icons have static 25% opacity of its type color */
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor FunctionIconColor;
 
 	/*Array/Set/Map Icons have static 25% opacity of its type color */
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor MacroIconColor;
 };
 
@@ -555,30 +624,32 @@ struct FDTNodeCompact
 		MinWidth = 128.0f;
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTNodeCompactStates States;
 
 	/*Uses alternative title style if length of compact node title is greater than this N*/
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin="-1", ClampMax="256"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin="-1", ClampMax="256"))
 	int32 AltFuncIfGreater;
 	/*Uses alternative title style if length of compact node title is greater than this N*/
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin="-1", ClampMax="256"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin="-1", ClampMax="256"))
 	int32 AltMacroIfGreater;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere,
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
 		meta = (DisplayName = "Alternative Title"))
 	FDTNodeCompactTitleAlternative AlternativeTitle;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTNodeCompactTitleDefault Title;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetCornerOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetCornerOptions"))
 	FName BodyCornerRadius;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ContentSpacing;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "64", ClampMax = "512"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "64", ClampMax = "512"))
 	float MinWidth;
 };
 
@@ -600,11 +671,11 @@ struct FDTVarNodeState
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTColor TitleColor;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTBrushRef TitleBody;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTBrushRef Body;
 };
 
@@ -638,11 +709,11 @@ struct FDTVarNodeTypeData
 		}
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTVarNodeState Normal;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTVarNodeState Selected;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTVarNodeState Invalid;
 };
 
@@ -723,20 +794,24 @@ struct FDTVarNode
 		default: return Default;
 		}
 	}
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName TitlePadding;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTVarNodeTypeData Default;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef TitleText;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ContentSpacing;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ContentAreaPadding;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere)
-		bool bHideGetTitle;
+	bool bHideGetTitle;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0", ClampMax = "64"))
-		float TitleHeight;
+	float TitleHeight;
 };
 
 USTRUCT()
@@ -758,11 +833,14 @@ struct FDTCollapsedNodeTitleDynamic
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor MainText;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor ExtraText;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor Icon;
 };
 
@@ -783,9 +861,9 @@ struct FDTCollapsedNodeState
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCollapsedNodeTitleDynamic Title;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTBrushRef Body;
 };
 
@@ -818,11 +896,11 @@ struct FDTCollapsedNodeTypeData
 		}
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCollapsedNodeState Normal;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCollapsedNodeState Selected;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCollapsedNodeState Invalid;
 };
 
@@ -847,13 +925,15 @@ struct FDTCollapsedNodeTitle
 		Padding = "Medium";
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef MainText;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef ExtraText;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ItemSpacing;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName Padding;
 };
 
@@ -877,11 +957,12 @@ struct FDTCollapsedNode
 		}*/
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCollapsedNodeTitle Title;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCollapsedNodeTypeData Default;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName ContentSpacing;
 };
 
@@ -897,13 +978,15 @@ struct FDTCreateDelegateNode
 		SearchPadding = "Medium";
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef SignatureTitle;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTComboBoxRef SearchComboBox;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName TitlePadding;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName SearchPadding;
 };
 
@@ -913,26 +996,28 @@ struct FDTNodeKnot
 	GENERATED_BODY()
 	FDTNodeKnot()
 	{
-		BodySize = { 32,32 };
+		BodySize = {32, 32};
 		BodyColor = FDTColor("Light-4", .2f);
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
-		FVector2D BodySize;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
-		FDTColor BodyColor;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	FVector2D BodySize;
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
+	FDTColor BodyColor;
 };
 
 USTRUCT()
 struct FDTMaterialNode
 {
 	GENERATED_BODY()
-		FDTMaterialNode()
+	FDTMaterialNode()
 	{
 		PreviewCheckboxSpacing = "Large";
 		PreviewCheckbox = "TransparentLight";
 	}
-	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName PreviewCheckboxSpacing;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCheckBoxRef PreviewCheckbox;
@@ -951,15 +1036,19 @@ struct FDTFunctionBinding
 		NameWidth = 128;
 		ValueWidth = 128;
 	}
-	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName Padding;
 	/* Spacing between items*/
-	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName SpacingY;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTButtonRef GotoButton;
 	/* Spacing between dropdowm and goto */
-	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName SpacingX;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0", ClampMax = "512"))
 	float NameWidth;
@@ -982,7 +1071,8 @@ struct FDTAnimationNode
 	FDTFunctionBinding FunctionBinding;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTSliderRef TimelineSlider;
-	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName TimelineSliderPadding;
 };
 
@@ -998,9 +1088,9 @@ struct FDTOtherNodes
 		Animation = FDTAnimationNode();
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCreateDelegateNode CreateDelegate;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTNodeKnot Reroute;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTMaterialNode Material;
@@ -1036,19 +1126,21 @@ struct FDTCommentBubbleButtonSettings
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCheckBoxRef Toggle;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCheckBoxRef Pin;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetIconSizeOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetIconSizeOptions"))
 	FName Size;
 
 	/* X when horizontal. Y when vertical*/
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FVector2D SpaceBetweenButtons;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FMargin ToggleOffset;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName ButtonsBoxOffset;
 };
 
@@ -1070,11 +1162,12 @@ struct FDTCommentBubbleBackgroundSettings
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTBrushRef Body;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor ArrowColor;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FName InnerPadding;
 };
 
@@ -1103,15 +1196,17 @@ struct FDTCommentBubble
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTEditableTextBoxRef Text;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTBrushRef Body;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetColorOptions"))
 	FDTColor ArrowColor;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName InnerPadding;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTCommentBubbleButtonSettings Buttons;
 };
 
@@ -1131,20 +1226,20 @@ struct FDTCommentNode
 	}
 
 	/* Removes an issue of cursor being "desynced" when resizing comment*/
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	bool bNewResizingMethod;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTEditableTextBoxRef Title;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName TitlePadding;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "0.05", ClampMax = "1.0"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0.05", ClampMax = "1.0"))
 	float NormalOpacity;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "0.1", ClampMax = "1.0"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0.1", ClampMax = "1.0"))
 	float SelectedOpacity;
 	//@TODO find where to apply it
 	//UPROPERTY(Category = "DTNodeData",EditAnywhere)
 	FDTColor ResizeIconColor;
- 
 };
 #pragma endregion
 
@@ -1182,13 +1277,14 @@ struct FDTNodeReport
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FString Title;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef Text;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTBrushRef Body;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName InnerPadding;
 };
 #pragma endregion
@@ -1223,13 +1319,14 @@ struct FDTEnabledState
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FString Title;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTTextRef Text;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTBrushRef Body;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName InnerPadding;
 };
 
@@ -1262,9 +1359,10 @@ struct FDTEnabledStateWidget
 		FMemory::Memcpy(this->Types, Types, sizeof(FDTEnabledState) * (int)EDTEnabledStateType::Num);
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetMarginOptions"))
 	FName Padding;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ArraySizeEnum = "EDTEnabledStateType"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ArraySizeEnum = "EDTEnabledStateType"))
 	FDTEnabledState Types[(int)EDTEnabledStateType::Num];
 };
 #pragma endregion
@@ -1287,9 +1385,9 @@ struct FZoomLevelEntry
 	{
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	float ZoomAmount;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FText DisplayText;
 };
 
@@ -1309,23 +1407,23 @@ struct FDTZoomSettings
 		UpdateZoomLevels();
 	}
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "10", ClampMax = "200"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "10", ClampMax = "200"))
 	int Smoothness;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "0.1", ClampMax = "0.2", Units = "Percent"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0.1", ClampMax = "0.2", Units = "Percent"))
 	float Min;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "1.5", ClampMax = "3.0", Units = "Percent"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "1.5", ClampMax = "3.0", Units = "Percent"))
 	float Max;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "0.25", ClampMax = "0.5", Units = "Percent"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0.25", ClampMax = "0.5", Units = "Percent"))
 	float MaxJump;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "0.125", ClampMax = "0.25", Units = "Percent"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0.125", ClampMax = "0.25", Units = "Percent"))
 	float MinJump;
-	UPROPERTY(Category = "DTNodeData",EditAnywhere, meta = (ClampMin = "0.5", ClampMax = "2.0", Units = "Percent"))
+	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0.5", ClampMax = "2.0", Units = "Percent"))
 	float Default;
 
 	UPROPERTY(Category = "DTNodeData", EditAnywhere, meta = (ClampMin = "0.0", ClampMax = "1.0", Units = "Percent"))
-		float UseLowLodIfBelow;
+	float UseLowLodIfBelow;
 
-	UPROPERTY(Category = "DTNodeData",EditAnywhere)
+	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	TArray<FZoomLevelEntry> ZoomLevels;
 	int32 DefaultZoomLevelId;
 	int32 LowerZoomLevelId;
@@ -1390,10 +1488,11 @@ struct FDTZoomSettings
 		}
 		SmoothDefaultLevel();
 	}
+
 	void UpdateLowerZoomLevelId()
 	{
-		LowerZoomLevelId = 0; 
-		for (int i = ZoomLevels.Num() -1 ; i >= 0; i--)
+		LowerZoomLevelId = 0;
+		for (int i = ZoomLevels.Num() - 1; i >= 0; i--)
 		{
 			if (ZoomLevels[i].ZoomAmount <= UseLowLodIfBelow)
 			{
@@ -1402,6 +1501,7 @@ struct FDTZoomSettings
 			}
 		}
 	}
+
 	void SmoothDefaultLevel()
 	{
 		ZoomLevels[DefaultZoomLevelId] = {
@@ -1414,6 +1514,42 @@ struct FDTZoomSettings
 #pragma endregion
 
 USTRUCT()
+struct FDTNodeDisabledWidgets
+{
+	GENERATED_BODY()
+
+
+		FDTNodeDisabledWidgets()
+	{
+		for (uint8 i = 0; i < static_cast<uint8>(EKismetNodeClass::MAX); ++i)
+		{
+			Kismet.Emplace(static_cast<EKismetNodeClass>(i), false);
+		}
+		for (uint8 i = 0; i < static_cast<uint8>(EOtherNodeClass::MAX); ++i)
+		{
+			Other.Emplace(static_cast<EOtherNodeClass>(i), false);
+		}
+		for (uint8 i = 0; i < static_cast<uint8>(EMaterialNodeClass::MAX); ++i)
+		{
+			Material.Emplace(static_cast<EMaterialNodeClass>(i), false);
+		}
+		for (uint8 i = 0; i < static_cast<uint8>(EAnimationNodeClass::MAX); ++i)
+		{
+			Animation.Emplace(static_cast<EAnimationNodeClass>(i), false);
+		}
+	}
+
+	UPROPERTY(Category = "DTNodeAllowedWidgets", EditFixedSize, EditAnywhere)
+		TMap<EKismetNodeClass, bool> Kismet;
+	UPROPERTY(Category = "DTNodeAllowedWidgets", EditFixedSize, EditAnywhere)
+		TMap<EOtherNodeClass, bool> Other;
+	UPROPERTY(Category = "DTNodeAllowedWidgets", EditFixedSize, EditAnywhere)
+		TMap<EMaterialNodeClass, bool> Material;
+	UPROPERTY(Category = "DTNodeAllowedWidgets", EditFixedSize, EditAnywhere)
+		TMap<EAnimationNodeClass, bool> Animation;
+};
+
+USTRUCT()
 struct FDTAdvancedDisplay
 {
 	GENERATED_BODY()
@@ -1424,7 +1560,8 @@ struct FDTAdvancedDisplay
 	}
 
 
-	UPROPERTY(Category ="DTNodeData", EditAnywhere, meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
+	UPROPERTY(Category ="DTNodeData", EditAnywhere,
+		meta = (GetOptions = "Restyle.DefaultThemeSettings.GetSpacingOptions"))
 	FName Padding;
 	UPROPERTY(Category = "DTNodeData", EditAnywhere)
 	FDTButtonRef Button;
@@ -1454,7 +1591,8 @@ struct FNodeRestyleStyles
 	static inline const FName CommentNode_Title_Text = "Restyle.Commentnode.Title.Text";
 	static inline const FName AdvancedDisplay = "Restyle.Graph.AdvancedDisplay";
 	static inline const FName MaterialNode_PreviewCheckbox = "Restyle.MaterialNode.PreviewCheckbox";
-	static inline const FName AnimationNode_FunctionBinding_GotoButton = "Restyle.AnimationNode.FunctionBinding.GotoButton";
+	static inline const FName AnimationNode_FunctionBinding_GotoButton =
+		"Restyle.AnimationNode.FunctionBinding.GotoButton";
 
 
 	static FName VarNode_Body(EDTVarType Type, EDTGraphNodeState State)
@@ -1600,6 +1738,8 @@ public:
 
 	UPROPERTY(EditAnywhere, meta = (Category = "Commands"))
 	bool bRestoreDefaults;
+	UPROPERTY(EditAnywhere, meta = (Category = "Commands"))
+	bool bResetDisabledWidgetsToDefault;
 
 #pragma region Properties
 
@@ -1631,7 +1771,7 @@ public:
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Settings"))
 	FDTCollapsedNode CollapsedNode;
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Settings"))
-	FDTOtherNodes OtherNodes; 
+	FDTOtherNodes OtherNodes;
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Settings"))
 	FDTCommentNode CommentNode;
 
@@ -1650,6 +1790,8 @@ public:
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Zoom", EditCondition="bNewZoom", EditConditionHides))
 	FDTZoomSettings Zoom;
 
+	UPROPERTY(Config, EditAnywhere, meta = (Category = "Override"))
+	FDTNodeDisabledWidgets DisabledWidgets;
 #pragma endregion
 };
 
@@ -1698,7 +1840,7 @@ struct FRestyleZoomLevelsContainer : FZoomLevelsContainer
 
 	EGraphRenderingLOD::Type GetLOD(int32 InZoomLevel) const override
 	{
-		if (InZoomLevel <= LowerZoomLevel)return  EGraphRenderingLOD::LowDetail;
+		if (InZoomLevel <= LowerZoomLevel)return EGraphRenderingLOD::LowDetail;
 		return EGraphRenderingLOD::FullyZoomedIn;
 	}
 

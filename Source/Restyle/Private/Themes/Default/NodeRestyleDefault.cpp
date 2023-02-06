@@ -68,6 +68,7 @@ void UNodeRestyleSettings::SetDefaults()
 	DisabledOpacity = .5f;
 	CommentNode = FDTCommentNode();
 	bUpdateIcons = true;
+	DisabledWidgets = FDTNodeDisabledWidgets();
 }
 
 void UNodeRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -109,6 +110,14 @@ void UNodeRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& Propert
 		else
 		{
 			Zoom.UpdateLowerZoomLevelId();
+		}
+	}
+	if (PropertyChangedEvent.GetPropertyName() ==
+		GET_MEMBER_NAME_CHECKED(UNodeRestyleSettings, bResetDisabledWidgetsToDefault))
+	{
+		if (bResetDisabledWidgetsToDefault) {
+			DisabledWidgets = FDTNodeDisabledWidgets();
+			bResetDisabledWidgetsToDefault = false;
 		}
 	}
 }
