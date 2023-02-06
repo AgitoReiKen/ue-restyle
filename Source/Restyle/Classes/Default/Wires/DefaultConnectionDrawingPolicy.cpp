@@ -266,20 +266,24 @@ void FDefaultConnectionDrawingPolicy::GetNumPinsAndPinId(SGraphPin* PinWidget, u
 	for (int i = 0; i < PinsNum; ++i)
 	{
 		auto This = static_cast<SGraphPin*>(&Pins[i].Get());
-		if (This->GetDirection() == EGPD_Input) {
-			 LastInputPinId = i; 
+		bool bIsInput = This->GetDirection() == EGPD_Input;
+		bool bIsLast = i != PinsNum - 1;
+		if (bIsInput)
+		{
+			LastInputPinId = i;
 		}
-		else if (NumPins == ~0)
+		if ((bIsLast || !bIsInput) && NumPins == ~0)
 		{
 			NumPins = PinDirection == EGPD_Input ? LastInputPinId + 1 : PinsNum - LastInputPinId - 1;
 		}
 
 		if (This == PinWidget) {
-			PinId = PinDirection == EGPD_Output ? (i - LastInputPinId - 1) : i;
+			PinId = PinDirection == EGPD_Output ? (i - LastInputPinId) : i;
 		}
 
 		if (PinId != ~0 && NumPins != ~0) return;
 	}
+
 
 	NumPins = 0;
 	PinId = 0;
@@ -605,11 +609,11 @@ TArray<FVector2f> FDefaultConnectionDrawingPolicy::MakePathPoints(
 			float Step = 1.f / static_cast<float>(WireSettings->AntiCollisionLevels);
 			auto PinPriority = WireSettings->AntiCollisionPinPriority;
 
-			if (Params.NumInputPins == 1)
+			if (Params.NumInputPins == 1 && !bIsPin1Knot)
 			{
 				PinPriority = EWireRestylePriority::Output;
 			}
-			else if (Params.NumOutputPins == 1)
+			else if (Params.NumOutputPins == 1 && !bIsPin2Knot)
 			{
 				PinPriority = EWireRestylePriority::Input;
 			}

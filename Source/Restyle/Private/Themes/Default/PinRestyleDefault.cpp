@@ -55,7 +55,7 @@ TSharedPtr<FGraphPanelPinFactory> FPinRestyleDefault::GetFactory()
 {
 	return Factory;
 }
-
+ 
 void FPinRestyleDefault::Update()
 {
 	/** Original Pin Styles */
@@ -130,6 +130,7 @@ void FPinRestyleDefault::Update()
 		{
 			auto* Settings = GetMutableDefault<UGraphEditorSettings>();
 			auto Default = NewObject<UGraphEditorSettings>();
+			Default->LoadConfig();
 			Settings->DefaultPinTypeColor = Default->DefaultPinTypeColor;
 			Settings->ExecutionPinTypeColor = Default->ExecutionPinTypeColor;
 			Settings->IndexPinTypeColor = Default->IndexPinTypeColor;

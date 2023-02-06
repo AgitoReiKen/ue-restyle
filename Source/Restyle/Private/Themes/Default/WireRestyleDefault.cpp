@@ -147,8 +147,8 @@ void UWireRestyleSettings::SetDefaults()
 
 	bAntiCollision = true;
 	AntiCollisionPinPriority = EWireRestylePriority::Input;
-	EdgeOffsetPeriod = 4;
-	AbsoluteMinHorizontalLength = 10;
+	EdgeOffsetPeriod = 6;
+	AbsoluteMinHorizontalLength = 12;
 	UpdateAntiCollisionLevels();
 }
 
