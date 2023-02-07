@@ -59,7 +59,8 @@ public:
 	{
 		return GetMutableDefault<UWireRestyleSettings>();
 	} 
-	void SetDefaults(); 
+	void SetDefaults();
+	void UpdateAntiCollisionLevels();
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 	UPROPERTY(EditAnywhere, meta = (Category = "Commands"))
 		bool bRestoreDefaults;
@@ -117,7 +118,7 @@ public:
 	 *        \
 	 *          x---[x]
 	 */
-	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Geometry")
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Geometry", meta = (ClampMin = "4", ClampMax = "64"))
 		float MinHorizontalLength;
 	/*
 	 * Smooths 90 degrees corners
@@ -187,6 +188,39 @@ public:
 		float AttributeWireThicknessMultiplier;
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AnimationEditor")
 		bool AttributeDisableBubbles;
+
+	/*
+	 * This feature applies offset based on PinIndex to avoid wire blending
+	 */
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AntiCollision")
+		bool bAntiCollision;
+
+	/* Preferred pins to use. Input/Output. It will get changed ynamically if it makes sense. Equal state not implemented*/
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AntiCollision")
+		EWireRestylePriority AntiCollisionPinPriority;
+
+	/* Just like MinHorizontalLength this is used to determine a length for output/input. Anti-collision technique requires such value to work with*/
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AntiCollision", meta = (ClampMin = "4", ClampMax = "64"))
+		float AbsoluteMinHorizontalLength;
+	/*
+	 * Offset gets calculated by triangular wave function. So it gets predictable what offset to use for specific PinIndex
+	 * 1. Horizontal (X value) difference between output/input is divided by <levels>
+	 * (Level is the maximum value that tri-wave func can return)
+	 * (Level is calculated for period)
+	 * 2. Offset-to-apply is a result of: tri-wave(PinIndex) * level
+	 * Example values for period 4 returned by tri-wave:
+	 * 0 1 2 1 0 1 2 1 0, where pin indexes will be:
+	 * 0 1 2 3 4 5 6 7 8
+	 * where 0 - no offset applied, 1 - minimum offset applied, 2 - maximum
+	 * x---.
+	 * x--.|_x
+	 * x-.|_x
+	 *	 |_x
+	 */
+	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|AntiCollision", meta = (ClampMin = "2", ClampMax = "16"))
+		int EdgeOffsetPeriod;
+	UPROPERTY(Config)
+		int AntiCollisionLevels;
 
 	UPROPERTY(Config, EditAnywhere, Category = "WireRestyleSettings|Debug")
 		bool bDebug;  

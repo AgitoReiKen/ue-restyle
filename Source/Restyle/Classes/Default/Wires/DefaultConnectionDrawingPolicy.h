@@ -10,57 +10,15 @@ struct FRestyleConnectionParams
 	FGeometry End;
 	FGeometry StartNodeGeometry;
 	FGeometry EndNodeGeometry;
-
-	FRestyleConnectionParams(const FGeometry& Start, const FGeometry& End, const FGeometry& StartNodeGeometry,
-		const FGeometry& EndNodeGeometry)
-		: Start(Start),
-		  End(End),
-		  StartNodeGeometry(StartNodeGeometry),
-		  EndNodeGeometry(EndNodeGeometry)
-	{
-	}
-
-	FRestyleConnectionParams(const FRestyleConnectionParams& Other)
-		: Start(Other.Start),
-		  End(Other.End),
-		  StartNodeGeometry(Other.StartNodeGeometry),
-		  EndNodeGeometry(Other.EndNodeGeometry)
-	{
-	}
-
-	FRestyleConnectionParams(FRestyleConnectionParams&& Other) noexcept
-		: Start(std::move(Other.Start)),
-		  End(std::move(Other.End)),
-		  StartNodeGeometry(std::move(Other.StartNodeGeometry)),
-		  EndNodeGeometry(std::move(Other.EndNodeGeometry))
-	{
-	}
-
-	FRestyleConnectionParams& operator=(const FRestyleConnectionParams& Other)
-	{
-		if (this == &Other)
-			return *this;
-		Start = Other.Start;
-		End = Other.End;
-		StartNodeGeometry = Other.StartNodeGeometry;
-		EndNodeGeometry = Other.EndNodeGeometry;
-		return *this;
-	}
-
-	FRestyleConnectionParams& operator=(FRestyleConnectionParams&& Other) noexcept
-	{
-		if (this == &Other)
-			return *this;
-		Start = std::move(Other.Start);
-		End = std::move(Other.End);
-		StartNodeGeometry = std::move(Other.StartNodeGeometry);
-		EndNodeGeometry = std::move(Other.EndNodeGeometry);
-		return *this;
-	}
+	uint32 OutPinId;
+	uint32 InPinId;
+	uint32 NumInputPins;
+	uint32 NumOutputPins;
 };
-/*
- * @todo Idea for caching. Make static class and pass Output pin / Input pin / StartGeom / EndGeom
- */
+/* Disable warning about hiding virtual function by DrawConnection */
+#pragma warning (push)
+#pragma warning (disable: 4263)
+#pragma warning (disable: 4264)
 class FDefaultConnectionDrawingPolicy : public FKismetConnectionDrawingPolicy
 {
 public:
@@ -79,7 +37,10 @@ protected:
 	virtual void DrawPinGeometries(TMap<TSharedRef<SWidget>, FArrangedWidget>& InPinGeometries,
 		FArrangedChildren& ArrangedNodes) override;
 	void UpdateSplineHover(const TArray<FVector2f>& Points, const FConnectionParams& Params, float ZoomValue);
-	FGeometry GetNodeGeometryByPinWidget(SGraphPin& PinWidget, const FArrangedChildren& ArrangedNodes);
+	FGeometry GetNodeGeometryByPinWidget(SGraphPin* PinWidget, const FArrangedChildren& ArrangedNodes);
+	uint32 GetPinId(SGraphPin* PinWidget);
+	void GetNumPinsAndPinId(SGraphPin* PinWidget, uint32& PinId, uint32& NumPins);
+
 
 
 	TArray<FVector2f> MakePathPoints(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams);
@@ -90,4 +51,11 @@ protected:
 	{
 		return Value * ZoomFactor;
 	}
+	// Example output for period 4, id 0,1,2..
+	// 0 1 2 1 0 1 2 1 0
+	int ApplyTriWave(int Id, int Period)
+	{
+		return abs(((Id + Period / 2) % Period) - Period / 2);
+	}
 };
+#pragma warning(pop)

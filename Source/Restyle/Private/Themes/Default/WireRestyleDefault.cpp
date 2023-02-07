@@ -139,11 +139,22 @@ void UWireRestyleSettings::SetDefaults()
 	AttributeDisableBubbles = true;
 	BubbleIcon = EWireRestyleBubbleIcon::Diamond;
 
-
 	bDebug = false;
 	bDrawWireframe = false; 
 	bDrawBubbles = false;
 	DebugInteger = 2;
+
+	bAntiCollision = true;
+	AntiCollisionPinPriority = EWireRestylePriority::Input;
+	EdgeOffsetPeriod = 6;
+	AbsoluteMinHorizontalLength = 12;
+	UpdateAntiCollisionLevels();
+}
+
+void UWireRestyleSettings::UpdateAntiCollisionLevels()
+{
+	bool bIsPeriodOdd = EdgeOffsetPeriod % 2 == 1;
+	AntiCollisionLevels = EdgeOffsetPeriod - (bIsPeriodOdd ? 2 : 1);
 }
 
 void UWireRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -157,5 +168,10 @@ void UWireRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& Propert
 			SetDefaults();
 			bRestoreDefaults = false;
 		}
+	}
+	else if (PropertyChangedEvent.GetPropertyName() ==
+		GET_MEMBER_NAME_CHECKED(UWireRestyleSettings, EdgeOffsetPeriod))
+	{
+		UpdateAntiCollisionLevels();
 	}
 }

@@ -213,15 +213,79 @@ void FDefaultConnectionDrawingPolicy::UpdateSplineHover(const TArray<FVector2f>&
 	}
 }
 
-FGeometry FDefaultConnectionDrawingPolicy::GetNodeGeometryByPinWidget(SGraphPin& PinWidget,
+FGeometry FDefaultConnectionDrawingPolicy::GetNodeGeometryByPinWidget(SGraphPin* PinWidget,
 	const FArrangedChildren& ArrangedNodes)
 {
-	auto NodeWidget = access_private::OwnerNodePtr(PinWidget);
+	auto NodeWidget = access_private::OwnerNodePtr(*PinWidget);
+
 	int32 NodeWidgetId = ArrangedNodes.FindLastByPredicate([&NodeWidget](const FArrangedWidget& c)->bool
 		{
 			return c.Widget == NodeWidget.Pin();
 		});
 	return NodeWidgetId < 0 ? FGeometry() : ArrangedNodes[NodeWidgetId].Geometry;
+}
+
+uint32 FDefaultConnectionDrawingPolicy::GetPinId(SGraphPin* PinWidget)
+{
+	auto NodeWidget = access_private::OwnerNodePtr(*PinWidget);
+	auto PinDirection = PinWidget->GetDirection();
+	TArray<TSharedRef<SWidget>> Pins;
+
+	NodeWidget.Pin()->GetPins(Pins);
+	auto PinsNum = Pins.Num();
+	int LastInputPinId = 0;
+	for (int i = 0; i < PinsNum; ++i)
+	{
+		auto This = static_cast<SGraphPin*>(&Pins[i].Get());
+		if (This->GetDirection() == EGPD_Input)
+		{
+			LastInputPinId = i;
+		}
+
+		if (This == PinWidget) {
+			return PinDirection == EGPD_Output ? (i - LastInputPinId - 1) : i;
+		}
+	}
+	return 0;
+}
+void FDefaultConnectionDrawingPolicy::GetNumPinsAndPinId(SGraphPin* PinWidget, uint32& PinId, uint32& NumPins)
+{
+	auto NodeWidget = access_private::OwnerNodePtr(*PinWidget);
+	auto PinDirection = PinWidget->GetDirection();
+	TArray<TSharedRef<SWidget>> Pins;
+
+	NodeWidget.Pin()->GetPins(Pins);
+	auto PinsNum = Pins.Num();
+	int LastInputPinId = 0;
+	// unset
+	NumPins = ~0;
+	PinId = ~0;
+	// array structure: i,i,i,o,o,o
+
+	for (int i = 0; i < PinsNum; ++i)
+	{
+		auto This = static_cast<SGraphPin*>(&Pins[i].Get());
+		bool bIsInput = This->GetDirection() == EGPD_Input;
+		bool bIsLast = i != PinsNum - 1;
+		if (bIsInput)
+		{
+			LastInputPinId = i;
+		}
+		if ((bIsLast || !bIsInput) && NumPins == ~0)
+		{
+			NumPins = PinDirection == EGPD_Input ? LastInputPinId + 1 : PinsNum - LastInputPinId - 1;
+		}
+
+		if (This == PinWidget) {
+			PinId = PinDirection == EGPD_Output ? (i - LastInputPinId) : i;
+		}
+
+		if (PinId != ~0 && NumPins != ~0) return;
+	}
+
+
+	NumPins = 0;
+	PinId = 0;
 }
 
 void FDefaultConnectionDrawingPolicy::DrawRestyleConnection(const FRestyleConnectionParams& Params, const FConnectionParams& WireParams, TArray<FVector2f>* InPoints)
@@ -490,7 +554,8 @@ TArray<FVector2f> FDefaultConnectionDrawingPolicy::MakePathPoints(
 	else if (bExecToExec) TransitionPriority = WireSettings->ExecToExecTransitionPriority;
 	else if (bExecToKnot) TransitionPriority = WireSettings->ExecToKnotTransitionPriority;
 	else if (bKnotToExec) TransitionPriority = WireSettings->KnotToExecTransitionPriority;
-
+	float AbsoluteMinXL = Zoomed(WireSettings->AbsoluteMinHorizontalLength);
+	float TwoAbsMinXL = 2 * AbsoluteMinXL;
 	/*
 	 * [a]---[b]
 	 */
@@ -566,121 +631,257 @@ TArray<FVector2f> FDefaultConnectionDrawingPolicy::MakePathPoints(
 	 */
 	else if (bTreatEqualLength)
 	{
-		XL = XDifA * .5f;
+		bool bApplyAntiCollision = TwoAbsMinXL <= XDifA && WireSettings->bAntiCollision;
+		float AnchorX;
+		if (bApplyAntiCollision)
+		{
+			float NodeGeomDifY = Params.EndNodeGeometry.Position.Y - Params.StartNodeGeometry.Position.Y;
+			float PermissibleYDif = 2.f;
+			bool bIsOutputNodeHigherOrEqual = NodeGeomDifY >= 0 || FMath::IsNearlyEqual(NodeGeomDifY, Zoomed(PermissibleYDif));
+
+			float DeltaXL = FMath::Abs(XDifA - TwoAbsMinXL);
+
+			float Period = WireSettings->EdgeOffsetPeriod;
+			float Step = 1.f / static_cast<float>(WireSettings->AntiCollisionLevels);
+			auto PinPriority = WireSettings->AntiCollisionPinPriority;
+
+			if (Params.NumInputPins == 1 && !bIsPin1Knot)
+			{
+				PinPriority = EWireRestylePriority::Output;
+			}
+			else if (Params.NumOutputPins == 1 && !bIsPin2Knot)
+			{
+				PinPriority = EWireRestylePriority::Input;
+			}
+
+			float StepMultiplier = ApplyTriWave(
+				PinPriority == EWireRestylePriority::Input
+				? Params.InPinId : Params.OutPinId, Period);
+
+			float Value = DeltaXL * (Step * StepMultiplier);
+
+			AnchorX = bIsOutputNodeHigherOrEqual
+				? (End.X - AbsoluteMinXL - Value)
+				: (Start.X + AbsoluteMinXL + Value);
+		}
+		else
+		{
+			XL = XDifA * .5f;
+			AnchorX = Start.X + XL;
+		}
 		PointsF = {
 			Start,
-			{Start.X + XL, Start.Y},
-			{End.X - XL, End.Y},
+			{AnchorX, Start.Y},
+			{AnchorX, End.Y},
 			End
 		};
+
 	}
 	/*
 	 * [a]--\
 	 *		 \__[b]
 	 */
-	else
-	{
-		FVector2f StartX;
-		FVector2f EndX;
-		if (b45DegreeStyle)
-		{
-			float XLTolerance = Zoomed(0.1f);
-			if (TransitionPriority == EWireRestylePriority::Output)
-			{
-				StartX = {
-					End.X - XL - YDifA,
-					Start.Y
-				};
-				EndX = {
-					End.X - XL,
-					End.Y
-				};
-			}
-			else if (TransitionPriority == EWireRestylePriority::Input)
-			{
-				StartX = {
-					Start.X + XL,
-					Start.Y
-				};
+	 {
+		 FVector2f StartEx;
+		 FVector2f EndEx;
+		 if (b45DegreeStyle)
+		 {
+			 float XLTolerance = Zoomed(0.1f);
+			 bool bApplyAntiCollision = WireSettings->bAntiCollision;
 
-				EndX = {
-					Start.X + XL + YDifA,
-					End.Y
-				};
-			}
-			else
-			{
-				StartX = {
-					Start.X + XDif * 0.5f - YDifA * 0.5f,
-					Start.Y
-				};
-				EndX = {
-					End.X - XDif * 0.5f + YDifA * 0.5f,
-					End.Y
-				};
-			}
-			bool bBehindOutput = StartX.X - Start.X + XLTolerance < XL;
-			bool bAfterInput = End.X - EndX.X + XLTolerance < XL;
-			if (bBehindOutput && bAfterInput)
-			{
-				StartX.X = Start.X + XDifA * 0.5f;
-				EndX.X = StartX.X;
-			}
-			else if (bBehindOutput)
-			{
-				StartX.X = EndX.X;
-			}
-			else if (bAfterInput)
-			{
-				EndX.X = StartX.X;
-			}
+			 if (bApplyAntiCollision)
+			 {
+				 float NodeGeomDifY = Params.EndNodeGeometry.Position.Y - Params.StartNodeGeometry.Position.Y;
+				 float PermissibleYDif = 2.f;
+				 bool bIsOutputNodeHigherOrEqual = NodeGeomDifY >= 0 || FMath::IsNearlyEqual(NodeGeomDifY, Zoomed(PermissibleYDif));
+				 float Period = WireSettings->EdgeOffsetPeriod;
+				 float Step = 1.f / static_cast<float>(WireSettings->AntiCollisionLevels);
+				 auto PinPriority = WireSettings->AntiCollisionPinPriority;
 
-		}
-		else
-		{
-			if (TransitionPriority == EWireRestylePriority::Output)
-			{
+				 if (Params.NumInputPins == 1)
+				 {
+					 PinPriority = EWireRestylePriority::Output;
+				 }
+				 else if (Params.NumOutputPins == 1)
+				 {
+					 PinPriority = EWireRestylePriority::Input;
+				 }
 
-				StartX = {
-					End.X - XL,
-					Start.Y
-				};
-				EndX = {
-					End.X - XL,
-					End.Y
-				};
-			}
-			else if (TransitionPriority == EWireRestylePriority::Input)
-			{
-				StartX = {
-					Start.X + XL,
-					Start.Y
-				};
+				 float StepMultiplier = ApplyTriWave(
+					 PinPriority == EWireRestylePriority::Input
+					 ? Params.InPinId : Params.OutPinId, Period);
 
-				EndX = {
-					Start.X + XL,
-					End.Y
-				};
-			}
-			else
-			{
-				StartX = {
-					Start.X + XDif * 0.5f ,
-					Start.Y
-				};
-				EndX = {
-					End.X - XDif * 0.5f,
-					End.Y
-				};
-			}
-		}
 
-		PointsF = {
-			Start,
-			StartX,
-			EndX,
-			End
-		};
+				 /* Assume that transition will be good*/
+				 float MaxDeltaXL = TwoAbsMinXL;
+				 float DeltaXL = FMath::Min(MaxDeltaXL, FMath::Abs(XDifA - TwoAbsMinXL));
+				 if (bIsOutputNodeHigherOrEqual)
+				 {
+					 StepMultiplier = FMath::Abs(StepMultiplier - static_cast<float>(WireSettings->AntiCollisionLevels));
+				 }
+				 float Value = DeltaXL * (Step * StepMultiplier);
+
+				 if (TransitionPriority == EWireRestylePriority::Output)
+				 {
+					 float EndX = End.X - AbsoluteMinXL - Value;
+					 StartEx = {
+						 EndX - YDifA,
+						 Start.Y
+					 };
+					 EndEx = {
+						 EndX,
+						 End.Y
+					 };
+				 }
+				 else if (TransitionPriority == EWireRestylePriority::Input)
+				 {
+					 float StartX = Start.X + AbsoluteMinXL + Value;
+					 StartEx = {
+						 StartX,
+						 Start.Y
+					 };
+
+					 EndEx = {
+						 StartX + YDifA,
+						 End.Y
+					 };
+				 }
+				 else
+				 {
+					 float StartX = Start.X + AbsoluteMinXL + Value;
+					 float EndX = End.X - AbsoluteMinXL - Value;
+					 float XDifEx = EndX - StartX;
+
+					 float HalfXDif = XDifEx * .5f;
+					 StartEx = {
+						 StartX + HalfXDif - YDifA * 0.5f,
+						 Start.Y
+					 };
+					 EndEx = {
+						 EndX - HalfXDif + YDifA * 0.5f,
+						 End.Y
+					 };
+				 }
+				 bool bBehindOutput = StartEx.X - Start.X + XLTolerance < AbsoluteMinXL;
+				 bool bAfterInput = End.X - EndEx.X + XLTolerance < AbsoluteMinXL;
+				 if (bBehindOutput || bAfterInput)
+				 {
+					 DeltaXL = FMath::Abs(XDifA - TwoAbsMinXL);
+
+					 Period = WireSettings->EdgeOffsetPeriod;
+					 Step = 1.f / static_cast<float>(WireSettings->AntiCollisionLevels);
+					 StepMultiplier = ApplyTriWave(
+						 PinPriority == EWireRestylePriority::Input
+						 ? Params.InPinId : Params.OutPinId, Period);
+
+					 Value = DeltaXL * (Step * StepMultiplier);
+
+					 StartEx.X = EndEx.X = bIsOutputNodeHigherOrEqual
+						 ? (End.X - AbsoluteMinXL - Value)
+						 : (Start.X + AbsoluteMinXL + Value);
+				 }
+			 }
+			 else
+			 {
+				 if (TransitionPriority == EWireRestylePriority::Output)
+				 {
+					 StartEx = {
+						 End.X - XL - YDifA,
+						 Start.Y
+					 };
+					 EndEx = {
+						 End.X - XL,
+						 End.Y
+					 };
+				 }
+				 else if (TransitionPriority == EWireRestylePriority::Input)
+				 {
+					 StartEx = {
+						 Start.X + XL,
+						 Start.Y
+					 };
+
+					 EndEx = {
+						 Start.X + XL + YDifA,
+						 End.Y
+					 };
+				 }
+				 else
+				 {
+					 StartEx = {
+						 Start.X + XDif * 0.5f - YDifA * 0.5f,
+						 Start.Y
+					 };
+					 EndEx = {
+						 End.X - XDif * 0.5f + YDifA * 0.5f,
+						 End.Y
+					 };
+				 }
+				 bool bBehindOutput = StartEx.X - Start.X + XLTolerance < XL;
+				 bool bAfterInput = End.X - EndEx.X + XLTolerance < XL;
+				 if (bBehindOutput && bAfterInput)
+				 {
+					 StartEx.X = Start.X + XDifA * 0.5f;
+					 EndEx.X = StartEx.X;
+				 }
+				 else if (bBehindOutput)
+				 {
+					 StartEx.X = EndEx.X;
+				 }
+				 else if (bAfterInput)
+				 {
+					 EndEx.X = StartEx.X;
+				 }
+			 }
+
+
+		 }
+		 else
+		 {
+
+			 if (TransitionPriority == EWireRestylePriority::Output)
+			 {
+
+				 StartEx = {
+					 End.X - XL,
+					 Start.Y
+				 };
+				 EndEx = {
+					 End.X - XL,
+					 End.Y
+				 };
+			 }
+			 else if (TransitionPriority == EWireRestylePriority::Input)
+			 {
+				 StartEx = {
+					 Start.X + XL,
+					 Start.Y
+				 };
+
+				 EndEx = {
+					 Start.X + XL,
+					 End.Y
+				 };
+			 }
+			 else
+			 {
+				 StartEx = {
+					 Start.X + XDif * 0.5f ,
+					 Start.Y
+				 };
+				 EndEx = {
+					 End.X - XDif * 0.5f,
+					 End.Y
+				 };
+			 }
+		 }
+
+		 PointsF = {
+			 Start,
+			 StartEx,
+			 EndEx,
+			 End
+		 };
 
 	}
 	return PointsF;
@@ -717,16 +918,19 @@ void FDefaultConnectionDrawingPolicy::DrawPinGeometries(TMap<TSharedRef<SWidget>
 					FConnectionParams ConnectionParams;
 					DetermineWiringStyle(ThePin, TargetPin, /*input*/ ConnectionParams);
 
-					FGeometry StartNodeGeometry = GetNodeGeometryByPinWidget(PinWidget, ArrangedNodes);
-					FGeometry EndNodeGeometry = GetNodeGeometryByPinWidget(**TargetPinWidget, ArrangedNodes);
-				 
+					FGeometry StartNodeGeometry = GetNodeGeometryByPinWidget(&PinWidget, ArrangedNodes);
+					FGeometry EndNodeGeometry = GetNodeGeometryByPinWidget((*TargetPinWidget).Get(), ArrangedNodes);
+					FRestyleConnectionParams RestyleConnectionParams;
+					RestyleConnectionParams.Start = LinkStartWidgetGeometry->Geometry;
+					RestyleConnectionParams.End = LinkEndWidgetGeometry->Geometry;
+					RestyleConnectionParams.StartNodeGeometry = StartNodeGeometry;
+					RestyleConnectionParams.EndNodeGeometry = EndNodeGeometry;
+
+					GetNumPinsAndPinId(&PinWidget, RestyleConnectionParams.OutPinId, RestyleConnectionParams.NumOutputPins);
+					GetNumPinsAndPinId((*TargetPinWidget).Get(), RestyleConnectionParams.InPinId, RestyleConnectionParams.NumInputPins);
+
 					DrawRestyleConnection(
-						{
-							LinkStartWidgetGeometry->Geometry,
-							LinkEndWidgetGeometry->Geometry,
-							StartNodeGeometry,
-							EndNodeGeometry
-						},
+						RestyleConnectionParams,
 						ConnectionParams);
 				}
 			}
