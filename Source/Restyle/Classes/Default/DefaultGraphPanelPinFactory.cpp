@@ -10,7 +10,7 @@
 #include "MaterialPins/SGraphPinMaterialInput.h"
 #include "Pins/SDefault_Pins.h"
 #include "Themes/Default/PinRestyleDefault.h"
-#include "Utils/Privates.h"
+#include "Utils/Private_EdGraphUtilities.h"
 
 TSharedPtr<SGraphPin> FDefaultGraphPanelPinFactory::CreatePin(UEdGraphPin* InPin) const
 {

@@ -20,7 +20,7 @@
 #include "Slate/DeferredCleanupSlateBrush.h"
 
 #include "UObject/ConstructorHelpers.h"
-#include "Utils/Privates.h" 
+#include "Utils/Private_GraphPin.h" 
 class FPathDrawerHolder
 {
 	class FRunnableCleaner : public FRunnable
