@@ -8,7 +8,7 @@
 
 #include "Wires/DefaultConnectionDrawingPolicy.h"
 #include "MaterialGraph/MaterialGraphSchema.h"
-#include "Utils/Privates.h"
+#include "Utils/Private_EdGraphUtilities.h"
 
 #include "Wires/DefaultAnimGraphConnectionDrawingPolicy.h"
 

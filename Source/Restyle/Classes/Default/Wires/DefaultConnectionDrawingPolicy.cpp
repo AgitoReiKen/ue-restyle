@@ -20,7 +20,7 @@
 #include "Slate/DeferredCleanupSlateBrush.h"
 
 #include "UObject/ConstructorHelpers.h"
-#include "Utils/Privates.h"
+#include "Utils/Private_GraphPin.h"
 #include "K2Node_Knot.h"
 class FPathDrawerHolder
 {

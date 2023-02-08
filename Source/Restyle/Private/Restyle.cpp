@@ -11,7 +11,7 @@
 
 #include "Utils/ColorUtils.h"
 #include "Async/TaskGraphInterfaces.h"
-#include "Utils/Privates.h"
+#include "Utils/Private_EdGraphUtilities.h"
 
 #define LOCTEXT_NAMESPACE "FRestyleModule"
 

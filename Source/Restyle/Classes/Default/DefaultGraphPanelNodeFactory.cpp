@@ -68,7 +68,7 @@
 #include "Nodes/Material/SDefault_GraphNodeMaterialBase.h"
 #include "Nodes/Material/SDefault_GraphNodeMaterialResult.h"
 #include "UMGEditor/Private/Nodes/K2Node_CreateWidget.h"
-#include "Utils/Privates.h"
+#include "Utils/Private_EdGraphUtilities.h"
  
 
 TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::CreateNode(UEdGraphNode* InNode) const
