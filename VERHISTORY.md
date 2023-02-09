@@ -1,7 +1,7 @@
 ### Marketplace Version
 ```
-v5.0 - v0.0.1 | pending v0.0.3
-v5.1 - v0.0.2 | pending v0.0.3
+v5.0 - v0.0.3
+v5.1 - v0.0.3
 ```
 
 ### v0.0.3
