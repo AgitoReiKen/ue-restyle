@@ -441,6 +441,7 @@ void UPinRestyleSettings::SetDefaults()
 	Base = FDTPinBase();
 	IconColors = FDTMiscIconColorSet();
 	PinColors = FDTPinTypeColorSet();
+	DisabledWidgets = FDTPinDisabledWidgets();
 }
 
 void UPinRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)

@@ -21,8 +21,11 @@ FConnectionDrawingPolicy* FDefaultGraphPanelWireFactory::CreateConnectionPolicy(
 	if (Schema->IsA(UAnimationGraphSchema::StaticClass()))
 	{
 		auto Restyle = FModuleManager::GetModuleChecked<FRestyleModule>(TEXT("Restyle"));
-		if (Restyle.IsSubjectProviderRegistered("Default", ERestyleSubject::Pin))
-		return new FDefaultAnimGraphConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, ZoomFactor, InClippingRect, InDrawElements, InGraphObj);
+		if (Restyle.IsSubjectProviderRegistered("Default", ERestyleSubject::Pin) &&
+			!UPinRestyleSettings::Get()->DisabledWidgets.Animation[EAnimationPinClass::Pose])
+		{
+			return new FDefaultAnimGraphConnectionDrawingPolicy(InBackLayerID, InFrontLayerID, ZoomFactor, InClippingRect, InDrawElements, InGraphObj);
+		}
 	}
 
 	for (TSharedPtr<FGraphPanelPinConnectionFactory> FactoryPtr : VisualPinConnectionFactories)
