@@ -41,6 +41,7 @@ enum class EWireRestyleBubbleIcon
 	Square,
 	Diamond,
 };
+ 
 UCLASS(Config = Restyle, GlobalUserConfig)
 class UWireRestyleSettings : public UObject
 {

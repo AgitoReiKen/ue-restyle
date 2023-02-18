@@ -115,7 +115,7 @@ TSharedPtr<SGraphNode> FDefaultGraphPanelNodeFactory::TryKismet(UEdGraphNode* In
 	const auto* Settings = UNodeRestyleSettings::Get();
 	const auto& Disabled = Settings->DisabledWidgets.Kismet;
 	if (InNode->GetSchema()->IsA<UEdGraphSchema_K2>()) {
-		 if (UK2Node* K2Node = Cast<UK2Node>(InNode))
+		if (UK2Node* K2Node = Cast<UK2Node>(InNode))
 		{
 			if (UK2Node_CreateWidget* CreateWidgetNode = Cast<UK2Node_CreateWidget>(InNode))
 			{

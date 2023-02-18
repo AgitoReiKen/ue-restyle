@@ -7,6 +7,65 @@
 #include "DefaultThemeSettings.h"
 #include "PinRestyleDefault.generated.h"
 
+UENUM()
+enum class EKismetPinClass : uint8
+{
+	Base,
+	Boolean,
+	Text,
+	Exec,
+	Object,
+	Struct,
+	Interface,
+	SoftObject,
+	Class,
+	SoftClass,
+	Int,
+	Int64,
+	Real,
+	String,
+	Name,
+	Color,
+	Vector,
+	Vector3f,
+	Rotator,
+	Vector2d,
+	Key,
+	CollisionProfile,
+	Byte,
+	Enum,
+	Wildcard,
+	MCDelegate,
+	FieldPath,
+	MAX UMETA(Hidden)
+};
+
+UENUM()
+enum class EAnimationPinClass : uint8
+{
+	Pose,
+	Exec,
+	MAX UMETA(Hidden)
+};
+
+UENUM()
+enum class EMaterialPinClass : uint8
+{
+	Base,
+	Exec,
+	MaterialInput,
+	Red,
+	Float,
+	RG,
+	RGB,
+	RGBA,
+	Vector4,
+	Int,
+	Byte,
+	Enum,
+	Bool,
+	MAX UMETA(Hidden)
+}; 
 
 UENUM()
 enum class EPinIconSet_Disconnected
@@ -443,6 +502,35 @@ struct FDTCustomPins
 	bool bVector4;
 };
 
+USTRUCT()
+struct FDTPinDisabledWidgets
+{
+	GENERATED_BODY()
+
+	FDTPinDisabledWidgets()
+	{
+		for (uint8 i = 0; i < static_cast<uint8>(EKismetPinClass::MAX); ++i)
+		{
+			Kismet.Emplace(static_cast<EKismetPinClass>(i), false);
+		} 
+		for (uint8 i = 0; i < static_cast<uint8>(EMaterialPinClass::MAX); ++i)
+		{
+			Material.Emplace(static_cast<EMaterialPinClass>(i), false);
+		}
+		for (uint8 i = 0; i < static_cast<uint8>(EAnimationPinClass::MAX); ++i)
+		{
+			Animation.Emplace(static_cast<EAnimationPinClass>(i), false);
+		}
+	}
+	UPROPERTY(Category = "DTPinDisabledWidgets", EditFixedSize, EditAnywhere)
+		TMap<EKismetPinClass, bool> Kismet; 
+	UPROPERTY(Category = "DTPinDisabledWidgets", EditFixedSize, EditAnywhere)
+		TMap<EMaterialPinClass, bool> Material;
+	UPROPERTY(Category = "DTPinDisabledWidgets", EditFixedSize, EditAnywhere)
+		TMap<EAnimationPinClass, bool> Animation;
+};
+
+
 UCLASS(Config = Restyle, GlobalUserConfig)
 class UPinRestyleSettings : public UObject
 {
@@ -482,6 +570,11 @@ public:
 
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Graph Editor"))
 	FDTPinTypeColorSet PinColors;
+
+	UPROPERTY(Config, EditAnywhere, meta = (Category = "Override"))
+	FDTPinDisabledWidgets DisabledWidgets;
+
+
 };
 
 struct FPinRestyleStyles
