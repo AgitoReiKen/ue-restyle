@@ -681,7 +681,7 @@ TArray<FVector2f> FDefaultConnectionDrawingPolicy::MakePathPoints(
 	 * [a]--\
 	 *		 \__[b]
 	 */
-	 {
+	else {
 		 FVector2f StartEx;
 		 FVector2f EndEx;
 		 if (b45DegreeStyle)
