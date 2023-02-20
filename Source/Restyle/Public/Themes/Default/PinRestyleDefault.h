@@ -523,11 +523,11 @@ struct FDTPinDisabledWidgets
 		}
 	}
 	UPROPERTY(Category = "DTPinDisabledWidgets", EditFixedSize, EditAnywhere)
-		TMap<EKismetPinClass, bool> Kismet; 
+	TMap<EKismetPinClass, bool> Kismet; 
 	UPROPERTY(Category = "DTPinDisabledWidgets", EditFixedSize, EditAnywhere)
-		TMap<EMaterialPinClass, bool> Material;
+	TMap<EMaterialPinClass, bool> Material;
 	UPROPERTY(Category = "DTPinDisabledWidgets", EditFixedSize, EditAnywhere)
-		TMap<EAnimationPinClass, bool> Animation;
+	TMap<EAnimationPinClass, bool> Animation;
 };
 
 
@@ -547,8 +547,10 @@ public:
 	void SetDefaults();
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Category = "Commands"))
+	UPROPERTY(EditAnywhere, meta = (Category = "Commands"))
 	bool bRestoreDefaults;
+	UPROPERTY(EditAnywhere, meta = (Category = "Commands"))
+	bool bResetDisabledWidgetsToDefault;
 
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Settings"))
 	bool bApplyIcons;
