@@ -535,8 +535,10 @@ public:
 	void SetDefaults();
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (Category = "Commands"))
+	UPROPERTY(EditAnywhere, meta = (Category = "Commands"))
 	bool bRestoreDefaults;
+	UPROPERTY(EditAnywhere, meta = (Category = "Commands"))
+	bool bResetDisabledWidgetsToDefault;
 
 	UPROPERTY(Config, EditAnywhere, meta = (Category = "Settings"))
 	bool bApplyIcons;

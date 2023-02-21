@@ -456,4 +456,12 @@ void UPinRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& Property
 			bRestoreDefaults = false;
 		}
 	}
+	if (PropertyChangedEvent.GetPropertyName() ==
+		GET_MEMBER_NAME_CHECKED(UPinRestyleSettings, bResetDisabledWidgetsToDefault))
+	{
+		if (bResetDisabledWidgetsToDefault) {
+			DisabledWidgets = FDTPinDisabledWidgets();
+			bResetDisabledWidgetsToDefault = false;
+		}
+	}
 }
