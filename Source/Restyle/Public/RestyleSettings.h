@@ -6,7 +6,7 @@
 #include "RestyleSettings.generated.h"
 
 
-UCLASS(Config = Editor, GlobalUserConfig)
+UCLASS(Config = Restyle_v51, GlobalUserConfig)
 class RESTYLE_API URestyleSettings : public UObject
 {
 	GENERATED_BODY()
@@ -18,12 +18,7 @@ public:
 	FName PinFactoryProviderId;
 	UPROPERTY(Config, EditAnywhere, Category = "Theme", meta = (GetOptions = "GetWireProviders"))
 	FName WireFactoryProviderId;
-
-	/* Same as 'restyle reload'*/
-	UPROPERTY(Config, EditAnywhere, Category = "Commands")
-	bool ExecReloadTextures;
-
-
+	  
 private:
 	UFUNCTION(CallInEditor)
 	TArray<FName> GetNodeProviders();

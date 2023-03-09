@@ -531,7 +531,7 @@ struct FDTPinDisabledWidgets
 };
 
 
-UCLASS(Config = Restyle, GlobalUserConfig)
+UCLASS(Config = Restyle_v51, GlobalUserConfig)
 class UPinRestyleSettings : public UObject
 {
 	GENERATED_BODY()
