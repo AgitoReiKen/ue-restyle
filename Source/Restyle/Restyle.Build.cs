@@ -13,8 +13,8 @@ public class Restyle : ModuleRules
 {
     public Restyle(ReadOnlyTargetRules Target) : base(Target)
     {
-        // PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
-
+        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        
         var EngineDir = Path.GetFullPath(Target.RelativeEnginePath);
         PrivateIncludePaths.AddRange(
             new string[]
