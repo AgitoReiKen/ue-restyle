@@ -13,7 +13,8 @@ public class RestyleShaders : ModuleRules
 {
     public RestyleShaders(ReadOnlyTargetRules Target) : base(Target)
     {
-        // PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        
         PublicDependencyModuleNames.AddRange(
             new string[]
             {
