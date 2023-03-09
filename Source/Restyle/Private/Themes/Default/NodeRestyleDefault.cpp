@@ -683,16 +683,10 @@ FuncType OriginalFunc = nullptr;
 TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* __fastcall UK2Node_CreateWidget_CreateVisualWidget_Hook(UK2Node_CreateWidget* This,
 	TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* Result)
 {
-
 	//TSharedPtr<SGraphNode> Original = (This->*OriginalFunc)();
-	if (!Result)
-	{
-		// usually not fired, but why not
-		Result = new TSharedPtr<SGraphNode>();
-	}
-	else
-	{
-		*Result = TSharedPtr<SGraphNode>();
+	if (Result)
+	{ 
+		Result->Reset();
 	}
 	return Result;
 }
