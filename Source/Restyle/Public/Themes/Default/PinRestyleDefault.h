@@ -7,7 +7,6 @@
 #include "DefaultThemeSettings.h"
 #include "PinRestyleDefault.generated.h"
 
-
 UENUM()
 enum class EKismetPinClass : uint8
 {
@@ -519,7 +518,7 @@ struct FDTPinDisabledWidgets
 	TMap<EAnimationPinClass, bool> Animation;
 };
 
-UCLASS(Config = Restyle, GlobalUserConfig)
+UCLASS(Config = Restyle_v50, GlobalUserConfig)
 class UPinRestyleSettings : public UObject
 {
 	GENERATED_BODY()

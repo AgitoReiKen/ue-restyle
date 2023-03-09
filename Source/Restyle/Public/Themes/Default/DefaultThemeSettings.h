@@ -866,7 +866,7 @@ struct FDTSliderRef
 
 };
 
-UCLASS(Config = Restyle, GlobalUserConfig)
+UCLASS(Config = Restyle_v50, GlobalUserConfig)
 class UDefaultThemeSettings : public UObject
 {
 	GENERATED_BODY()

@@ -40,7 +40,7 @@ enum class EWireRestyleBubbleIcon
 	Square,
 	Diamond,
 };
-UCLASS(Config = Restyle, GlobalUserConfig)
+UCLASS(Config = Restyle_v50, GlobalUserConfig)
 class UWireRestyleSettings : public UObject
 {
 	GENERATED_BODY()

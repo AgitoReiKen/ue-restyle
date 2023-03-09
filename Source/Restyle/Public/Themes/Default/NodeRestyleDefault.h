@@ -1648,7 +1648,7 @@ struct FNodeRestyleStyles
 	static inline const FName NoDrawBrush = "Restyle.NoDrawBrush";
 };
 
-UCLASS(Config = Restyle, GlobalUserConfig)
+UCLASS(Config = Restyle_v50, GlobalUserConfig)
 class UNodeRestyleSettings : public UObject
 {
 	GENERATED_BODY()
