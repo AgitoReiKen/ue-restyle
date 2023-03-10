@@ -69,6 +69,7 @@ void UNodeRestyleSettings::SetDefaults()
 	CommentNode = FDTCommentNode();
 	bUpdateIcons = true;
 	DisabledWidgets = FDTNodeDisabledWidgets();
+	bOverrideGraphEditorSettings = true;
 }
 
 void UNodeRestyleSettings::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
