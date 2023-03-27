@@ -683,11 +683,8 @@ FuncType OriginalFunc = nullptr;
 TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* __fastcall UK2Node_CreateWidget_CreateVisualWidget_Hook(UK2Node_CreateWidget* This, 
 	TSharedPtr<SGraphNode, ESPMode::ThreadSafe>* Result)
 {
-	//TSharedPtr<SGraphNode> Original = (This->*OriginalFunc)();
-	if (Result)
-	{
-		Result->Reset();
-	}
+	typedef std::remove_reference<decltype(*Result)>::type type;
+	new (Result) type(nullptr);
 	return Result;
 }
 //subhook_t CreateVisualWidget_Hook;
